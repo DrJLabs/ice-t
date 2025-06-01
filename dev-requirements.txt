@@ -5,13 +5,13 @@ types-jsonschema
 pre-commit>=3.7.0
 tox>=4.15.0
 
-# Additional CI/CD requirements
-pytest-cov>=5.0.0
-pytest-xdist>=3.6.0
-hypothesis>=6.100.0
-bandit>=1.7.5
-safety>=3.2.0
-pydantic>=2.7.1
+# Additional CI/CD requirements - match Codex versions
+pytest-cov==6.0.0
+pytest-xdist==3.7.0
+hypothesis==6.122.1
+bandit==1.8.0
+# safety removed - requires network access to vulnerability databases
+pydantic==2.10.3
 pydantic[mypy]>=2.7.1 # For Mypy plugin and type stubs for Pydantic
-rich>=13.0.0 # For CLI output and Mypy pre-commit hook
+rich==13.9.4 # For CLI output and Mypy pre-commit hook
 pytest-asyncio>=0.23.0 # For running asyncio tests with pytest

@@ -9,11 +9,11 @@ description = "Autonomous high-performance template for web-app projects driven 
 authors = [{name = "DrJLabs", email = "drj@example.com"}]
 requires-python = ">=3.9"
 dependencies = [
-    "pytest>=8.2.0",
-    "rich>=13.7.1",
-    "pydantic>=2.7.4",
-    "ruff>=0.11.11",
-    "mypy>=1.10.0",
+    "pytest==8.3.4",
+    "rich==13.9.4",
+    "pydantic==2.10.3",
+    "ruff==0.8.4",
+    "mypy==1.13.0",
 ]
 
 [tool.ruff]
@@ -152,7 +152,6 @@ markers = [
     "smoke: marks tests as smoke tests (minimal)",
     "api: marks tests as API tests",
 ]
-asyncio_default_fixture_loop_scope = "function"
 
 [tool.bandit]
 skips = ["B101", "B601"]  # Skip assert and shell usage (development tools)
