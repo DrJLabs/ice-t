@@ -1,7 +1,7 @@
 # ice-t GitHub Actions Runners Setup
 
 ## Current Status
-✅ 6 runner directories prepared with GitHub Actions runner binaries
+✅ 7 runner directories prepared with GitHub Actions runner binaries
 ✅ All runners have necessary files (config.sh, run.sh, bin/, etc.)
 
 ## Runner Configuration
@@ -13,13 +13,14 @@
 - Runner 4: ice-t,test,integration
 - Runner 5: ice-t,quality,security
 - Runner 6: ice-t,test,api
+- Runner 7: ice-t,diagrams,docs
 
 ### Next Steps:
 
 1. **Get registration tokens from GitHub:**
    Go to: https://github.com/DrJLabs/ice-t/settings/actions/runners/new
    
-2. **For each runner (1-6), click "New self-hosted runner"**
+2. **For each runner (1-7), click "New self-hosted runner"**
    - Select "Linux" 
    - Copy the registration token
    
@@ -49,6 +50,10 @@ cd ../ice-t-runner-5
 # Runner 6
 cd ../ice-t-runner-6
 ./config.sh --url https://github.com/DrJLabs/ice-t --token YOUR_TOKEN_6 --name ice-t-runner-6 --labels ice-t,test,api --work _work --replace --unattended --runasservice
+
+# Runner 7
+cd ../ice-t-runner-7
+./config.sh --url https://github.com/DrJLabs/ice-t --token YOUR_TOKEN_7 --name ice-t-runner-7 --labels ice-t,diagrams,docs --work _work --replace --unattended --runasservice
 ```
 
 4. **Install and start services:**
@@ -61,6 +66,7 @@ cd ../ice-t-runner-3 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-4 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-5 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-6 && sudo ./svc.sh install && sudo ./svc.sh start
+cd ../ice-t-runner-7 && sudo ./svc.sh install && sudo ./svc.sh start
 ```
 
 5. **Verify runners are active:**
@@ -70,7 +76,7 @@ sudo systemctl status actions.runner.*
 
 ## Quick Setup Commands
 
-After getting all 6 tokens, you can configure all runners quickly:
+After getting all 7 tokens, you can configure all runners quickly:
 
 ```bash
 # Set your tokens as variables
@@ -80,6 +86,7 @@ TOKEN_3="YOUR_ACTUAL_TOKEN_3"
 TOKEN_4="YOUR_ACTUAL_TOKEN_4"
 TOKEN_5="YOUR_ACTUAL_TOKEN_5"
 TOKEN_6="YOUR_ACTUAL_TOKEN_6"
+TOKEN_7="YOUR_ACTUAL_TOKEN_7"
 
 # Configure all runners in sequence
 cd ice-t-runner-1 && ./config.sh --url https://github.com/DrJLabs/ice-t --token $TOKEN_1 --name ice-t-runner-1 --labels ice-t,build,setup --work _work --replace --unattended --runasservice && cd ..
@@ -88,9 +95,10 @@ cd ice-t-runner-3 && ./config.sh --url https://github.com/DrJLabs/ice-t --token 
 cd ice-t-runner-4 && ./config.sh --url https://github.com/DrJLabs/ice-t --token $TOKEN_4 --name ice-t-runner-4 --labels ice-t,test,integration --work _work --replace --unattended --runasservice && cd ..
 cd ice-t-runner-5 && ./config.sh --url https://github.com/DrJLabs/ice-t --token $TOKEN_5 --name ice-t-runner-5 --labels ice-t,quality,security --work _work --replace --unattended --runasservice && cd ..
 cd ice-t-runner-6 && ./config.sh --url https://github.com/DrJLabs/ice-t --token $TOKEN_6 --name ice-t-runner-6 --labels ice-t,test,api --work _work --replace --unattended --runasservice && cd ..
+cd ice-t-runner-7 && ./config.sh --url https://github.com/DrJLabs/ice-t --token $TOKEN_7 --name ice-t-runner-7 --labels ice-t,diagrams,docs --work _work --replace --unattended --runasservice && cd ..
 
 # Install all services
-for i in {1..6}; do cd ice-t-runner-$i && sudo ./svc.sh install && sudo ./svc.sh start && cd ..; done
+for i in {1..7}; do cd ice-t-runner-$i && sudo ./svc.sh install && sudo ./svc.sh start && cd ..; done
 ```
 
 ## Expected Workflow Labels Usage
@@ -103,5 +111,6 @@ The runners are configured to match the turbo CI workflow:
 - `ice-t,test,integration` - Integration test execution
 - `ice-t,quality,security` - Code quality and security scans
 - `ice-t,test,api` - API and end-to-end tests
+- `ice-t,diagrams,docs` - Diagram generation and documentation updates
 
-This provides 6-way parallel execution as designed for the ice-t project. 
+This provides 7-way parallel execution as designed for the ice-t project.

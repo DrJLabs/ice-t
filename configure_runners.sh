@@ -13,6 +13,7 @@ RUNNER_LABELS[3]="ice-t,test,unit"
 RUNNER_LABELS[4]="ice-t,test,integration"
 RUNNER_LABELS[5]="ice-t,quality,security"
 RUNNER_LABELS[6]="ice-t,test,api"
+RUNNER_LABELS[7]="ice-t,diagrams,docs"
 
 echo "🚀 ice-t GitHub Actions Runners Configuration"
 echo "=============================================="
@@ -20,7 +21,7 @@ echo ""
 echo "Repository: $REPO_URL"
 echo ""
 echo "📋 Runners to configure:"
-for i in {1..6}; do
+for i in {1..7}; do
     echo "   Runner $i: ice-t-runner-$i (${RUNNER_LABELS[$i]})"
 done
 echo ""
@@ -33,7 +34,7 @@ echo ""
 
 # Collect tokens
 declare -A TOKENS
-for i in {1..6}; do
+for i in {1..7}; do
     echo "Runner $i (${RUNNER_LABELS[$i]}):"
     read -p "Enter registration token: " TOKENS[$i]
     echo ""
@@ -43,7 +44,7 @@ echo "🔧 Configuring all runners..."
 echo ""
 
 # Configure each runner
-for i in {1..6}; do
+for i in {1..7}; do
     echo "Configuring runner $i..."
     cd "ice-t-runner-$i"
     
@@ -65,7 +66,7 @@ echo ""
 echo "🚀 Installing and starting services..."
 
 # Install services
-for i in {1..6}; do
+for i in {1..7}; do
     echo "Installing service for runner $i..."
     cd "ice-t-runner-$i"
     sudo ./svc.sh install

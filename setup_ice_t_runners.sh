@@ -6,7 +6,7 @@ set -e
 # Configuration
 REPO_URL="https://github.com/DrJLabs/ice-t"
 RUNNERS_DIR="/home/drj/ice-t-runners"
-RUNNER_COUNT=6
+RUNNER_COUNT=7
 
 # Labels for different runners (all get ice-t label plus specialized ones)
 declare -A RUNNER_LABELS
@@ -16,6 +16,7 @@ RUNNER_LABELS[3]="ice-t,test,unit"
 RUNNER_LABELS[4]="ice-t,test,integration"
 RUNNER_LABELS[5]="ice-t,quality,security"
 RUNNER_LABELS[6]="ice-t,test,api"
+RUNNER_LABELS[7]="ice-t,diagrams,docs"
 
 # Function to configure a single runner
 configure_runner() {
@@ -62,7 +63,7 @@ setup_runner_files() {
     echo "📦 Setting up runner files for all runners..."
     
     # Copy the extracted runner files to other directories
-    for i in {2..6}; do
+    for i in {2..7}; do
         local target_dir="${RUNNERS_DIR}/ice-t-runner-${i}"
         echo "Copying runner files to ice-t-runner-${i}..."
         
@@ -86,7 +87,7 @@ main() {
     
     echo ""
     echo "📋 Runner configuration:"
-    for i in {1..6}; do
+    for i in {1..7}; do
         echo "   Runner $i: ${RUNNER_LABELS[$i]}"
     done
     
@@ -105,20 +106,20 @@ manual_config() {
     
     declare -A TOKENS
     
-    for i in {1..6}; do
+    for i in {1..7}; do
         echo "Runner $i (labels: ${RUNNER_LABELS[$i]}):"
         read -p "Enter token for runner $i: " TOKENS[$i]
         echo ""
     done
     
     echo "🚀 Configuring all runners..."
-    for i in {1..6}; do
+    for i in {1..7}; do
         configure_runner $i "${TOKENS[$i]}"
     done
     
     echo ""
     echo "🔧 Installing services..."
-    for i in {1..6}; do
+    for i in {1..7}; do
         install_service $i
     done
     
