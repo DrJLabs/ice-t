@@ -1,0 +1,118 @@
+# =============================================================================
+# Pre-commit hooks for ChatGPT Codex Development Environment
+# Simplified configuration using direct tool calls for reliability
+# =============================================================================
+
+repos:
+  # Built-in hooks for basic file hygiene
+  - repo: local
+    hooks:
+      # File formatting and cleanup
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        entry: python3 tools/pre_commit_helpers.py trailing-whitespace
+        language: system
+        types: [text]
+        stages: [pre-commit, manual]
+
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        entry: python3 tools/pre_commit_helpers.py end-of-file
+        language: system
+        types: [text]
+        stages: [pre-commit, manual]
+
+      - id: check-yaml
+        name: Check YAML
+        entry: python3 tools/pre_commit_helpers.py check-yaml
+        language: system
+        files: \.(yaml|yml)$
+        stages: [pre-commit, manual]
+
+      - id: check-json
+        name: Check JSON
+        entry: python3 tools/pre_commit_helpers.py check-json
+        language: system
+        files: \.json$
+        stages: [pre-commit, manual]
+
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+        entry: python3 tools/pre_commit_helpers.py check-merge-conflict
+        language: system
+        types: [text]
+        stages: [pre-commit, manual]
+
+      # Python code formatting (auto-fix) - using Ruff for both linting and import sorting
+
+      # Python linting (auto-fix where possible)
+      - id: ruff-check
+        name: Ruff Linter (Check)
+        entry: sh
+        args: ['-c', 'if command -v ruff >/dev/null 2>&1; then ruff check --fix --exit-zero --show-fixes "$@"; else echo "⚠️ ruff not available - install with: pip install ruff"; fi', '--']
+        language: system
+        types: [python]
+        stages: [pre-commit, manual]
+
+      - id: ruff-format
+        name: Ruff Formatter
+        entry: sh
+        args: ['-c', 'if command -v ruff >/dev/null 2>&1; then ruff format "$@"; else echo "⚠️ ruff not available - install with: pip install ruff"; fi', '--']
+        language: system
+        types: [python]
+        stages: [pre-commit, manual]
+
+      # Type checking
+      - id: mypy
+        name: MyPy Type Checking
+        entry: mypy
+        language: python
+        types: [python]
+        files: ^src/
+        args: ["--config-file", "mypy.ini"]
+        additional_dependencies: [
+          "mypy>=1.10",
+          "pydantic[mypy]>=2.7.1",
+          "rich>=13.0.0"
+        ]
+        stages: [pre-commit, manual]
+
+      # Fast syntax check for all Python files
+      - id: python-check-ast
+        name: Check Python AST
+        entry: python3
+        args: ['-m', 'py_compile']
+        language: system
+        types: [python]
+        stages: [pre-commit, manual]
+
+      # Security check (basic patterns)
+      - id: security-check
+        name: Basic Security Check
+        entry: python3 tools/pre_commit_helpers.py security-check
+        language: system
+        types: [python]
+        stages: [pre-commit, manual]
+
+# =============================================================================
+# Pre-commit configuration
+# =============================================================================
+default_stages: [pre-commit]
+fail_fast: false  # Continue running hooks even if one fails
+minimum_pre_commit_version: "2.0.0"
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+    .*\.min\.js|
+    .*\.min\.css|
+    .*/migrations/.*|
+    .*/node_modules/.*|
+    .*/venv/.*|
+    .*/\.venv/.*|
+    build/.*|
+    dist/.*|
+    logs/.*|
+    \.coverage.*|
+    htmlcov/.*
+  )$
