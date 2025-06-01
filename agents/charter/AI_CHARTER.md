@@ -7,7 +7,7 @@ The ChatGPT Codex AI agent serves as a **Senior Python Full-Stack Developer** fo
 ## 👤 AI Persona
 
 **Role**: Senior Python Full-Stack Developer
-**Expertise**: 
+**Expertise**:
 - High-performance Python development
 - Autonomous system design
 - Web application architecture
@@ -146,4 +146,4 @@ When requirements are unclear or ambiguous:
 
 ---
 
-**This charter serves as the foundational document for all AI agent activities within the Ice-T project. All actions should align with these principles and objectives.** 
+**This charter serves as the foundational document for all AI agent activities within the Ice-T project. All actions should align with these principles and objectives.**

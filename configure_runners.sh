@@ -8,14 +8,14 @@ REPO_URL="https://github.com/DrJLabs/ice-t"
 # Runner labels
 declare -A RUNNER_LABELS
 RUNNER_LABELS[1]="ice-t,build,setup"
-RUNNER_LABELS[2]="ice-t,test,smoke" 
+RUNNER_LABELS[2]="ice-t,test,smoke"
 RUNNER_LABELS[3]="ice-t,test,unit"
 RUNNER_LABELS[4]="ice-t,test,integration"
 RUNNER_LABELS[5]="ice-t,quality,security"
 RUNNER_LABELS[6]="ice-t,test,api"
 
 echo "🚀 ice-t GitHub Actions Runners Configuration"
-echo "=============================================="
+echo "$(printf '=%.0s' {1..46})"
 echo ""
 echo "Repository: $REPO_URL"
 echo ""
@@ -46,7 +46,7 @@ echo ""
 for i in {1..6}; do
     echo "Configuring runner $i..."
     cd "ice-t-runner-$i"
-    
+
     ./config.sh \
         --url "$REPO_URL" \
         --token "${TOKENS[$i]}" \
@@ -56,7 +56,7 @@ for i in {1..6}; do
         --replace \
         --unattended \
         --runasservice
-    
+
     echo "✅ Runner $i configured"
     cd ..
 done
@@ -81,4 +81,4 @@ echo "Check status with:"
 echo "   sudo systemctl status actions.runner.*"
 echo ""
 echo "View logs with:"
-echo "   sudo journalctl -u actions.runner.* -f" 
+echo "   sudo journalctl -u actions.runner.* -f"

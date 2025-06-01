@@ -1,5 +1,4 @@
 from contextvars import ContextVar
-from typing import Optional
 import sys
 import threading
 

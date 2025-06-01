@@ -92,4 +92,4 @@ For each logical component (e.g., domain models, service methods, API endpoints)
 
 *   If `adaptive_test_runner.py` reports errors you cannot resolve after a few attempts, explain the issue and the steps taken.
 *   If you are consistently failing linter/type checks for reasons you don't understand, ask for clarification.
-*   Refer to your `AI_CHARTER.md` for general communication protocols when facing roadblocks. 
+*   Refer to your `AI_CHARTER.md` for general communication protocols when facing roadblocks.

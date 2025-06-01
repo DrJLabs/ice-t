@@ -10,7 +10,7 @@
 
 from collections import Counter
 
-from nltk.util import everygrams, ngrams
+from nltk.util import everygrams
 
 
 def sentence_gleu(references, hypothesis, min_len=1, max_len=4):

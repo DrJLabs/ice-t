@@ -8,7 +8,7 @@
 
 ### Labels for each runner:
 - Runner 1: ice-t,build,setup
-- Runner 2: ice-t,test,smoke  
+- Runner 2: ice-t,test,smoke
 - Runner 3: ice-t,test,unit
 - Runner 4: ice-t,test,integration
 - Runner 5: ice-t,quality,security
@@ -18,11 +18,11 @@
 
 1. **Get registration tokens from GitHub:**
    Go to: https://github.com/DrJLabs/ice-t/settings/actions/runners/new
-   
+
 2. **For each runner (1-6), click "New self-hosted runner"**
-   - Select "Linux" 
+   - Select "Linux"
    - Copy the registration token
-   
+
 3. **Configure each runner manually:**
 
 ```bash
@@ -30,7 +30,7 @@
 cd ice-t-runner-1
 ./config.sh --url https://github.com/DrJLabs/ice-t --token YOUR_TOKEN_1 --name ice-t-runner-1 --labels ice-t,build,setup --work _work --replace --unattended --runasservice
 
-# Runner 2  
+# Runner 2
 cd ../ice-t-runner-2
 ./config.sh --url https://github.com/DrJLabs/ice-t --token YOUR_TOKEN_2 --name ice-t-runner-2 --labels ice-t,test,smoke --work _work --replace --unattended --runasservice
 
@@ -56,7 +56,7 @@ cd ../ice-t-runner-6
 ```bash
 # For each runner, install as service
 cd ice-t-runner-1 && sudo ./svc.sh install && sudo ./svc.sh start
-cd ../ice-t-runner-2 && sudo ./svc.sh install && sudo ./svc.sh start  
+cd ../ice-t-runner-2 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-3 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-4 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-5 && sudo ./svc.sh install && sudo ./svc.sh start
@@ -75,7 +75,7 @@ After getting all 6 tokens, you can configure all runners quickly:
 ```bash
 # Set your tokens as variables
 TOKEN_1="YOUR_ACTUAL_TOKEN_1"
-TOKEN_2="YOUR_ACTUAL_TOKEN_2"  
+TOKEN_2="YOUR_ACTUAL_TOKEN_2"
 TOKEN_3="YOUR_ACTUAL_TOKEN_3"
 TOKEN_4="YOUR_ACTUAL_TOKEN_4"
 TOKEN_5="YOUR_ACTUAL_TOKEN_5"
@@ -98,10 +98,10 @@ for i in {1..6}; do cd ice-t-runner-$i && sudo ./svc.sh install && sudo ./svc.sh
 The runners are configured to match the turbo CI workflow:
 
 - `ice-t,build,setup` - Building and setup tasks
-- `ice-t,test,smoke` - Quick smoke tests  
+- `ice-t,test,smoke` - Quick smoke tests
 - `ice-t,test,unit` - Unit test execution
 - `ice-t,test,integration` - Integration test execution
 - `ice-t,quality,security` - Code quality and security scans
 - `ice-t,test,api` - API and end-to-end tests
 
-This provides 6-way parallel execution as designed for the ice-t project. 
+This provides 6-way parallel execution as designed for the ice-t project.

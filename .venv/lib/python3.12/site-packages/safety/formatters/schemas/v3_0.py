@@ -2,9 +2,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Literal, Optional, Union
 
-from pydantic import Field, HttpUrl
-
 from common.schemas import BaseModel, ConstrainedDict
+from pydantic import Field, HttpUrl
 from scans.schemas.base import (
     GitInfo,
     NoGit,

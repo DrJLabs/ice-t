@@ -1,6 +1,6 @@
 ---
 description: USE WHEN working with CI/CD configurations or deployment workflows
-globs: 
+globs:
 alwaysApply: false
 ---
 ---

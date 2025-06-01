@@ -4,9 +4,7 @@
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
-import sys
 
-from nltk.corpus.reader import util
 from nltk.corpus.reader.api import *
 from nltk.corpus.reader.util import *
 
@@ -127,7 +125,6 @@ class ChasenCorpusView(StreamBackedCorpusView):
 
 
 def demo():
-    import nltk
     from nltk.corpus.util import LazyCorpusLoader
 
     jeita = LazyCorpusLoader("jeita", ChasenCorpusReader, r".*chasen", encoding="utf-8")

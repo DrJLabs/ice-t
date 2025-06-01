@@ -1,6 +1,6 @@
 ---
 description: USE WHEN setting up AI agents or integrating with AI systems
-globs: 
+globs:
 alwaysApply: false
 ---
 ---

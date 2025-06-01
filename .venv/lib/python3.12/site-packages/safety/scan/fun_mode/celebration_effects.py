@@ -1,7 +1,8 @@
 import random
 import time
-from rich.text import Text
+
 from rich.style import Style
+from rich.text import Text
 
 # -----------------------------
 # Celebration Effects

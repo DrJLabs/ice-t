@@ -5,7 +5,6 @@
 # URL: <https://www.nltk.org/>
 # For license information, see LICENSE.TXT
 
-import re
 
 from nltk.corpus.reader import *
 from nltk.corpus.util import LazyCorpusLoader

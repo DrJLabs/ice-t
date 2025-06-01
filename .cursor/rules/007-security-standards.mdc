@@ -1,6 +1,6 @@
 ---
 description: USE WHEN implementing security features or handling sensitive data
-globs: 
+globs:
 alwaysApply: false
 ---
 ---

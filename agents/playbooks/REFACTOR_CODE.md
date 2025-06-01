@@ -59,7 +59,7 @@ def test_current_behavior_before_refactoring():
     # This ensures refactoring doesn't change behavior
     input_data = create_test_input()
     result = target_function(input_data)
-    
+
     # Assert current behavior (even if not ideal)
     assert result == expected_current_result
 ```
@@ -71,11 +71,11 @@ def test_performance_baseline():
     """Establish performance baseline before refactoring."""
     import time
     start_time = time.time()
-    
+
     # Run the operation
     for _ in range(100):
         target_function(test_data)
-    
+
     duration = time.time() - start_time
     # Document current performance for comparison
     assert duration < 10.0  # Current acceptable threshold
@@ -93,11 +93,11 @@ def process_user_data(user_data):
     if not user_data:
         raise ValueError("User data required")
     # ... more validation
-    
+
     # Processing logic (30 lines)
     processed = {}
     # ... complex processing
-    
+
     # Formatting logic (15 lines)
     formatted = format_output(processed)
     return formatted
@@ -131,8 +131,8 @@ def _format_processed_data(processed_data: ProcessedData) -> ProcessedUser:
 ```python
 # Before: Function with many parameters
 def calculate_shipping(
-    weight, dimensions, origin, destination, 
-    shipping_type, insurance, express, 
+    weight, dimensions, origin, destination,
+    shipping_type, insurance, express,
     customer_tier, discounts
 ):
     # Complex calculation logic
@@ -141,11 +141,11 @@ def calculate_shipping(
 # After: Extract to dedicated class
 class ShippingCalculator:
     """Handles shipping cost calculations."""
-    
+
     def __init__(self, origin: Address, destination: Address):
         self.origin = origin
         self.destination = destination
-    
+
     def calculate(self, package: Package, options: ShippingOptions) -> ShippingCost:
         """Calculate shipping cost for package with options."""
         base_cost = self._calculate_base_cost(package)
@@ -181,16 +181,16 @@ def determine_user_access(user: User, resource: Resource, action: str) -> bool:
     """Determine if user has access to perform action on resource."""
     if not user or not user.is_active:
         return False
-    
+
     if user.role == 'admin':
         return True
-    
+
     if user.role == 'moderator':
         return action in ['read', 'update']
-    
+
     if user.role == 'user':
         return action == 'read' and resource.is_public
-    
+
     return False
 ```
 
@@ -218,7 +218,7 @@ def process_payment(amount: Decimal) -> Decimal:
         fee_rate = PaymentConstants.LARGE_PAYMENT_FEE_RATE
     else:
         fee_rate = PaymentConstants.STANDARD_FEE_RATE
-    
+
     fee = amount * fee_rate
     return amount + fee
 ```
@@ -310,7 +310,7 @@ def test_validate_user_data():
     valid_data = UserData(email="test@example.com", password="securepass123")
     # Should not raise
     _validate_user_data(valid_data)
-    
+
     invalid_data = UserData(email="invalid", password="short")
     with pytest.raises(ValidationError):
         _validate_user_data(invalid_data)
@@ -394,4 +394,4 @@ A successful refactoring should:
 - ✅ Maintain or improve performance
 - ✅ Keep or increase test coverage
 - ✅ Follow project architectural patterns
-- ✅ Make future changes easier to implement 
+- ✅ Make future changes easier to implement

@@ -58,10 +58,10 @@ from dataclasses import dataclass
 @dataclass
 class FeatureDomain:
     """Core business logic for the feature."""
-    
+
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-    
+
     def process_business_logic(self, input_data: Any) -> Any:
         """Implement core business rules here."""
         # Business logic implementation
@@ -76,18 +76,18 @@ from datetime import datetime
 
 class FeatureRequestDTO(BaseModel):
     """Request data structure for feature operations."""
-    
+
     id: str = Field(..., description="Unique identifier")
     name: str = Field(..., min_length=1, max_length=100)
     config: Dict[str, Any] = Field(default_factory=dict)
     created_at: Optional[datetime] = None
-    
+
     class Config:
         validate_assignment = True
 
 class FeatureResponseDTO(BaseModel):
     """Response data structure for feature operations."""
-    
+
     id: str
     status: str
     result: Dict[str, Any]
@@ -103,13 +103,13 @@ from .dto import FeatureRequestDTO, FeatureResponseDTO
 
 class FeatureService(BaseService):
     """Service layer for feature operations."""
-    
+
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
         self.domain = FeatureDomain(config)
-    
+
     async def process_request(
-        self, 
+        self,
         request: FeatureRequestDTO
     ) -> FeatureResponseDTO:
         """Process feature request through business logic."""
@@ -215,4 +215,4 @@ Refer to the `CODEX_T_MODERNIZATION_PLAN.md` for the target source code structur
 *   **Docstrings:** As described above.
 *   **Project Documentation (`docs/`):** Broader architectural discussions, setup guides, etc. The AI may be asked to update these.
 
-This document is a living guide and will be updated as the project evolves. 
+This document is a living guide and will be updated as the project evolves.

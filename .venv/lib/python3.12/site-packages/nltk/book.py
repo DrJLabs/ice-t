@@ -13,11 +13,8 @@ from nltk.corpus import (
     nps_chat,
     treebank,
     webtext,
-    wordnet,
 )
-from nltk.probability import FreqDist
 from nltk.text import Text
-from nltk.util import bigrams
 
 print("*** Introductory Examples for the NLTK Book ***")
 print("Loading text1, ..., text9 and sent1, ..., sent9")

@@ -1,5 +1,5 @@
 ---
-description: 
+description:
 globs: .github/workflows/**/*.yml,scripts/**/*.py,pyproject.toml,requirements*.txt
 alwaysApply: false
 ---

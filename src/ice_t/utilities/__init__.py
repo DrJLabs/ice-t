@@ -1,1 +1,1 @@
-"""Utility functions for ice-t.""" 
+"""Utility functions for ice-t."""

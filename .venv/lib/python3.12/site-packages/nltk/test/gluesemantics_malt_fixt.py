@@ -5,5 +5,5 @@ def setup_module():
 
     try:
         depparser = MaltParser()
-    except (AssertionError, LookupError) as e:
+    except (AssertionError, LookupError):
         pytest.skip("MaltParser is not available")

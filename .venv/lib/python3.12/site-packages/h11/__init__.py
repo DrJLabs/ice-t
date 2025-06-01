@@ -6,7 +6,7 @@
 # semantics to check that what you're asking to write to the wire is sensible,
 # but at least it gets you out of dealing with the wire itself.
 
-from h11._connection import Connection, NEED_DATA, PAUSED
+from h11._connection import NEED_DATA, PAUSED, Connection
 from h11._events import (
     ConnectionClosed,
     Data,
@@ -36,27 +36,27 @@ PRODUCT_ID = "python-h11/" + __version__
 
 
 __all__ = (
-    "Connection",
-    "NEED_DATA",
-    "PAUSED",
-    "ConnectionClosed",
-    "Data",
-    "EndOfMessage",
-    "Event",
-    "InformationalResponse",
-    "Request",
-    "Response",
     "CLIENT",
     "CLOSED",
     "DONE",
     "ERROR",
     "IDLE",
     "MUST_CLOSE",
+    "NEED_DATA",
+    "PAUSED",
     "SEND_BODY",
     "SEND_RESPONSE",
     "SERVER",
     "SWITCHED_PROTOCOL",
-    "ProtocolError",
+    "Connection",
+    "ConnectionClosed",
+    "Data",
+    "EndOfMessage",
+    "Event",
+    "InformationalResponse",
     "LocalProtocolError",
+    "ProtocolError",
     "RemoteProtocolError",
+    "Request",
+    "Response",
 )

@@ -1,12 +1,12 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
-description: "Task tracking and modernization plan enforcement for systematic AI-guided development"
+description:
+globs:
 alwaysApply: true
-globs: ""
+---
+---
+description:"Task tracking and modernization plan enforcement for systematic AI-guided development"
+alwaysApply:true
+globs:""
 ---
 
 # 📋 Task Tracking & Modernization Plan Enforcement
@@ -18,7 +18,7 @@ globs: ""
 
 ### 0.1 Directory Structure ✅
 - [x] **Task 0.1.1**: Create `agents/` directory at project root
-- [x] **Task 0.1.2**: Create `agents/charter/` subdirectory  
+- [x] **Task 0.1.2**: Create `agents/charter/` subdirectory
 - [x] **Task 0.1.3**: Create `agents/playbooks/` subdirectory
 - [x] **Task 0.1.4**: Create `agents/conventions/` subdirectory
 - [x] **Task 0.1.5**: Create `agents/AGENTS.md` root guide
@@ -69,7 +69,7 @@ globs: ""
 ### 1.2 Implement pip-tools
 - [ ] **Task 1.2.1**: Add `pip-tools` to dev dependencies
 - [ ] **Task 1.2.2**: Create `requirements.in` if needed
-- [ ] **Task 1.2.3**: Create `dev-requirements.in` for dev dependencies  
+- [ ] **Task 1.2.3**: Create `dev-requirements.in` for dev dependencies
 - [ ] **Task 1.2.4**: Update scripts/CI to run `pip-compile`
 - [ ] **Task 1.2.5**: Commit generated lockfiles
 - [ ] **Status**: ❌ To Do
@@ -119,7 +119,7 @@ globs: ""
 - [ ] **Task 2.3.4**: Validate marker usage across test suite
 - [ ] **Status**: ❌ To Do
 
-### 2.4 Strengthen Local Testing & CI Alignment  
+### 2.4 Strengthen Local Testing & CI Alignment
 - [ ] **Task 2.4.1**: Integrate fast test run into pre-push hooks
 - [ ] **Task 2.4.2**: Align local and CI test environments
 - [ ] **Task 2.4.3**: Verify dependency consistency

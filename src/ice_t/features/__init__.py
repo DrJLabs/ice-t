@@ -1,1 +1,1 @@
-"""Feature implementations for ice-t.""" 
+"""Feature implementations for ice-t."""

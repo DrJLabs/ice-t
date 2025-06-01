@@ -6,8 +6,8 @@ from .version import version_short
 
 __all__ = (
     'PydanticDeprecatedSince20',
-    'PydanticDeprecationWarning',
     'PydanticDeprecatedSince26',
+    'PydanticDeprecationWarning',
     'PydanticExperimentalWarning',
 )
 

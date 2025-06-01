@@ -2,7 +2,6 @@
 Tests for NIST translation evaluation metric
 """
 
-import io
 import unittest
 
 from nltk.data import find

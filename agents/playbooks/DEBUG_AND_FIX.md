@@ -47,7 +47,7 @@ def test_reproduce_bug():
     """Test that reproduces the reported bug."""
     # Setup conditions that trigger the bug
     setup_data = create_test_data()
-    
+
     # Execute the problematic action
     with pytest.raises(ExpectedError):  # or assert for wrong behavior
         problematic_function(setup_data)
@@ -80,7 +80,7 @@ def fixed_function(input_data: InputDTO) -> OutputDTO:
     # Add validation
     if not input_data or not input_data.required_field:
         raise ValidationError("Required field missing")
-    
+
     # Add error handling
     try:
         result = process_data(input_data)
@@ -100,11 +100,11 @@ def test_fixed_functionality():
     valid_input = create_valid_input()
     result = fixed_function(valid_input)
     assert result.is_valid()
-    
+
     # Test error cases
     with pytest.raises(ValidationError):
         fixed_function(None)
-    
+
     with pytest.raises(ProcessingError):
         fixed_function(create_invalid_input())
 ```
@@ -168,7 +168,7 @@ def problematic_function(data):
 def fixed_function(data: Optional[DataType]) -> ProcessedData:
     if data is None:
         raise ValueError("Data cannot be None")
-    
+
     try:
         return data.process()
     except AttributeError as e:
@@ -186,7 +186,7 @@ def process_user(user_data):
 def process_user(user_data: UserDTO) -> None:
     if not user_data.email or "@" not in user_data.email:
         raise ValidationError("Valid email required")
-    
+
     send_email(user_data.email)
 ```
 
@@ -262,4 +262,4 @@ A successful bug fix should:
 3. **Think Holistically**: Consider side effects and edge cases
 4. **Document Context**: Explain why the fix works
 5. **Prevent Recurrence**: Add tests and validation
-6. **Follow Architecture**: Maintain consistency with project patterns 
+6. **Follow Architecture**: Maintain consistency with project patterns

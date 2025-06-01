@@ -120,4 +120,4 @@ This guidance system evolves based on:
 - Development team insights
 - Community best practices
 
-**Remember**: These documents are living guides. Update them as you learn and discover better patterns for AI-assisted development. 
+**Remember**: These documents are living guides. Update them as you learn and discover better patterns for AI-assisted development.

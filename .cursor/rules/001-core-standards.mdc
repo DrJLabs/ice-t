@@ -1,5 +1,5 @@
 ---
-description: 
+description:
 globs: src/codex_t/features/**/*.py,tests/features/**/*.py,templates/features/**/*
 alwaysApply: false
 ---

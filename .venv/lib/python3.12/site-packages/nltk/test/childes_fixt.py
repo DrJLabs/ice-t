@@ -5,7 +5,7 @@ def setup_module():
 
     try:
         nltk.data.find("corpora/childes/data-xml/Eng-USA-MOR/")
-    except LookupError as e:
+    except LookupError:
         pytest.skip(
             "The CHILDES corpus is not found. "
             "It should be manually downloaded and saved/unpacked "

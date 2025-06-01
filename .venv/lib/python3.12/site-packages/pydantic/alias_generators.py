@@ -2,7 +2,7 @@
 
 import re
 
-__all__ = ('to_pascal', 'to_camel', 'to_snake')
+__all__ = ('to_camel', 'to_pascal', 'to_snake')
 
 # TODO: in V3, change the argument names to be more descriptive
 # Generally, don't only convert from snake_case, or name the functions

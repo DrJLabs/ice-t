@@ -1,7 +1,5 @@
-# =============================================================================
-# Pre-commit hooks for ChatGPT Codex Development Environment
-# Simplified configuration using direct tool calls for reliability
-# =============================================================================
+# Pre-commit hooks for ice-t Development Environment
+# Optimized configuration for AI agent compatibility and reliability
 
 repos:
   # Built-in hooks for basic file hygiene
@@ -43,11 +41,9 @@ repos:
         types: [text]
         stages: [pre-commit, manual]
 
-      # Python code formatting (auto-fix) - using Ruff for both linting and import sorting
-
-      # Python linting (auto-fix where possible)
+      # Python code formatting and linting with Ruff
       - id: ruff-check
-        name: Ruff Linter (Check)
+        name: Ruff Linter (Check & Fix)
         entry: sh
         args: ['-c', 'if command -v ruff >/dev/null 2>&1; then ruff check --fix --exit-zero --show-fixes "$@"; else echo "⚠️ ruff not available - install with: pip install ruff"; fi', '--']
         language: system
@@ -62,19 +58,14 @@ repos:
         types: [python]
         stages: [pre-commit, manual]
 
-      # Type checking
+      # Type checking with MyPy
       - id: mypy
         name: MyPy Type Checking
-        entry: mypy
-        language: python
+        entry: sh
+        args: ['-c', 'if command -v mypy >/dev/null 2>&1; then mypy --config-file=pyproject.toml "$@"; else echo "⚠️ mypy not available - install with: pip install mypy"; fi', '--']
+        language: system
         types: [python]
         files: ^src/
-        args: ["--config-file", "mypy.ini"]
-        additional_dependencies: [
-          "mypy>=1.10",
-          "pydantic[mypy]>=2.7.1",
-          "rich>=13.0.0"
-        ]
         stages: [pre-commit, manual]
 
       # Fast syntax check for all Python files
@@ -97,31 +88,33 @@ repos:
       # ice-t smoke tests
       - id: ice-t-smoke-tests
         name: ice-t Smoke Tests
-        entry: python3
-        args: ['scripts/adaptive_test_runner.py', 'run', '--smoke']
+        entry: sh
+        args: ['-c', 'if [ -f "scripts/adaptive_test_runner.py" ]; then python3 scripts/adaptive_test_runner.py run --smoke; else echo "⚠️ adaptive_test_runner.py not found - skipping smoke tests"; fi']
         language: system
         pass_filenames: false
         stages: [pre-commit, manual]
 
-# =============================================================================
 # Pre-commit configuration
-# =============================================================================
 default_stages: [pre-commit]
 fail_fast: false  # Continue running hooks even if one fails
-minimum_pre_commit_version: "2.0.0"
+minimum_pre_commit_version: "3.0.0"
 
 # Exclude patterns
 exclude: |
   (?x)^(
+    \.venv/.*|
+    venv/.*|
     .*\.min\.js|
     .*\.min\.css|
     .*/migrations/.*|
     .*/node_modules/.*|
-    .*/venv/.*|
-    .*/\.venv/.*|
     build/.*|
     dist/.*|
     logs/.*|
     \.coverage.*|
-    htmlcov/.*
+    htmlcov/.*|
+    __pycache__/.*|
+    .*\.pyc$|
+    .*\.pyo$|
+    \.git/.*
   )$

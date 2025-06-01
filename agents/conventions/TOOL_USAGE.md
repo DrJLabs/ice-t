@@ -120,7 +120,7 @@ python scripts/testing/adaptive_test_runner.py --all --heal
 
 ### Quality Assurance Sequence
 1. **Code Changes:** Use `edit_file` for modifications
-2. **Test Execution:** Use `adaptive_test_runner.py` 
+2. **Test Execution:** Use `adaptive_test_runner.py`
 3. **Linting:** Run `ruff check . && mypy src/`
 4. **Integration Check:** Verify tests pass in CI environment
 
@@ -142,7 +142,7 @@ When implementing features:
 ```
 src/ice_t/features/[feature]/
 ├── domain/          # Business logic
-├── service/         # Application services  
+├── service/         # Application services
 ├── dto/            # Data transfer objects
 └── __init__.py     # Feature exports
 ```
@@ -157,7 +157,7 @@ src/ice_t/features/[feature]/
 
 ### When to Ask for Help
 - Complex architectural decisions
-- Unclear requirements or specifications  
+- Unclear requirements or specifications
 - System-level configuration changes
 - External service integration issues
 
@@ -182,4 +182,4 @@ This tool usage guide evolves based on:
 - Project modernization progress
 - Community best practices
 
-**Remember:** These tools are designed to work together. Use them in combination to achieve complex development tasks efficiently and maintain high code quality. 
+**Remember:** These tools are designed to work together. Use them in combination to achieve complex development tasks efficiently and maintain high code quality.

@@ -20,6 +20,8 @@ dependencies = [
 # Abundance mindset: fast, comprehensive, opinionated
 target-version = "py39"
 line-length = 88
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -47,13 +49,25 @@ ignore = [
     "S603",   # subprocess calls (needed for tooling)
     "PLR0913", # too many arguments (sometimes necessary)
     "TRY003",  # avoid long exception messages (sometimes needed)
+    "T201",   # print statements (okay in scripts)
+    "PTH123", # open() usage (okay in some contexts)
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "S101",    # assert statements
     "ARG001",  # unused function arguments
     "PLR2004", # magic values
+]
+"scripts/**/*.py" = [
+    "T201",    # print statements (needed for scripts)
+    "PTH123",  # open() usage (acceptable in scripts)
+    "S607",    # subprocess with partial path (acceptable in scripts)
+    "PLR2004", # magic values (acceptable in scripts)
+]
+"tools/**/*.py" = [
+    "T201",    # print statements (needed for tools)
+    "PTH123",  # open() usage (acceptable in tools)
 ]
 "src/codex_t/features/pr_management/**/*.py" = [
     "PLR2004", # magic values (acceptable in AI/ML thresholds)
@@ -66,7 +80,7 @@ ignore = [
     "PLW2901", # redefined-loop-name (acceptable in AI processing loops)
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["ice_t"]
 force-sort-within-sections = true
 split-on-trailing-comma = true

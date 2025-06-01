@@ -37,7 +37,7 @@ jobs:
     name: 📊 Generate Repository Diagrams
     runs-on: [self-hosted, ice-t, diagrams]
     timeout-minutes: 15
-    
+
     steps:
       - name: ⚡ Checkout Code
         uses: actions/checkout@v4
@@ -103,12 +103,12 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           # Add generated diagrams
           git add docs/diagrams/ || true
           git add README.md || true
           git add docs/ || true
-          
+
           # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No diagram changes to commit"
@@ -124,14 +124,14 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
+
             // Find generated diagram files
             const diagramsDir = 'docs/diagrams';
             let comment = '## 📊 Generated Diagrams\n\n';
-            
+
             if (fs.existsSync(diagramsDir)) {
               const files = fs.readdirSync(diagramsDir).filter(f => f.endsWith('.png') || f.endsWith('.svg'));
-              
+
               for (const file of files) {
                 const fileName = path.parse(file).name;
                 comment += `### ${fileName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}\n`;
@@ -140,7 +140,7 @@ jobs:
             } else {
               comment += 'No diagrams generated for this change.\n';
             }
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -157,4 +157,4 @@ jobs:
             docs/diagrams/
             *.png
             *.svg
-          retention-days: 30 
+          retention-days: 30
