@@ -10,6 +10,8 @@ The CI Bypass Mechanism allows critical CI/workflow updates to skip required sta
 
 The bypass workflow automatically triggers when:
 
+*It listens to both `pull_request` and `pull_request_target` events. Using `pull_request_target` allows the bypass to run even when the PR itself modifies workflow files because the workflow is executed from the base branch.*
+
 1. **Path-based triggering**: Changes to these files/directories:
    - `.github/workflows/**` - GitHub Actions workflows
    - `.github/actions/**` - Custom GitHub Actions
