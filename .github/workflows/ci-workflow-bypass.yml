@@ -12,6 +12,17 @@ on:
       - 'pyproject.toml'
       - 'requirements.txt'
       - 'dev-requirements.txt'
+  pull_request_target:
+    branches: [main, develop]
+    paths:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - 'scripts/setup/**'
+      - 'scripts/runners/**'
+      - '.pre-commit-config.yaml'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+      - 'dev-requirements.txt'
   workflow_dispatch:
     inputs:
       pr_number:
