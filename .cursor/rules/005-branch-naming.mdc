@@ -1,0 +1,49 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description:"Enforces consistent branch naming across all AI agents and human developers"
+alwaysApply:true
+globs:""
+---
+
+# Branch Naming Conventions
+
+## AI Branch Prefixes
+- **Cursor AI**: `cursor/[task-description]` (REQUIRED)
+- **Codex AI**: `codex/[task-description]` (RECOMMENDED)
+
+## Standard Prefixes
+- `feature/` - New features
+- `fix/` - Bug fixes
+- `hotfix/` - Critical production fixes
+- `chore/` - Maintenance tasks
+- `docs/` - Documentation updates
+- `test/` - Test improvements
+- `refactor/` - Code refactoring
+
+## Guidelines
+- Use kebab-case (lowercase with hyphens)
+- Be descriptive but concise (max 50 characters)
+- Include ticket numbers when applicable
+- Avoid special characters except hyphens
+
+## Examples
+```bash
+cursor/implement-oauth2
+codex/optimize-database-queries
+feature/PROJ-123-payment-integration
+fix/login-validation-error
+```
+
+## Permanent Branches
+No prefixes required: `main`, `develop`, `master`
+
+## Enforcement
+
+- **Cursor**: Automatically enforced via `.cursor/rules`
+- **Codex**: Guided by AGENTS.md and helper tools
+- **Git Hooks**: Friendly reminders in pre-push hook
+- **Manual**: Use `git branch -m old-name new-name` to rename

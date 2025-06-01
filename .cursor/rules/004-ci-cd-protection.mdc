@@ -1,0 +1,74 @@
+---
+description: USE WHEN working with CI/CD configurations or deployment workflows
+globs: 
+alwaysApply: false
+---
+---
+description:USE WHEN working with CI/CD configurations or deployment workflows
+globs:""
+alwaysApply:false
+---
+
+# CI/CD Protection Standards
+
+## Workflow Protection
+
+- Never modify runner labels without explicit approval
+- Protect critical scripts referenced by workflows
+- Maintain consistency between local and CI environments
+- Use self-hosted runners with `[self-hosted, linux]` labels
+
+## Quality Gates
+
+All code must pass these gates before merge:
+
+### Code Quality
+- **Formatting**: `ruff format --check .`
+- **Linting**: `ruff check .`
+- **Type Safety**: `mypy src/ tests/`
+- **Security**: `bandit -r src/`
+
+### Testing
+- **Unit Tests**: `pytest -m unit --cov=src --cov-fail-under=94`
+- **Integration Tests**: `pytest -m integration`
+- **Smoke Tests**: `pytest -m smoke`
+
+### Dependencies
+- Keep dev-requirements.txt synchronized with CI
+- Use pinned versions for reproducible builds
+- Regular security updates for dependencies
+
+## Branch Protection
+
+- Require status checks before merge
+- Require up-to-date branches
+- Require review from code owners
+- Restrict force pushes to protected branches
+
+## Runner Security
+
+- Never commit runner configuration files
+- Protect `.runner`, `.credentials`, `config.sh`
+- Use secure environment variables for secrets
+- Regular rotation of runner tokens
+
+## Performance Monitoring
+
+- Track build times and optimize slow steps
+- Monitor test execution time
+- Alert on performance regressions
+- Use caching for dependencies and build artifacts
+
+## Deployment Safety
+
+- Use staging environments for validation
+- Implement blue-green deployments
+- Maintain rollback capabilities
+- Monitor deployment health metrics
+
+## Secrets Management
+
+- Use GitHub Secrets for sensitive data
+- Never log secrets or credentials
+- Rotate secrets regularly
+- Use least-privilege access principles

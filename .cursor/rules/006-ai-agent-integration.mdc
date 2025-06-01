@@ -1,0 +1,104 @@
+---
+description: USE WHEN setting up AI agents or integrating with AI systems
+globs: 
+alwaysApply: false
+---
+---
+description:"Standards for AI agent integration and context management protocols"
+alwaysApply:false
+globs:""
+---
+
+# AI Agent Integration
+
+## Mandatory Protocols
+
+All AI agents working with Codex-T MUST follow these protocols:
+
+### Session Initialization
+```bash
+# Start AI session with proper context
+./ai_agent_wrapper.sh init [agent-name] "[topic]"
+
+# Example
+./ai_agent_wrapper.sh init cursor "feature development"
+```
+
+### Context Management
+- Load project context before any work
+- Track all file modifications
+- Update conversation context continuously
+- Export context for session handoffs
+
+### Quality Enforcement
+- Run quality checks before completion
+- Ensure 94%+ test coverage
+- Follow architectural patterns
+- Maintain documentation standards
+
+## Cursor AI Integration
+
+- Use `cursor/` branch prefix (automatically enforced)
+- Follow vertical slice architecture
+- Implement comprehensive error handling
+- Include type hints and docstrings
+
+## Codex AI Integration
+
+- Use `codex/` branch prefix (guided by AGENTS.md)
+- Follow AGENTS.md protocols strictly
+- Use AI wrapper for branch suggestions
+- Maintain session continuity
+
+## Development Workflow
+
+1. **Initialize**: Start AI session with context
+2. **Analyze**: Review project structure and patterns
+3. **Plan**: Define clear objectives and approach
+4. **Implement**: Follow established patterns and standards
+5. **Test**: Ensure comprehensive test coverage
+6. **Document**: Update relevant documentation
+7. **Finalize**: Export context and end session
+
+## Context Tools
+
+### Required Tools
+- `tools/context_manager.py` - Context tracking
+- `tools/codex_analyzer.py` - Project analysis
+- `tools/ai_session_manager.py` - Session management
+- `ai_agent_wrapper.sh` - Command interface
+
+### Usage Examples
+```bash
+# Track file changes
+./ai_agent_wrapper.sh track src/new_feature.py "Added new feature"
+
+# Record decisions
+./ai_agent_wrapper.sh decision "Using vertical slice architecture"
+
+# Add pending actions
+./ai_agent_wrapper.sh action "Add integration tests"
+
+# Run quality checks
+./ai_agent_wrapper.sh check
+
+# End session
+./ai_agent_wrapper.sh finalize "Feature implementation completed"
+```
+
+## Performance Standards
+
+- Maintain performance score ≥ 80
+- Monitor code complexity
+- Optimize for readability and maintainability
+- Use profiling for performance-critical code
+
+## Continuity Requirements
+
+- Perfect session handoffs between AI agents
+- Comprehensive context preservation
+- Consistent architectural decisions
+- Seamless development experience
+
+@AGENTS.md
+@ai_agent_wrapper.sh

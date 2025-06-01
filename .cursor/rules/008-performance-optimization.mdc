@@ -1,0 +1,62 @@
+---
+description: Performance optimization patterns and benchmarking standards
+globs:
+alwaysApply: false
+---
+---
+description:"Performance optimization patterns and benchmarking standards"
+alwaysApply:false
+globs:""
+---
+
+# Performance Optimization
+
+## Core Principles
+- Profile before optimizing
+- Choose appropriate data structures
+- Use generators for large datasets
+- Implement caching for expensive operations
+- Use async/await for I/O-bound operations
+- Monitor memory usage and prevent leaks
+
+## Key Patterns
+
+### Memory Efficiency
+```python
+from functools import lru_cache
+
+@lru_cache(maxsize=128)
+def expensive_computation(n: int) -> int:
+    return sum(i * i for i in range(n))
+
+class OptimizedClass:
+    __slots__ = ['name', 'value']  # Reduce memory overhead
+```
+
+### Concurrency
+```python
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
+# I/O-bound: Use ThreadPoolExecutor
+# CPU-bound: Use ProcessPoolExecutor
+```
+
+### Database Optimization
+- Use appropriate indexes
+- Avoid N+1 query problems
+- Implement connection pooling
+- Use query batching
+
+## Monitoring
+- Use `tools/performance_benchmark.py` for benchmarking
+- Set performance thresholds (response_time <= 100ms, performance_score >= 80)
+- Profile with cProfile and memory_profiler
+- Monitor cache hit rates and resource usage
+
+## Testing
+```python
+def test_performance():
+    benchmark = PerformanceBenchmark()
+    results = benchmark.run_comprehensive_benchmark()
+    assert results['performance_score'] >= 80
+```

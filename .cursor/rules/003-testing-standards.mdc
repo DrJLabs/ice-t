@@ -1,0 +1,144 @@
+---
+description:
+globs: tests/**/*.py, **/test_*.py, **/*_test.py
+alwaysApply: false
+---
+---
+description:"Standards for test organization, markers, structure, fixtures, mocking, coverage, test data, and performance testing."
+globs:tests/**/*.py, **/test_*.py, **/*_test.py
+alwaysApply:false
+---
+
+# Testing Standards
+
+## Test Organization
+
+- Place tests in `tests/` directory mirroring `src/` structure
+- Use `conftest.py` for shared fixtures
+- Group related tests in classes when appropriate
+- Use descriptive test file names: `test_feature_name.py`
+
+## Test Markers
+
+Use pytest markers to categorize tests:
+
+```python
+@pytest.mark.unit
+def test_domain_logic():
+    """Fast, isolated unit test."""
+    pass
+
+@pytest.mark.integration
+def test_service_integration():
+    """Test with external dependencies."""
+    pass
+
+@pytest.mark.smoke
+def test_critical_path():
+    """Essential functionality test."""
+    pass
+
+@pytest.mark.slow
+def test_performance_benchmark():
+    """Long-running performance test."""
+    pass
+```
+
+## Test Structure
+
+Follow the Arrange-Act-Assert pattern:
+
+```python
+def test_greeting_service_personalizes_message():
+    """Test that GreetingService creates personalized greetings."""
+    # Arrange
+    service = GreetingService()
+    user_name = "Alice"
+
+    # Act
+    result = service.greet(user_name)
+
+    # Assert
+    assert user_name in result
+    assert isinstance(result, str)
+    assert len(result) > 0
+```
+
+## Fixtures
+
+Create reusable test data with fixtures:
+
+```python
+@pytest.fixture
+def sample_user_data():
+    """Provide sample user data for testing."""
+    return {
+        "name": "Test User",
+        "email": "test@example.com",
+        "preferences": {"theme": "dark"}
+    }
+
+@pytest.fixture
+def mock_database():
+    """Provide mock database for testing."""
+    return MockDatabase()
+```
+
+## Mocking
+
+- Mock external dependencies and I/O operations
+- Use `unittest.mock` or `pytest-mock`
+- Mock at the boundary of your system
+- Verify mock interactions when relevant
+
+```python
+from unittest.mock import Mock, patch
+
+def test_service_calls_external_api(mock_http_client):
+    """Test that service makes correct API calls."""
+    # Arrange
+    mock_response = Mock()
+    mock_response.json.return_value = {"status": "success"}
+    mock_http_client.get.return_value = mock_response
+
+    service = ExternalService(http_client=mock_http_client)
+
+    # Act
+    result = service.fetch_data("test-id")
+
+    # Assert
+    mock_http_client.get.assert_called_once_with("/api/data/test-id")
+    assert result["status"] == "success"
+```
+
+## Coverage Requirements
+
+- Maintain 94%+ test coverage
+- Focus on critical business logic
+- Test edge cases and error conditions
+- Use coverage reports to identify gaps
+
+## Test Data
+
+- Use factories or builders for complex test data
+- Keep test data minimal and focused
+- Use realistic but anonymized data
+- Store test data in `tests/fixtures/` or `memory/mock_data/`
+
+## Performance Testing
+
+- Include performance benchmarks for critical paths
+- Use `pytest-benchmark` for timing tests
+- Set reasonable performance thresholds
+- Monitor performance regression
+
+```python
+def test_data_processing_performance(benchmark):
+    """Benchmark data processing performance."""
+    large_dataset = generate_test_data(size=10000)
+
+    result = benchmark(process_data, large_dataset)
+
+    assert len(result) == 10000
+    # Benchmark automatically measures execution time
+```

@@ -1,0 +1,329 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: "Task tracking and modernization plan enforcement for systematic AI-guided development"
+alwaysApply: true
+globs: ""
+---
+
+# 📋 Task Tracking & Modernization Plan Enforcement
+
+## 🎯 Core Principle
+**CURSOR MUST** systematically track and complete modernization tasks. Before starting any work, review this checklist and update status as tasks are completed.
+
+## 📝 Phase 0: AI Agent Guidance Setup ✅
+
+### 0.1 Directory Structure ✅
+- [x] **Task 0.1.1**: Create `agents/` directory at project root
+- [x] **Task 0.1.2**: Create `agents/charter/` subdirectory  
+- [x] **Task 0.1.3**: Create `agents/playbooks/` subdirectory
+- [x] **Task 0.1.4**: Create `agents/conventions/` subdirectory
+- [x] **Task 0.1.5**: Create `agents/AGENTS.md` root guide
+- [x] **Status**: ✅ Completed
+
+### 0.2 AI Charter Development ✅
+- [x] **Task 0.2.1**: Create `agents/charter/AI_CHARTER.md`
+- [x] **Task 0.2.2**: Define AI's high-level mission
+- [x] **Task 0.2.3**: Define AI persona as "Senior Python Full-Stack Developer"
+- [x] **Task 0.2.4**: Document core principles (clarity, testability, security)
+- [x] **Task 0.2.5**: Define communication protocols
+- [x] **Task 0.2.6**: Document ethical guidelines
+- [x] **Status**: ✅ Completed
+
+### 0.3 Coding Conventions & Architecture ✅
+- [x] **Task 0.3.1**: Create `agents/conventions/CODING_CONVENTIONS.md`
+- [x] **Task 0.3.2**: Document non-negotiable coding standards
+- [x] **Task 0.3.3**: Define project-specific architectural patterns (vertical slice, DTO)
+- [x] **Task 0.3.4**: Document API design principles
+- [x] **Task 0.3.5**: Document preferred library usage patterns
+- [x] **Status**: ✅ Completed
+
+### 0.4 Playbook Development ✅
+- [x] **Task 0.4.1**: Create `agents/playbooks/IMPLEMENT_FEATURE.md`
+- [x] **Task 0.4.2**: Create feature implementation template
+- [x] **Task 0.4.3**: Define prompt structures for common tasks
+- [x] **Task 0.4.4**: Document expected inputs/outputs
+- [x] **Task 0.4.5**: Define step-by-step process including tool usage
+- [x] **Status**: ✅ Completed
+
+### 0.5 Tool Usage Documentation ✅
+- [x] **Task 0.5.1**: Create `agents/conventions/TOOL_USAGE.md`
+- [x] **Task 0.5.2**: Document `edit_file` tool usage patterns
+- [x] **Task 0.5.3**: Document `run_terminal_cmd` usage guidelines
+- [x] **Task 0.5.4**: Document `adaptive_test_runner.py` integration
+- [x] **Task 0.5.5**: Define when to use each tool and expected outcomes
+- [x] **Status**: ✅ Completed
+
+## 🚚 Phase 1: Dependency Management & Environment Parity
+
+### 1.1 Consolidate Dependencies
+- [ ] **Task 1.1.1**: Move core dependencies from `requirements.txt` to `pyproject.toml`
+- [ ] **Task 1.1.2**: Move dev dependencies from `dev-requirements.txt` to `[project.optional-dependencies.dev]`
+- [ ] **Task 1.1.3**: Move optional dependencies to appropriate `[project.optional-dependencies.<group>]`
+- [ ] **Task 1.1.4**: Verify all dependencies are captured
+- [ ] **Status**: ❌ To Do
+
+### 1.2 Implement pip-tools
+- [ ] **Task 1.2.1**: Add `pip-tools` to dev dependencies
+- [ ] **Task 1.2.2**: Create `requirements.in` if needed
+- [ ] **Task 1.2.3**: Create `dev-requirements.in` for dev dependencies  
+- [ ] **Task 1.2.4**: Update scripts/CI to run `pip-compile`
+- [ ] **Task 1.2.5**: Commit generated lockfiles
+- [ ] **Status**: ❌ To Do
+
+### 1.3 Standardize Python Version
+- [ ] **Task 1.3.1**: Create `.python-version` file specifying Python 3.12
+- [ ] **Task 1.3.2**: Update local dev setup instructions
+- [ ] **Task 1.3.3**: Update CI to respect Python version
+- [ ] **Task 1.3.4**: Update Codex environment setup instructions
+- [ ] **Status**: ❌ To Do
+
+### 1.4 Refine Setup Scripts
+- [ ] **Task 1.4.1**: Modify setup script to install from `pyproject.toml` extras
+- [ ] **Task 1.4.2**: Integrate setup into GitHub Actions workflow
+- [ ] **Task 1.4.3**: Update Codex environment setup instructions
+- [ ] **Task 1.4.4**: Test setup script in all environments
+- [ ] **Status**: ❌ To Do
+
+### 1.5 Dependency Audit & Update
+- [ ] **Task 1.5.1**: Review each dependency in modernization plan table
+- [ ] **Task 1.5.2**: Update to latest stable/LTS versions
+- [ ] **Task 1.5.3**: Resolve `ruff` version mismatch
+- [ ] **Task 1.5.4**: Update `pre-commit` to >= 4.0.1
+- [ ] **Task 1.5.5**: Update NumPy, Scikit-learn, Bandit, Safety, Hypothesis versions
+- [ ] **Status**: ❌ To Do
+
+## 🧪 Phase 2: Testing Strategy & AI Collaboration
+
+### 2.1 Integrate adaptive_test_runner.py
+- [ ] **Task 2.1.1**: Update AI playbooks to use `adaptive_test_runner.py`
+- [ ] **Task 2.1.2**: Implement mechanism for AI to pass changed file info
+- [ ] **Task 2.1.3**: Ensure runner output is clear and actionable
+- [ ] **Task 2.1.4**: Test integration with AI workflow
+- [ ] **Status**: ❌ To Do
+
+### 2.2 Refine Self-Healing Capabilities
+- [ ] **Task 2.2.1**: Review existing self-healing rules
+- [ ] **Task 2.2.2**: Ensure fixes are logged clearly for AI learning
+- [ ] **Task 2.2.3**: Extend self-healing cautiously for safe fixes
+- [ ] **Task 2.2.4**: Document self-healing capabilities
+- [ ] **Status**: ❌ To Do
+
+### 2.3 Enforce Test Categorization
+- [ ] **Task 2.3.1**: Verify strict usage of pytest markers
+- [ ] **Task 2.3.2**: Ensure `sparc-test-fast` only runs `unit` tests
+- [ ] **Task 2.3.3**: Update test configurations in `pytest.ini`/`pyproject.toml`
+- [ ] **Task 2.3.4**: Validate marker usage across test suite
+- [ ] **Status**: ❌ To Do
+
+### 2.4 Strengthen Local Testing & CI Alignment  
+- [ ] **Task 2.4.1**: Integrate fast test run into pre-push hooks
+- [ ] **Task 2.4.2**: Align local and CI test environments
+- [ ] **Task 2.4.3**: Verify dependency consistency
+- [ ] **Task 2.4.4**: Test environment parity
+- [ ] **Status**: ❌ To Do
+
+### 2.5 Optimize Parallel Test Execution
+- [ ] **Task 2.5.1**: Install and configure `pytest-xdist`
+- [ ] **Task 2.5.2**: Expose option for `pytest -n auto`
+- [ ] **Task 2.5.3**: Create/update `codex_test` script
+- [ ] **Task 2.5.4**: Test parallel execution performance
+- [ ] **Status**: ❌ To Do
+
+### 2.6 Expand Property-Based Testing
+- [ ] **Task 2.6.1**: Identify critical modules for Hypothesis tests
+- [ ] **Task 2.6.2**: Implement property-based tests
+- [ ] **Task 2.6.3**: Evaluate mutation testing tools (optional)
+- [ ] **Task 2.6.4**: Document property-based testing guidelines
+- [ ] **Status**: ❌ To Do
+
+## 🚀 Phase 3: CI Pipeline Optimization & Resilience
+
+### 3.1 Implement Expanded Test Parallelism
+- [ ] **Task 3.1.1**: Refactor GitHub Actions workflow
+- [ ] **Task 3.1.2**: Increase test matrix from 3 to 6 groups
+- [ ] **Task 3.1.3**: Adjust `max-parallel` for test strategy
+- [ ] **Task 3.1.4**: Test parallelism improvements
+- [ ] **Status**: ❌ To Do
+
+### 3.2 Tune Resource Utilization
+- [ ] **Task 3.2.1**: Ensure build steps use `MAKEFLAGS="-j16"`
+- [ ] **Task 3.2.2**: Monitor and adjust `PYTEST_XDIST_WORKER_COUNT`
+- [ ] **Task 3.2.3**: Investigate `tmpfs` for I/O-heavy operations
+- [ ] **Task 3.2.4**: Profile and optimize CPU usage
+- [ ] **Status**: ❌ To Do
+
+### 3.3 Implement Cloud Runner Bursting
+- [ ] **Task 3.3.1**: Design conditional logic for `ubuntu-latest` runners
+- [ ] **Task 3.3.2**: Enable dependency caching via `actions/cache`
+- [ ] **Task 3.3.3**: Define manual trigger for `USE_CLOUD_RUNNERS`
+- [ ] **Task 3.3.4**: Test cloud runner strategy
+- [ ] **Status**: ❌ To Do
+
+### 3.4 Optimize Caching Strategies
+- [ ] **Task 3.4.1**: Maintain no-remote-cache for self-hosted runners
+- [ ] **Task 3.4.2**: Refine persistent virtualenv hashing
+- [ ] **Task 3.4.3**: Ensure effective `actions/cache` for cloud runners
+- [ ] **Task 3.4.4**: Test caching performance
+- [ ] **Status**: ❌ To Do
+
+### 3.5 Refine Runner Labeling
+- [ ] **Task 3.5.1**: Review current runner labels
+- [ ] **Task 3.5.2**: Use generic labels for matrix jobs
+- [ ] **Task 3.5.3**: Ensure consistent environments across runners
+- [ ] **Task 3.5.4**: Test job distribution
+- [ ] **Status**: ❌ To Do
+
+### 3.6 Monitor CI Metrics
+- [ ] **Task 3.6.1**: Establish baseline for current CI metrics
+- [ ] **Task 3.6.2**: Monitor pipeline duration and resource utilization
+- [ ] **Task 3.6.3**: Track queue times and reliability
+- [ ] **Task 3.6.4**: Make iterative adjustments
+- [ ] **Status**: ❌ To Do
+
+## 🗃️ Phase 4: Code Hygiene, Modularity & AI Readability
+
+### 4.1 Prune Legacy Components
+- [ ] **Task 4.1.1**: Audit entire codebase for legacy files
+- [ ] **Task 4.1.2**: Delete or archive superseded components
+- [ ] **Task 4.1.3**: Ensure single clear way for common tasks
+- [ ] **Task 4.1.4**: Document cleanup decisions
+- [ ] **Status**: ❌ To Do
+
+### 4.2 Enforce Code Modularity
+- [ ] **Task 4.2.1**: Verify vertical slice architecture compliance
+- [ ] **Task 4.2.2**: Ensure clear interfaces between modules
+- [ ] **Task 4.2.3**: Minimize coupling between components
+- [ ] **Task 4.2.4**: Update coding conventions documentation
+- [ ] **Status**: ❌ To Do
+
+### 4.3 Refactor tools/ Directory
+- [ ] **Task 4.3.1**: Assess if `tools/` directory exists and is needed
+- [ ] **Task 4.3.2**: Move runtime logic to appropriate `src/` locations
+- [ ] **Task 4.3.3**: Clearly separate dev-only tools
+- [ ] **Task 4.3.4**: Ensure no core runtime imports from dev tools
+- [ ] **Status**: ❌ To Do
+
+### 4.4 Review templates/ Directory
+- [ ] **Task 4.4.1**: Check if templates exist and are up-to-date
+- [ ] **Task 4.4.2**: Remove or replace outdated templates
+- [ ] **Task 4.4.3**: Document template usage in playbooks
+- [ ] **Task 4.4.4**: Test template consistency
+- [ ] **Status**: ❌ To Do
+
+### 4.5 Enhance Code Documentation
+- [ ] **Task 4.5.1**: Add/update docstrings for public modules
+- [ ] **Task 4.5.2**: Remove outdated or misleading comments
+- [ ] **Task 4.5.3**: Ensure self-documenting code through clear naming
+- [ ] **Task 4.5.4**: Keep `docs/` synchronized with code changes
+- [ ] **Status**: ❌ To Do
+
+### 4.6 Maintain Code Style & Static Analysis
+- [ ] **Task 4.6.1**: Keep Ruff, Mypy, Black, isort updated
+- [ ] **Task 4.6.2**: Consider additional static analysis tools
+- [ ] **Task 4.6.3**: Document tools in coding conventions
+- [ ] **Task 4.6.4**: Ensure AI awareness of tool requirements
+- [ ] **Status**: ❌ To Do
+
+## 🤖 Phase 5: Auto-Healing, Conflict Resolution & AI Resilience
+
+### 5.1 Implement Automated Test Retries
+- [ ] **Task 5.1.1**: Integrate `pytest-rerunfailures` into CI
+- [ ] **Task 5.1.2**: Configure small number of retries (1-2)
+- [ ] **Task 5.1.3**: Log retries clearly for analysis
+- [ ] **Task 5.1.4**: Test retry functionality
+- [ ] **Status**: ❌ To Do
+
+### 5.2 Develop Automated Merge Conflict Resolution
+- [ ] **Task 5.2.1**: Research/design GitHub Action for auto-merge conflicts
+- [ ] **Task 5.2.2**: Implement local merge attempt logic
+- [ ] **Task 5.2.3**: Handle simple auto-resolved conflicts
+- [ ] **Task 5.2.4**: Comment on PR for complex conflicts
+- [ ] **Status**: ❌ To Do
+
+### 5.3 Implement Auto-Revert for main Branch
+- [ ] **Task 5.3.1**: Create GitHub Action for main branch failures
+- [ ] **Task 5.3.2**: Detect AI agent commits
+- [ ] **Task 5.3.3**: Create revert PRs for failing commits
+- [ ] **Task 5.3.4**: Document revert reasoning
+- [ ] **Status**: ❌ To Do
+
+### 5.4 Enhance Self-Healing Knowledge Base
+- [ ] **Task 5.4.1**: Identify common safe-to-fix issues
+- [ ] **Task 5.4.2**: Implement missing dependency detection
+- [ ] **Task 5.4.3**: Add external service timeout handling
+- [ ] **Task 5.4.4**: Log all auto-fixes clearly
+- [ ] **Status**: ❌ To Do
+
+### 5.5 Improve Auto-Merge Workflow Resilience
+- [ ] **Task 5.5.1**: Maintain robust auto-merge system
+- [ ] **Task 5.5.2**: Add enhanced logging and alerting
+- [ ] **Task 5.5.3**: Synchronize branch protection with auto-merge criteria
+- [ ] **Task 5.5.4**: Test auto-merge reliability
+- [ ] **Status**: ❌ To Do
+
+## 🌅 Phase 6: Forward Design Roadmap & Continuous AI Integration
+
+### 6.1 Define Minimal Core Template
+- [ ] **Task 6.1.1**: Define "core" template components
+- [ ] **Task 6.1.2**: Document project cloning/generation process
+- [ ] **Task 6.1.3**: Ensure optional features are truly optional
+- [ ] **Task 6.1.4**: Test template generation
+- [ ] **Status**: ❌ To Do
+
+### 6.2 Formalize Modular Feature Strategy
+- [ ] **Task 6.2.1**: Document optional module enable/disable process
+- [ ] **Task 6.2.2**: Provide AI playbooks for module integration
+- [ ] **Task 6.2.3**: Test modular architecture
+- [ ] **Task 6.2.4**: Document feature dependencies
+- [ ] **Status**: ❌ To Do
+
+### 6.3 Optimize "One-Shot" AI Coding Loop
+- [ ] **Task 6.3.1**: Integrate hot-reloading for web development
+- [ ] **Task 6.3.2**: Ensure immediate feedback from code changes
+- [ ] **Task 6.3.3**: Document rapid dev loop in AI charter
+- [ ] **Task 6.3.4**: Test AI iteration speed
+- [ ] **Status**: ❌ To Do
+
+### 6.4 Implement Advanced Quality Gates
+- [ ] **Task 6.4.1**: Maintain existing quality gates (>94% coverage)
+- [ ] **Task 6.4.2**: Consider performance benchmarks in CI
+- [ ] **Task 6.4.3**: Ensure quality gates are non-negotiable for auto-merge
+- [ ] **Task 6.4.4**: Test quality gate enforcement
+- [ ] **Status**: ❌ To Do
+
+### 6.5 Enhance AI Telemetry & Learning
+- [ ] **Task 6.5.1**: Expand `.test_learning.json` concept
+- [ ] **Task 6.5.2**: Log AI commit/PR outcomes
+- [ ] **Task 6.5.3**: Research feedback loop mechanisms
+- [ ] **Task 6.5.4**: Use `add_to_memory` strategically
+- [ ] **Status**: ❌ To Do
+
+### 6.6 Establish Continuous Refinement Process
+- [ ] **Task 6.6.1**: Set up automated health reports
+- [ ] **Task 6.6.2**: Monitor dependencies, slow tests, complexity metrics
+- [ ] **Task 6.6.3**: Generate optimization recommendations
+- [ ] **Task 6.6.4**: Regularly update AI guidance documents
+- [ ] **Status**: ❌ To Do
+
+---
+
+## 🎯 CURSOR ENFORCEMENT RULES
+
+1. **Before Starting Work**: Review this task list and identify relevant incomplete tasks
+2. **During Work**: Update task status as work progresses using ✅ for completed tasks
+3. **After Completing Tasks**: Update the status summary for each phase
+4. **Progress Tracking**: Use these status indicators:
+   - ❌ To Do (not started)
+   - 🔄 In Progress (currently working)
+   - ✅ Completed (finished and verified)
+   - ⚠️ Blocked (waiting for dependencies)
+
+5. **Verification**: Each completed task must be verified before marking as ✅
+6. **Dependencies**: Respect task dependencies - don't skip prerequisite tasks
+7. **Documentation**: Update related documentation when completing tasks
+
+**NEVER proceed with modernization work without consulting and updating this task tracking list.**

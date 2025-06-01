@@ -1,0 +1,67 @@
+---
+description: 
+globs: src/codex_t/features/**/*.py,tests/features/**/*.py,templates/features/**/*
+alwaysApply: false
+---
+---
+description:"Core development standards for architecture, code quality, project structure, naming, error handling, and documentation within the Codex-T project."
+globs: src/codex_t/features/**/*.py, tests/features/**/*.py, templates/features/**/*
+alwaysApply:false
+---
+
+# Codex-T Core Development Standards
+
+## Architecture Principles
+
+- **Vertical Slice Architecture**: Organize features in `src/codex_t/features/[feature_name]/` with domain.py, dto.py, service.py
+- **Offline-First**: All features must work with mock services and local data
+- **Type Safety**: Use comprehensive type hints for all functions and methods
+- **Test-Driven**: Maintain 94%+ test coverage with pytest markers (unit, integration, smoke)
+
+## Code Quality Standards
+
+- **Formatting**: Use `ruff format` for consistent code formatting
+- **Linting**: Pass all `ruff check` validations
+- **Type Checking**: Pass all `mypy` validations
+- **Security**: Pass all `bandit` security checks
+
+## Project Structure
+
+```
+src/codex_t/
+├── core/                    # Core utilities and base classes
+├── features/               # Feature modules (vertical slice pattern)
+│   └── [feature_name]/
+│       ├── __init__.py     # Feature exports
+│       ├── domain.py       # Business logic
+│       ├── dto.py          # Data transfer objects
+│       └── service.py      # Service layer
+tests/
+├── features/               # Feature tests
+└── test_utils/            # Test utilities
+```
+
+## Naming Conventions
+
+- **Files**: Use snake_case for Python files
+- **Classes**: Use PascalCase
+- **Functions/Variables**: Use snake_case
+- **Constants**: Use UPPER_SNAKE_CASE
+- **Test Files**: Prefix with `test_`
+
+## Error Handling
+
+- Use specific exception types
+- Include comprehensive error messages
+- Log errors with appropriate levels
+- Implement graceful degradation
+
+## Documentation
+
+- Include docstrings for all public functions (Google style)
+- Maintain README.md files for features
+- Document API endpoints and data models
+- Keep inline comments concise and meaningful
+
+@templates/core/base_service.py
+@templates/features/feature_template.py

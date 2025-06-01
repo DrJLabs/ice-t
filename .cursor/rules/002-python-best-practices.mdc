@@ -1,0 +1,100 @@
+---
+description:
+globs: **/*.py, src/**/*.py, tests/**/*.py
+alwaysApply: false
+---
+---
+description:"Python best practices covering code style, type hints, error handling, imports, testing, performance, and security."
+globs:**/*.py, src/**/*.py, tests/**/*.py, tools/**/*.py
+alwaysApply:false
+---
+
+# Python Best Practices
+
+## Code Style
+
+- Use Python 3.12+ features and syntax
+- Follow PEP 8 style guidelines (enforced by ruff)
+- Use f-strings for string formatting
+- Prefer pathlib over os.path for file operations
+- Use dataclasses or Pydantic models for data structures
+
+## Type Hints
+
+```python
+from typing import Optional, List, Dict, Any
+from pathlib import Path
+
+def process_data(
+    input_file: Path,
+    options: Dict[str, Any],
+    output_format: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """Process data with comprehensive type hints."""
+    pass
+```
+
+## Error Handling
+
+```python
+# Good: Specific exceptions
+try:
+    result = risky_operation()
+except FileNotFoundError as e:
+    logger.error(f"File not found: {e}")
+    raise ProcessingError(f"Required file missing: {e}") from e
+except ValueError as e:
+    logger.warning(f"Invalid value: {e}")
+    return default_value()
+```
+
+## Imports
+
+- Use absolute imports from project root
+- Group imports: standard library, third-party, local
+- Use `from __future__ import annotations` for forward references
+
+```python
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+from typing import Optional
+
+import pytest
+from pydantic import BaseModel
+
+from codex_t.core.exceptions import ProcessingError
+from codex_t.features.greetings.domain import GreetingService
+```
+
+## Testing
+
+- Use pytest with descriptive test names
+- Include docstrings for test functions
+- Use fixtures for common test data
+- Mark tests appropriately: @pytest.mark.unit, @pytest.mark.integration
+
+```python
+@pytest.mark.unit
+def test_greeting_service_returns_personalized_message():
+    """Test that GreetingService returns a personalized greeting."""
+    service = GreetingService()
+    result = service.greet("Alice")
+    assert "Alice" in result
+    assert isinstance(result, str)
+```
+
+## Performance
+
+- Use list comprehensions over loops when appropriate
+- Prefer generators for large datasets
+- Use `functools.lru_cache` for expensive computations
+- Profile before optimizing
+
+## Security
+
+- Never hardcode secrets or credentials
+- Validate all external inputs
+- Use secure defaults for configurations
+- Sanitize data before logging

@@ -1,0 +1,59 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+---
+description:Enforces branch naming and git workflow for all Cursor AI sessions - must be followed on every run without exception
+globs:""
+alwaysApply:true
+---
+
+# 🤖 MANDATORY CURSOR AI WORKFLOW
+
+## ⚡ CURSOR AI MUST FOLLOW THIS WORKFLOW ON EVERY RUN
+
+### 📋 Required Steps for Every Cursor Session:
+
+1. **Create New Branch**: Always create a new branch with `cursor/` prefix
+   ```bash
+   git checkout -b cursor/[descriptive-task-name]
+   ```
+
+2. **Make Changes**: Implement the requested changes/features
+
+3. **Add & Commit**: Add all changes and commit with descriptive message
+   ```bash
+   git add .
+   git commit -m "[descriptive commit message]"
+   ```
+
+4. **Push Branch**: Push the new branch to origin with upstream tracking
+   ```bash
+   git push -u origin cursor/[branch-name]
+   ```
+
+5. **Create PR**: The push command will provide a GitHub link to create a pull request
+
+### 🎯 Branch Naming Convention for Cursor:
+- **Format**: `cursor/[task-description]`
+- **Examples**:
+  - `cursor/task-cards-implementation`
+  - `cursor/fix-greeting-validation`
+  - `cursor/add-performance-tests`
+  - `cursor/update-documentation`
+
+### ✅ This Workflow Ensures:
+- ✅ All Cursor work is properly tracked in branches
+- ✅ Changes are committed and pushed for backup
+- ✅ Pull requests are created for code review
+- ✅ Branch naming follows project conventions
+- ✅ No work is lost if branches are deleted after merge
+
+### 🚨 IMPORTANT:
+- Never work directly on main/develop branches
+- Always create a new `cursor/` branch first
+- Follow this workflow on EVERY single run
+- No exceptions to this mandatory process
+
+This is rule #000 and has the highest priority - must be followed without exception.

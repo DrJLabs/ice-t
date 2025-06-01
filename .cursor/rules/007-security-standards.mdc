@@ -1,0 +1,140 @@
+---
+description: USE WHEN implementing security features or handling sensitive data
+globs: 
+alwaysApply: false
+---
+---
+description:"Security standards for sensitive code, credentials, and data handling"
+alwaysApply:false
+globs:""
+---
+
+# Security Standards
+
+## Code Security
+
+### Input Validation
+- Validate all external inputs
+- Use type hints and Pydantic models for validation
+- Sanitize data before processing
+- Implement proper error handling for invalid inputs
+
+```python
+from pydantic import BaseModel, validator
+
+class UserInput(BaseModel):
+    name: str
+    email: str
+
+    @validator('email')
+    def validate_email(cls, v):
+        if '@' not in v:
+            raise ValueError('Invalid email format')
+        return v.lower()
+```
+
+### Secrets Management
+- Never hardcode secrets, API keys, or passwords
+- Use environment variables for configuration
+- Use `.env` files for local development (never commit)
+- Rotate secrets regularly
+
+```python
+import os
+from pathlib import Path
+
+# Good: Use environment variables
+API_KEY = os.getenv('API_KEY')
+if not API_KEY:
+    raise ValueError("API_KEY environment variable required")
+
+# Good: Load from .env file (not committed)
+from dotenv import load_dotenv
+load_dotenv()
+```
+
+### Data Protection
+- Sanitize data before logging
+- Use secure defaults for all configurations
+- Implement proper access controls
+- Encrypt sensitive data at rest and in transit
+
+## Dependency Security
+
+### Package Management
+- Pin dependency versions in requirements.txt
+- Regularly update dependencies for security patches
+- Use `pip-audit` to check for known vulnerabilities
+- Review new dependencies before adding
+
+### Supply Chain Security
+- Verify package integrity
+- Use trusted package sources
+- Monitor for dependency vulnerabilities
+- Implement dependency scanning in CI/CD
+
+## Infrastructure Security
+
+### Environment Isolation
+- Separate development, staging, and production environments
+- Use different credentials for each environment
+- Implement proper network segmentation
+- Regular security assessments
+
+### Access Control
+- Implement least privilege access
+- Use strong authentication mechanisms
+- Regular access reviews and cleanup
+- Monitor and log access attempts
+
+## CI/CD Security
+
+### Pipeline Security
+- Secure runner environments
+- Use encrypted secrets in workflows
+- Implement security scanning in pipelines
+- Regular security updates for build tools
+
+### Code Scanning
+- Static analysis with bandit
+- Dependency vulnerability scanning
+- Secret detection in commits
+- Regular security audits
+
+## Logging and Monitoring
+
+### Secure Logging
+- Never log sensitive information
+- Implement structured logging
+- Monitor for security events
+- Regular log analysis and alerting
+
+```python
+import logging
+
+# Good: Sanitized logging
+logger.info(f"User login attempt for user_id: {user_id}")
+
+# Bad: Logging sensitive data
+logger.info(f"User login with password: {password}")  # Never do this
+```
+
+### Incident Response
+- Defined incident response procedures
+- Regular security drills
+- Automated alerting for security events
+- Post-incident analysis and improvements
+
+## Compliance
+
+### Data Privacy
+- Implement data minimization principles
+- Respect user privacy preferences
+- Secure data deletion procedures
+- Regular privacy impact assessments
+
+### Regulatory Compliance
+- Follow relevant security standards
+- Regular compliance audits
+- Documentation of security controls
+- Staff security training
