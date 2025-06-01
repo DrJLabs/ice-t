@@ -50,6 +50,9 @@ alias sparc-demo="python3 src/codex_t/core/offline_services.py"
 alias sparc-quick="sparc-test-smoke && sparc-format"
 alias sparc-ready="sparc-quality && sparc-security"
 
+# ice-t specific test commands
+export ICE_T_TEST_CMD="python3 scripts/adaptive_test_runner.py run --level fast"
+
 echo "✅ Streamlined SPARC commands loaded for Codex-T:"
 echo ""
 echo "🧪 Essential Testing:"

@@ -94,6 +94,15 @@ repos:
         types: [python]
         stages: [pre-commit, manual]
 
+      # ice-t smoke tests
+      - id: ice-t-smoke-tests
+        name: ice-t Smoke Tests
+        entry: python3
+        args: ['scripts/adaptive_test_runner.py', 'run', '--smoke']
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, manual]
+
 # =============================================================================
 # Pre-commit configuration
 # =============================================================================
