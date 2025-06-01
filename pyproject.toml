@@ -9,11 +9,32 @@ description = "Autonomous high-performance template for web-app projects driven 
 authors = [{name = "DrJLabs", email = "drj@example.com"}]
 requires-python = ">=3.9"
 dependencies = [
-    "pytest>=8.2.0",
+    # Testing stack
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.6.0",
+    "pytest-mock>=3.14.0",
+    "pytest-forked>=1.6.0",
+    "execnet>=2.0.2",
+
+    # Core utilities
     "rich>=13.7.1",
     "pydantic>=2.7.4",
-    "ruff>=0.11.11",
+    "ruff>=0.4.3",
     "mypy>=1.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "types-jsonschema",
+    "pre-commit>=4.0.1",
+    "tox>=4.15.0",
+    "hypothesis>=6.100.0",
+    "bandit>=1.7.5",
+    "safety>=3.2.0",
+    "pydantic[mypy]>=2.7.1",
+    "rich>=13.0.0",
+    "pytest-asyncio>=0.23.0",
 ]
 
 [tool.ruff]
