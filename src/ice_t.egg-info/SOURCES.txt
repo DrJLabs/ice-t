@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+src/ice_t/__init__.py
+src/ice_t.egg-info/PKG-INFO
+src/ice_t.egg-info/SOURCES.txt
+src/ice_t.egg-info/dependency_links.txt
+src/ice_t.egg-info/requires.txt
+src/ice_t.egg-info/top_level.txt
+src/ice_t/core/__init__.py
+src/ice_t/features/__init__.py
+src/ice_t/integrations/__init__.py
+src/ice_t/utilities/__init__.py
