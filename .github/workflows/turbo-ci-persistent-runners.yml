@@ -84,6 +84,17 @@ jobs:
           # Check if persistent virtual environment exists and is current
           if [ -d "$VENV_DIR" ] && [ -f "$VENV_DIR/pyvenv.cfg" ]; then
             echo "⚡ Using persistent virtual environment (2-3 second fast path)"
+
+            # Activate and ensure package is installed in editable mode
+            export VIRTUAL_ENV="$VENV_DIR"
+            export PATH="$VENV_DIR/bin:$PATH"
+
+            # Quick check if ice_t package is available, install if missing
+            if ! python -c "import ice_t" 2>/dev/null; then
+              echo "🔧 Installing ice_t package in editable mode..."
+              python -m pip install -e . --quiet
+            fi
+
             SETUP_TIME="fast"
           else
             echo "🔧 Creating persistent virtual environment (30-40 seconds one-time setup)"
@@ -100,6 +111,9 @@ jobs:
             python -m pip install --upgrade pip wheel setuptools --quiet
             [ -f "requirements.txt" ] && python -m pip install -r requirements.txt --quiet
             [ -f "dev-requirements.txt" ] && python -m pip install -r dev-requirements.txt --quiet
+
+            # Install package in editable mode for testing
+            python -m pip install -e . --quiet
 
             echo "✅ Persistent virtual environment created"
             SETUP_TIME="created"

@@ -4,12 +4,14 @@ Codex Compatibility Checker for Next-Generation Features
 Validates environment compatibility and feature availability in sandboxed environments.
 """
 
+from __future__ import annotations
+
 import importlib
 from pathlib import Path
 import platform
 import subprocess
 import sys
-from typing import Dict, List
+import urllib.request
 
 
 class CodexCompatibilityChecker:
@@ -45,7 +47,7 @@ class CodexCompatibilityChecker:
         self.results["recommendations"].append("Upgrade to Python 3.8+ required")
         return False
 
-    def check_core_dependencies(self) -> Dict[str, bool]:
+    def check_core_dependencies(self) -> dict[str, bool]:
         """Check core dependencies required for basic functionality"""
         core_deps = ["pytest", "rich", "click", "pydantic", "ruff", "mypy"]
 
@@ -63,7 +65,7 @@ class CodexCompatibilityChecker:
 
         return self.results["core_dependencies"]
 
-    def check_enhanced_dependencies(self) -> Dict[str, bool]:
+    def check_enhanced_dependencies(self) -> dict[str, bool]:
         """Check enhanced dependencies for next-generation features"""
         enhanced_deps = {
             "numpy": "Enhanced Context Manager basic features",
@@ -91,7 +93,7 @@ class CodexCompatibilityChecker:
 
         return self.results["enhanced_dependencies"]
 
-    def check_sandboxed_features(self) -> Dict[str, bool]:
+    def check_sandboxed_features(self) -> dict[str, bool]:
         """Check features that work well in sandboxed environments"""
         features = {
             "file_system_access": self._check_file_system(),
@@ -109,7 +111,7 @@ class CodexCompatibilityChecker:
 
         return features
 
-    def check_next_generation_compatibility(self) -> Dict[str, str]:
+    def check_next_generation_compatibility(self) -> dict[str, str]:
         """Check specific next-generation feature compatibility"""
         features = {
             "Enhanced Context Manager v2.0": self._check_context_manager(),
@@ -167,8 +169,6 @@ class CodexCompatibilityChecker:
     def _check_network(self) -> bool:
         """Check network access (limited in sandboxed environments)"""
         try:
-            import urllib.request
-
             urllib.request.urlopen("https://httpbin.org/get", timeout=2)
             return True
         except Exception:
@@ -237,7 +237,7 @@ class CodexCompatibilityChecker:
             return "⚠️"
         return "❌"
 
-    def generate_recommendations(self) -> List[str]:
+    def generate_recommendations(self) -> list[str]:
         """Generate specific recommendations for the environment"""
         recommendations = self.results["recommendations"].copy()
 
@@ -276,7 +276,7 @@ class CodexCompatibilityChecker:
 
         return recommendations
 
-    def run_full_check(self) -> Dict:
+    def run_full_check(self) -> dict:
         """Run complete compatibility check"""
         print("🔍 Codex Compatibility Check for Next-Generation Features")
         print("=" * 60)
@@ -313,19 +313,21 @@ class CodexCompatibilityChecker:
         print("\n📊 Summary:")
         print(f"  Core Dependencies: {core_available}/{core_total}")
         print(f"  Enhanced Dependencies: {enhanced_available}/{enhanced_total}")
-        print(
-            f"  Sandboxed Features: {sum(self.results['sandboxed_features'].values())}/{len(self.results['sandboxed_features'])}"
-        )
+        sandboxed_available = sum(self.results["sandboxed_features"].values())
+        sandboxed_total = len(self.results["sandboxed_features"])
+        print(f"  Sandboxed Features: {sandboxed_available}/{sandboxed_total}")
 
         if core_available == core_total:
             print("\n✅ Environment is compatible with Codex next-generation features!")
         elif core_available >= core_total * 0.8:
             print(
-                "\n⚠️ Environment is mostly compatible. Install missing core dependencies."
+                "\n⚠️ Environment is mostly compatible. "
+                "Install missing core dependencies."
             )
         else:
             print(
-                "\n❌ Environment needs significant setup. Follow recommendations above."
+                "\n❌ Environment needs significant setup. "
+                "Follow recommendations above."
             )
 
         return self.results

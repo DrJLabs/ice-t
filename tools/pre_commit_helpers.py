@@ -148,7 +148,8 @@ def check_merge_conflict(filenames: Sequence[str]) -> int:
                         pattern.endswith(b"\n") and line == pattern.rstrip(b"\n")
                     ):
                         print(
-                            f"❌ {filename}:{i} - {description}: {line.decode('utf-8', errors='replace')}"
+                            f"❌ {filename}:{i} - {description}: "
+                            f"{line.decode('utf-8', errors='replace')}"
                         )
                         retval = 1
 
