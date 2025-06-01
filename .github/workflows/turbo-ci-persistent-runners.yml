@@ -176,11 +176,14 @@ jobs:
 
           echo "🐍 Using Python: $(python --version)"
 
-      - name: ⚡ Run pre-commit (using local cache)
-        run: |
-          # Pre-commit uses ~/.cache/pre-commit by default - perfect for persistent runners
-          echo "Using pre-commit cache: ~/.cache/pre-commit"
-          pre-commit run --all-files --show-diff-on-failure
+      - name: 🧹 Install Ruff (if not in venv base dev-requirements)
+        run: python -m pip install ruff --quiet
+
+      - name:  Ruff Linter Check
+        run: ruff check .
+
+      - name: 🎨 Ruff Formatter Check
+        run: ruff format --check .
 
       - name: 🔍 Code complexity analysis
         run: |
