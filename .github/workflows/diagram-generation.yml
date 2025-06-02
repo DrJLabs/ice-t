@@ -33,6 +33,10 @@ env:
   PYTHONUNBUFFERED: 1
   CI: true
 
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
 jobs:
   generate-diagrams:
     name: "📊 Generate Repository Diagrams"
@@ -58,17 +62,16 @@ jobs:
             echo "Virtual environment not found, creating one..."
             python3 -m venv .venv
             source .venv/bin/activate
-            pip install --upgrade pip setuptools wheel
+            pip install --upgrade pip setuptools wheel --no-input --no-compile
           }
-          pip install -e .
+          pip install --no-input --no-compile -e .
 
       - name: "📦 Install Diagram Dependencies"
         shell: bash
         run: |
           set -euo pipefail
           source .venv/bin/activate
-          pip install --no-input --no-compile \
-            graphviz \
+          pip install --no-input --no-compile graphviz
             matplotlib \
             seaborn \
             networkx \
@@ -169,5 +172,4 @@ jobs:
             docs/diagrams/
             *.png
             *.svg
-          retention-days: 30
-
+          retention-days: 30 
