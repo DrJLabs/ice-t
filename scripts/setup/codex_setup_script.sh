@@ -115,6 +115,8 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   pytest-mock==3.14.0 \
   hypothesis==6.131.27 \
   coverage==7.8.0 \
+  pytest-forked==1.6.0 \
+  execnet==2.0.2 \
   || echo "⚠️ Some testing dependencies failed (will use fallbacks)"
 
 # Code quality tools
@@ -125,6 +127,8 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   isort>=5.13.2 \
   bandit>=1.7.5 \
   safety>=3.2.0 \
+  yamllint>=1.35.1 \
+  PyYAML>=6.0 \
   || echo "⚠️ Some quality tools failed (will use fallbacks)"
 
 # Build and utility tools

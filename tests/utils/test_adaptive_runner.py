@@ -19,7 +19,7 @@ def test_run_group_tests_with_coverage(monkeypatch, tmp_path):
     result = runner.run_group_tests("core")
 
     expected_cmd = [
-        "python",
+        sys.executable,
         "-m",
         "pytest",
         str(tmp_path / "tests" / "core"),
@@ -46,7 +46,7 @@ def test_run_group_tests_no_coverage(monkeypatch, tmp_path):
     result = runner.run_group_tests("core", coverage=False)
 
     expected_cmd = [
-        "python",
+        sys.executable,
         "-m",
         "pytest",
         str(tmp_path / "tests" / "core"),
