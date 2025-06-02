@@ -54,87 +54,7 @@ jobs:
         id: evaluate
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          # Get PR details
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            PR_NUMBER="${{ github.event.pull_request.number }}"
-            PR_NODE_ID="${{ github.event.pull_request.node_id }}"
-          else
-            # For check_suite or status events, get PR from API
-            PR_DATA=$(gh api repos/${{ github.repository }}/pulls \
-              --jq '.[] | select(.head.sha == "${{ github.event.check_suite.head_sha || github.sha }}") | {number, node_id}' | head -1)
-            PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number // empty')
-            PR_NODE_ID=$(echo "$PR_DATA" | jq -r '.node_id // empty')
-          fi
-
-          if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
-            echo "reason=No PR found for this event" >> $GITHUB_OUTPUT
-            echo "should-auto-merge=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT
-          echo "pr-node-id=$PR_NODE_ID" >> $GITHUB_OUTPUT
-
-          # Get detailed PR information
-          PR_DETAILS=$(gh pr view $PR_NUMBER --json author,baseRefName,headRefName,title,labels,mergeable,mergeStateStatus,reviewDecision)
-
-          AUTHOR=$(echo "$PR_DETAILS" | jq -r '.author.login')
-          BASE_BRANCH=$(echo "$PR_DETAILS" | jq -r '.baseRefName')
-          HEAD_BRANCH=$(echo "$PR_DETAILS" | jq -r '.headRefName')
-          TITLE=$(echo "$PR_DETAILS" | jq -r '.title')
-          MERGEABLE=$(echo "$PR_DETAILS" | jq -r '.mergeable')
-          MERGE_STATE=$(echo "$PR_DETAILS" | jq -r '.mergeStateStatus')
-          REVIEW_DECISION=$(echo "$PR_DETAILS" | jq -r '.reviewDecision // "NONE"')
-
-          echo "📋 PR Analysis:"
-          echo "  - Number: $PR_NUMBER"
-          echo "  - Author: $AUTHOR"
-          echo "  - Branch: $HEAD_BRANCH → $BASE_BRANCH"
-          echo "  - Title: $TITLE"
-          echo "  - Mergeable: $MERGEABLE"
-          echo "  - Merge State: $MERGE_STATE"
-          echo "  - Review Decision: $REVIEW_DECISION"
-
-          # Check auto-merge criteria
-          SHOULD_AUTO_MERGE="false"
-          REASON=""
-
-          # 1. Check if PR is targeting allowed branches
-          if [[ "$BASE_BRANCH" != "main" && "$BASE_BRANCH" != "develop" ]]; then
-            REASON="Auto-merge only enabled for main/develop branches (targeting: $BASE_BRANCH)"
-          # 2. Check if PR is from dependabot, AI agents, or has auto-merge label
-          elif [[ "$AUTHOR" == "dependabot[bot]" ]] ||
-               [[ "$HEAD_BRANCH" == cursor/* ]] ||
-               [[ "$HEAD_BRANCH" == codex/* ]] ||
-               echo "$PR_DETAILS" | jq -e '.labels[] | select(.name == "auto-merge")' >/dev/null; then
-
-            # 3. Check if PR is mergeable
-            if [[ "$MERGEABLE" != "MERGEABLE" ]]; then
-              REASON="PR is not mergeable (state: $MERGEABLE)"
-            # 4. For main branch, require review approval
-            elif [[ "$BASE_BRANCH" == "main" && "$REVIEW_DECISION" != "APPROVED" ]]; then
-              REASON="Main branch requires review approval (current: $REVIEW_DECISION)"
-            else
-              SHOULD_AUTO_MERGE="true"
-              REASON="PR meets auto-merge criteria"
-            fi
-          else
-            REASON="PR not eligible: not from dependabot/AI agents and no auto-merge label"
-          fi
-
-          echo "should-auto-merge=$SHOULD_AUTO_MERGE" >> $GITHUB_OUTPUT
-          echo "reason=$REASON" >> $GITHUB_OUTPUT
-
-          # Determine merge method based on target branch
-          if [[ "$BASE_BRANCH" == "main" ]]; then
-            echo "merge-method=SQUASH" >> $GITHUB_OUTPUT
-          else
-            echo "merge-method=MERGE" >> $GITHUB_OUTPUT
-          fi
-
-          echo "🤖 Auto-merge Decision: $SHOULD_AUTO_MERGE"
-          echo "📝 Reason: $REASON"
+        run: python scripts/evaluate_auto_merge.py
 
   # Enable auto-merge using GraphQL API (primary method)
   enable-auto-merge-graphql:
@@ -263,44 +183,36 @@ jobs:
 
                 ⚠️ Could not auto-approve due to permissions, but auto-merge is enabled.
 
-                **To enable auto-approval**: Go to Settings > Actions > General and enable 'Allow GitHub Actions to create and approve pull requests'
+          echo "- ✅ All required status checks must pass" >> $GITHUB_STEP_SUMMARY
 
-                The PR will automatically merge when all required checks pass and approvals are met. ✅" || true
-            fi
-          else
-            echo "✅ PR already approved, skipping auto-approval"
-          fi
+      - name: "💬 Debug on failure"
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/debug_ci.py > debug.log
+      - name: "📤 Upload debug logs"
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-auto-merge-${{ github.run_id }}
+          path: debug.log
+          retention-days: 7
 
-  # Monitor and report auto-merge status
-  monitor-auto-merge:
-    name: 📊 Monitor Auto-Merge Status
+  comment-on-skip:
+    name: "📝 Comment when Auto-Merge Skipped"
     runs-on: [self-hosted, linux]
     needs: evaluate-auto-merge
-    if: always()
+    if: needs.evaluate-auto-merge.outputs.should-auto-merge != 'true'
     steps:
-      - name: 📊 Generate auto-merge summary
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "## 🤖 Auto-Merge Workflow Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+      - name: "💬 Post skip comment"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ needs.evaluate-auto-merge.outputs.pr-number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ Auto-merge skipped: ${{ needs.evaluate-auto-merge.outputs.reason }}`
+            });
 
-          if [ "${{ needs.evaluate-auto-merge.outputs.pr-number }}" != "" ]; then
-            echo "**PR Number**: #${{ needs.evaluate-auto-merge.outputs.pr-number }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Decision**: ${{ needs.evaluate-auto-merge.outputs.should-auto-merge == 'true' && '✅ Auto-merge enabled' || '❌ Auto-merge not enabled' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Reason**: ${{ needs.evaluate-auto-merge.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Merge Method**: ${{ needs.evaluate-auto-merge.outputs.merge-method }}" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "**Decision**: ❌ No eligible PR found" >> $GITHUB_STEP_SUMMARY
-            echo "**Reason**: ${{ needs.evaluate-auto-merge.outputs.reason || 'Event not related to PR or PR not found' }}" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Auto-Merge Criteria" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Target branch: main or develop" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ PR from: dependabot, cursor/*, codex/*, or has 'auto-merge' label" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ PR is mergeable and not draft" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Main branch PRs require review approval" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ All required status checks must pass" >> $GITHUB_STEP_SUMMARY

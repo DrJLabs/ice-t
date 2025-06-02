@@ -1,0 +1,23 @@
+name: 'Setup Venv'
+description: 'Activate persistent virtual environment based on requirements hash'
+inputs:
+  requirements-hash:
+    description: 'Hash of requirements used to locate the persistent virtual environment'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        REQ_HASH="${{ inputs.requirements-hash }}"
+        VENV_DIR="$HOME/.cache/ice-t-venv-${REQ_HASH:0:12}"
+        echo "⚡ Activating persistent venv: ${VENV_DIR}"
+        if [ ! -d "$VENV_DIR" ]; then
+          echo "❌ Persistent virtual environment not found! Setup job may have failed."
+          exit 1
+        fi
+        export VIRTUAL_ENV="$VENV_DIR"
+        export PATH="$VENV_DIR/bin:$PATH"
+        echo "VIRTUAL_ENV=$VENV_DIR" >> "$GITHUB_ENV"
+        echo "PATH=$VENV_DIR/bin:$PATH" >> "$GITHUB_ENV"
+        echo "🐍 Using Python: $(python --version)"

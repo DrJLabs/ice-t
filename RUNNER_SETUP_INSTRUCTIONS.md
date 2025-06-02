@@ -106,11 +106,10 @@ The runners are configured to match the turbo CI workflow:
 
 This provides 6-way parallel execution as designed for the ice-t project.
 
-To confirm everything is running, visit **Settings → Actions → Runners** in the
-GitHub repository. Each runner should display a green `idle` status. If any
-runner appears offline you can restart its service:
+## Troubleshooting Offline Runners
 
-```bash
-sudo systemctl restart actions.runner.<owner>-ice-t-runner-<n>.service
-```
-Replace `<n>` with the runner number.
+If a runner shows as **offline**:
+
+1. Check the runner service status:
+   ```bash
+   sudo systemctl status actions.runner.*
