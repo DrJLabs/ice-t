@@ -79,8 +79,8 @@
 |-------------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|--------|
 | **Source of Truth**           | `requirements.txt`, `dev-requirements.txt`          | `pyproject.toml` (core & optional dependencies via `[project.dependencies]` and `[project.optional-dependencies]`)            | Clear, single file for Codex to reference if it needs to suggest dependency additions. | To Do  |
 | **Version Pinning**           | Some inconsistencies, manual updates                | `pip-compile` (from `pip-tools`) to generate locked `requirements.txt` and `dev-requirements.txt` from `pyproject.toml` | Ensures exact versions are installed in the Codex agent's environment.            | To Do  |
-| **Environment Consistency**   | Potential for drift                                 | Use a `.python-version` file; ensure `setup_dependencies.sh` (or equivalent commands) are run in ALL environments.        | Critical for agent reliability. Setup script *must* run in Codex environment.       | To Do  |
-| **Installation Script**       | `setup_dependencies.sh` (manual invocation)         | Refined `setup_dependencies.sh` (or direct `pip install .[dev,optional]` commands) integrated into CI and Codex setup.     | Must be non-interactive and robust.                                                 | To Do  |
+| **Environment Consistency**   | Potential for drift                                 | Use a `.python-version` file; ensure `setup_env.sh` (or equivalent commands) are run in ALL environments.        | Critical for agent reliability. Setup script *must* run in Codex environment.       | To Do  |
+| **Installation Script**       | `setup_env.sh` (manual invocation)         | Refined `setup_env.sh` (or direct `pip install .[dev,optional]` commands) integrated into CI and Codex setup.     | Must be non-interactive and robust.                                                 | To Do  |
 | **Dependency Audit & Update** | Table provided with targets                           | Verify and update all dependencies to latest stable/LTS. Resolve `ruff` mismatch. Update `pre-commit` spec to `4.x`.  | Ensures agent uses current library APIs.                                            | To Do  |
 | **External Services (e.g. DB)** | N/A for core, but principle applies               | If added, ensure robust, non-interactive setup scripts for Codex environment (see [OpenAI Community: Codex MySQL Dependency Not Working](https://community.openai.com/t/codex-mysql-dependency-not-working/1266857)). | Prevents agent hangs on service startup.                                             | To Do  |
 
@@ -107,7 +107,7 @@
     *   **ChatGPT Codex Focus:** Prevents version-related compatibility issues for the agent.
     *   **Status:** Done
 
-4.  **Refine and Integrate `setup_dependencies.sh` (or direct pip commands):**
+4.  **Refine and Integrate `setup_env.sh` (or direct pip commands):**
     *   **Task:** Modify the script (or define `pip` commands) to install from `pyproject.toml` extras (e.g., `pip install .[dev,ml,monitoring]`).
     *   **Task:** Ensure this setup is explicitly part of the GitHub Actions workflow for CI and, crucially, part of the environment setup instructions for the ChatGPT Codex agent.
     *   **ChatGPT Codex Focus:** This is the mechanism to ensure the agent *sees* the correct dependencies.
