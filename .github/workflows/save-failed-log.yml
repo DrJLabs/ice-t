@@ -1,0 +1,34 @@
+---
+name: save-failed-log
+"on":
+  workflow_run:
+    workflows: ["CI"]          # ‼Replace<CI> with your real workflow name
+    types: [completed]
+
+jobs:
+  persist:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📥 Fetch failing log
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run view ${{ github.event.workflow_run.id }} --log \
+            > .codex/logs/ci_${{ github.event.workflow_run.id }}.log
+
+      - name: 📝 Commit log for Codex
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "ice-t-bot"
+          git config user.email "ice-t-bot@users.noreply.github.com"
+          git add .codex/logs
+          git commit -m \
+            "ci(log): add failed run ${{ github.event.workflow_run.id }}"
+          git push
