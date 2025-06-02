@@ -1,4 +1,4 @@
-name: 📊 Auto-Generate Repository Diagrams
+name: "📊 Auto-Generate Repository Diagrams"
 
 on:
   push:
@@ -31,22 +31,29 @@ on:
 env:
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONUNBUFFERED: 1
+  CI: true
 
 jobs:
   generate-diagrams:
-    name: 📊 Generate Repository Diagrams
+    name: "📊 Generate Repository Diagrams"
     runs-on: [self-hosted, ice-t, diagrams]
     timeout-minutes: 15
-    
     steps:
-      - name: ⚡ Checkout Code
+      - name: "⚡ Checkout Code"
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🐍 Setup Python Environment
+      - name: "🐍 Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: "🐍 Setup Python Environment"
+        shell: bash
         run: |
+          set -euo pipefail
           source .venv/bin/activate || {
             echo "Virtual environment not found, creating one..."
             python3 -m venv .venv
@@ -55,10 +62,12 @@ jobs:
           }
           pip install -e .
 
-      - name: 📦 Install Diagram Dependencies
+      - name: "📦 Install Diagram Dependencies"
+        shell: bash
         run: |
+          set -euo pipefail
           source .venv/bin/activate
-          pip install \
+          pip install --no-input --no-compile \
             graphviz \
             matplotlib \
             seaborn \
@@ -70,46 +79,54 @@ jobs:
             plotly \
             mermaid-py
 
-      - name: 🎨 Install System Dependencies
+      - name: "🎨 Install System Dependencies"
+        shell: bash
         run: |
+          set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y graphviz graphviz-dev plantuml
+          sudo apt-get install -y --no-install-recommends graphviz graphviz-dev plantuml
 
-      - name: 📊 Generate Architecture Diagrams
+      - name: "📊 Generate Architecture Diagrams"
         if: ${{ github.event.inputs.diagram_type == 'all' || github.event.inputs.diagram_type == 'architecture' || github.event.inputs.diagram_type == '' }}
+        shell: bash
         run: |
+          set -euo pipefail
           source .venv/bin/activate
           python scripts/generate_architecture_diagrams.py
 
-      - name: 🔄 Generate Workflow Diagrams
+      - name: "🔄 Generate Workflow Diagrams"
         if: ${{ github.event.inputs.diagram_type == 'all' || github.event.inputs.diagram_type == 'workflow' || github.event.inputs.diagram_type == '' }}
+        shell: bash
         run: |
+          set -euo pipefail
           source .venv/bin/activate
           python scripts/generate_workflow_diagrams.py
 
-      - name: 📈 Generate Dependency Graphs
+      - name: "📈 Generate Dependency Graphs"
         if: ${{ github.event.inputs.diagram_type == 'all' || github.event.inputs.diagram_type == 'dependencies' || github.event.inputs.diagram_type == '' }}
+        shell: bash
         run: |
+          set -euo pipefail
           source .venv/bin/activate
           python scripts/generate_dependency_graphs.py
 
-      - name: 📚 Update Documentation
+      - name: "📚 Update Documentation"
+        shell: bash
         run: |
+          set -euo pipefail
           source .venv/bin/activate
           python scripts/update_diagram_docs.py
 
-      - name: 🚀 Commit Generated Diagrams
+      - name: "🚀 Commit Generated Diagrams"
         if: github.event_name == 'push'
+        shell: bash
         run: |
+          set -euo pipefail
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
-          # Add generated diagrams
           git add docs/diagrams/ || true
           git add README.md || true
           git add docs/ || true
-          
-          # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No diagram changes to commit"
           else
@@ -117,21 +134,17 @@ jobs:
             git push
           fi
 
-      - name: 💬 Comment on PR with Diagrams
+      - name: "💬 Comment on PR with Diagrams"
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
-            // Find generated diagram files
             const diagramsDir = 'docs/diagrams';
             let comment = '## 📊 Generated Diagrams\n\n';
-            
             if (fs.existsSync(diagramsDir)) {
               const files = fs.readdirSync(diagramsDir).filter(f => f.endsWith('.png') || f.endsWith('.svg'));
-              
               for (const file of files) {
                 const fileName = path.parse(file).name;
                 comment += `### ${fileName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}\n`;
@@ -140,7 +153,6 @@ jobs:
             } else {
               comment += 'No diagrams generated for this change.\n';
             }
-            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -148,13 +160,14 @@ jobs:
               body: comment
             });
 
-      - name: 📊 Archive Diagram Artifacts
-        uses: actions/upload-artifact@v4
+      - name: "📊 Archive Diagram Artifacts"
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: repository-diagrams
           path: |
             docs/diagrams/
             *.png
             *.svg
-          retention-days: 30 
+          retention-days: 30
+

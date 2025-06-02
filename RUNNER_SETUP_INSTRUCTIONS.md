@@ -105,3 +105,18 @@ The runners are configured to match the turbo CI workflow:
 - `ice-t,test,api` - API and end-to-end tests
 
 This provides 6-way parallel execution as designed for the ice-t project. 
+## Troubleshooting Offline Runners
+
+If a runner shows as offline:
+
+1. Check the runner service status:
+   ```bash
+   sudo systemctl status actions.runner.*
+   ```
+2. Ensure the machine has network access to GitHub.
+3. Restart the service:
+   ```bash
+   sudo systemctl restart actions.runner.<runner-name>
+   ```
+4. Review `runner.log` in the runner directory for errors.
+
