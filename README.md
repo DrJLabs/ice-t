@@ -23,6 +23,23 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
     pytest
     ```
 
+## Adaptive Test Runner
+
+Use `scripts/adaptive_test_runner.py` to execute tests. It supports running a
+single group or a sequence of groups similar to the CI matrix.
+
+Run smoke tests:
+
+```bash
+python scripts/adaptive_test_runner.py run --smoke
+```
+
+Run a sequence of groups:
+
+```bash
+python scripts/adaptive_test_runner.py run --sequence smoke,unit-core,unit-features
+```
+
 ## Diagram Generation
 
 The workflow `.github/workflows/diagram-generation.yml` automatically
