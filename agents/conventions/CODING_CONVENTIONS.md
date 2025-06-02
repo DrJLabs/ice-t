@@ -24,3 +24,4 @@ These conventions supplement automated linters and formatters. They describe arc
 - Configuration should be environment agnostic and loaded from `pyproject.toml` or environment variables.
 
 See `agents/conventions/TOOL_USAGE.md` for how to invoke project tools.
+Refer to `CODEX_T_MODERNIZATION_PLAN.md` for the overarching modernization tasks and update statuses as work progresses.
