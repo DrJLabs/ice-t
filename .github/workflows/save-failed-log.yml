@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
-
       - name: Fetch failing log
         shell: bash
         env:
@@ -25,17 +24,19 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .codex/logs
+
       - name: Fetch and extract CI error summary
+        shell: bash
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
+          ERROR_DIR=".codex/logs"
+
           echo "Fetching log for run ID: $RUN_ID"
           gh run view "$RUN_ID" --log > /tmp/full.log
 
           echo "Extracting error summary..."
-          ERROR_DIR=".codex/logs"
-          mkdir -p "$ERROR_DIR"
           awk '/##\[error]/ { c = 20 } c-- > 0' /tmp/full.log \
             > "${ERROR_DIR}/ci_${RUN_ID}.log"
           echo "Error summary extracted to ${ERROR_DIR}/ci_${RUN_ID}.log"
