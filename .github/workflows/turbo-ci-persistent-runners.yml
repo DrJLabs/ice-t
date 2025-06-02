@@ -2,18 +2,12 @@
 name: 🚀 Turbo CI - ice-t Persistent Runners
 
 "on":
-  push:
-    branches:
-      - main
-      - develop # Only run on direct pushes to main/develop
-  pull_request:
-    branches:
-      - main
-      - develop # Run on PRs to main/develop
+  push:  # Runs on push to any branch
+  pull_request:  # Runs on PRs to any branch
     types:
       - opened
       - synchronize
-      - reopened # Only on relevant PR events
+      - reopened
   workflow_dispatch:
     inputs:
       performance_mode:
@@ -84,7 +78,9 @@ jobs:
           BYPASS=true
           while IFS= read -r file; do
             case "$file" in
-              AGENTS.md|agents/*|.cursor/rules*|docs/*|*.md|*.mmd|*.dot|*.png|*.svg|*.jpg|*.jpeg )
+              AGENTS.md|agents/*|.cursor/rules*|docs/*|*.md|*.mmd|*.dot ) # Docs and Markdown
+                ;;
+              *.png|*.svg|*.jpg|*.jpeg ) # Image files
                 ;;
               *)
                 BYPASS=false
@@ -476,8 +472,9 @@ jobs:
               PYTEST_CMD="pytest ${{ matrix.path }}"
 
               if [ "${{ matrix.coverage }}" = "true" ]; then
+                COVERAGE_FILE="coverage-${{ matrix.test-group }}.xml"
                 PYTEST_CMD="$PYTEST_CMD --cov=ice_t"
-                PYTEST_CMD="$PYTEST_CMD --cov-report=xml:coverage-${{ matrix.test-group }}.xml"
+                PYTEST_CMD="$PYTEST_CMD --cov-report=xml:$COVERAGE_FILE"
                 PYTEST_CMD="$PYTEST_CMD --cov-fail-under=94"
               fi
 
@@ -489,7 +486,7 @@ jobs:
               eval $PYTEST_CMD
             fi
           else
-            echo "Test directory ${{ matrix.path }} not found, creating with adaptive runner"
+            echo "Test dir ${{ matrix.path }} not found, healing with adaptive runner"
             python scripts/adaptive_test_runner.py heal
           fi
 
@@ -563,7 +560,7 @@ jobs:
           else
             echo "📝 No package configuration found, build skipped"
             echo "## Build Status" >> $GITHUB_STEP_SUMMARY
-            echo "No package config (pyproject.toml or setup.py)" \
+            echo "No package config (pyproject/setup.py)" \
               >> $GITHUB_STEP_SUMMARY
           fi
 
@@ -615,7 +612,8 @@ jobs:
           set -euo pipefail
           python -m coverage combine coverage/**/.coverage*
           python -m coverage xml -o coverage.xml
-          python -m coverage report --fail-under=94 \
+          python -m coverage report \
+            --fail-under=94 \
             >> "$GITHUB_STEP_SUMMARY"
 
       - name: "📤 Upload combined coverage"
@@ -627,16 +625,13 @@ jobs:
           retention-days: 7
       - name: 📊 Generate summary
         run: |
-          echo "## 🚀 Turbo CI - Persistent Runners Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Turbo CI Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Performance Mode:**" \
-            "${{ needs.persistent-setup.outputs.performance-mode }}" \
+          echo "**Perf Mode:** ${{ needs.persistent-setup.outputs.performance-mode }}" \
             >> $GITHUB_STEP_SUMMARY
-          echo "**Python Version:**" \
-            "${{ needs.persistent-setup.outputs.python-version }}" \
+          echo "**Py Ver:** ${{ needs.persistent-setup.outputs.python-version }}" \
             >> $GITHUB_STEP_SUMMARY
-          echo "**Requirements Hash:**" \
-            "${{ needs.persistent-setup.outputs.requirements-hash }}" \
+          echo "**Req Hash:** ${{ needs.persistent-setup.outputs.requirements-hash }}" \
             >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -645,9 +640,9 @@ jobs:
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Setup | ${{ needs.persistent-setup.result == 'success' && '✅' || '❌' }} |" \
             >> $GITHUB_STEP_SUMMARY
-          echo "| Code Quality | ${{ needs.persistent-code-quality.result == 'success' && '✅' || '❌' }} |" \
+          echo "| Quality | ${{ needs.persistent-code-quality.result == 'success' && '✅' || '❌' }} |" \
             >> $GITHUB_STEP_SUMMARY
-          echo "| Type Safety | ${{ needs.persistent-type-checking.result == 'success' && '✅' || '❌' }} |" \
+          echo "| Types | ${{ needs.persistent-type-checking.result == 'success' && '✅' || '❌' }} |" \
             >> $GITHUB_STEP_SUMMARY
           echo "| Security | ${{ needs.persistent-security.result == 'success' && '✅' || '❌' }} |" \
             >> $GITHUB_STEP_SUMMARY
@@ -664,12 +659,11 @@ jobs:
              [ "${{ needs.persistent-tests.result }}" = "success" ] && \
              [ "${{ needs.persistent-build.result }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "🎉 **All jobs completed successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "🎉 **All jobs OK!**" >> $GITHUB_STEP_SUMMARY
             exit 0
           else
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "❌ **Some jobs failed. Check logs for details.**" \
+            echo "❌ **Some jobs FAILED. Check logs.**" \
               >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-

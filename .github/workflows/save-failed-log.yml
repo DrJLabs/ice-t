@@ -1,6 +1,6 @@
 ---
 name: save-failed-log
-"on":
+on:
   workflow_run:
     workflows: ["🚀 Turbo CI - ice-t Persistent Runners"]
     types: [completed]
@@ -13,51 +13,58 @@ jobs:
       actions: read
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out failing branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
 
-      - name: 📥 Fetch failing log
-        shell: bash
+      - name: Extract errors
         env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p .codex/logs
-          gh run view ${{ github.event.workflow_run.id }} --log \
-            > .codex/logs/ci_${{ github.event.workflow_run.id }}.log
+          mkdir -p .codex/errors
+          echo "Fetching log for run ID: $RUN_ID"
+          gh run view "$RUN_ID" --log > /tmp/full.log
+          echo "Extracting error summary..."
+          awk '/##\[error\]/{c=20} c-->0' /tmp/full.log > ".codex/errors/ci_${RUN_ID}.log"
+          echo "Error summary extracted to .codex/errors/ci_${RUN_ID}.log"
 
-      - name: Commit and Push logs
+      # ────── Extract error slice (previous step) ──────
+      - name: Stage new log and trim to 5 files
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
-          ICE_T_BOT_PAT: ${{ secrets.ICE_T_BOT_PAT }} # Use the PAT stored as a secret
         run: |
           set -euo pipefail
-          
-          # Configure commit author (this does not affect push authentication)
-          git config user.name "ice-t-bot"
-          git config user.email "ice-t-bot@users.noreply.github.com"
-          
-          # Add all changes in .codex/errors (new logs and deletions)
-          git add -A .codex/errors
-          
-          # Check if there are any changes to commit
-          if git diff --staged --quiet; then
-            echo "No log changes to commit."
+          ERROR_DIR=".codex/errors"
+          NEW_LOG="${ERROR_DIR}/ci_${RUN_ID}.log"
+
+          # add newest log if it exists & not empty
+          if [ -s "$NEW_LOG" ]; then
+            git add -f "$NEW_LOG"
           else
-            echo "Committing changes..."
-            git commit --no-verify -m "ci(errors): save error log for run ${RUN_ID}"
-            echo "Changes committed."
-
-            echo "Configuring remote for push with PAT..."
-            # Configure the remote URL with the PAT for authentication
-            # This ensures the push operation is performed as the ice-t-bot user
-            git remote set-url origin "https://x-access-token:${ICE_T_BOT_PAT}@github.com/${{ github.repository }}.git"
-            
-            # Optional: If dealing with potential race conditions on the same branch from concurrent workflow runs,
-            # you might consider adding 'git pull --rebase' here before pushing.
-            # Example: git pull --rebase origin ${{ github.event.workflow_run.head_branch }}
-
-            echo "Pushing changes..."
-            git push origin HEAD:${{ github.event.workflow_run.head_branch }} # Explicitly push to the correct head branch
-            echo "Changes pushed successfully."
+            echo "::warning::${NEW_LOG} missing or empty – skipping add"
           fi
 
+          # trim to last 5 logs (newest first)
+          if [ -d "$ERROR_DIR" ]; then
+            ls -1t ${ERROR_DIR}/ci_*.log | tail -n +6 | xargs -r git rm -f --
+          fi
+
+      - id: commit_logs
+        name: Commit log changes
+        run: |
+          set -euo pipefail
+          git config user.name  "ice-t-bot"
+          git config user.email "ice-t-bot@users.noreply.github.com"
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit --no-verify -m "ci(errors): run ${RUN_ID}"
+          fi
+
+      - name: Push
+        if: steps.commit_logs.outcome == 'success'
+        run: git push

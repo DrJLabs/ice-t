@@ -1,6 +1,6 @@
 ---
 name: collect-ci-metrics
-"on":
+on:
   workflow_run:
     workflows: ["🚀 Turbo CI - ice-t Persistent Runners"]
     types: [completed]
@@ -9,47 +9,64 @@ jobs:
   metrics:
     runs-on: ubuntu-latest
     permissions:
-      actions: read
-      contents: write
+      actions: read      # To read workflow run data
+      contents: write    # To commit metrics file
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the relevant branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
 
-      - name: 📈 Capture CI metrics
-        shell: bash
+      - name: Append CI metrics
         env:
-          GH_TOKEN: ${{ github.token }}
-          GH_FIELDS: >-
-            conclusion,actor,headSha,createdAt,startedAt,updatedAt
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          CREATED_AT: ${{ github.event.workflow_run.created_at }}
+          STARTED_AT: ${{ github.event.workflow_run.run_started_at }}
+          UPDATED_AT: ${{ github.event.workflow_run.updated_at }}
         run: |
           set -euo pipefail
           mkdir -p .codex/metrics
-          gh run view ${{ github.event.workflow_run.id }} \
-            --json "$GH_FIELDS" \
-            --jq '{
-              run_id:     '"${{ github.event.workflow_run.id }}"',
-              conclusion: .conclusion,
-              run_duration_ms: (
-                ((.updatedAt|fromdateiso8601) - (.startedAt|fromdateiso8601))
-                * 1000
-              ),
-              queued_ms: (
-                ((.startedAt|fromdateiso8601) - (.createdAt|fromdateiso8601))
-                * 1000
-              ),
-              actor: .actor.login,
-              head_sha: .headSha,
-              created_at: .createdAt,
-              started_at: .startedAt,
-              finished_at: .updatedAt
-            }' >> .codex/metrics/ci-metrics.jsonl
+          echo "Appending metrics for run $RUN_ID on branch $HEAD_BRANCH"
+          jq -n \
+            --argjson run_id "$RUN_ID" \
+            --arg branch "$HEAD_BRANCH" \
+            --arg status "$CONCLUSION" \
+            --arg created_at "$CREATED_AT" \
+            --arg started_at "$STARTED_AT" \
+            --arg updated_at "$UPDATED_AT" \
+            '{
+              run_id:     ($run_id | tonumber? // $run_id),
+              branch:     $branch,
+              status:     $status,
+              created_at: $created_at,
+              started_at: $started_at,
+              updated_at: $updated_at,
+              duration_ms: (((($updated_at? // "") | fromdateiso8601? // 0) - (($started_at? // "") | fromdateiso8601? // 0)) * 1000),
+              queued_ms:   ((($started_at? // "") | fromdateiso8601? // 0) - (($created_at? // "") | fromdateiso8601? // 0)) * 1000)
+            }' \
+          >> .codex/metrics/ci-metrics.jsonl
+          echo "Metrics appended."
 
-      - name: 📤 Commit metrics
-        shell: bash
+      - name: Commit metrics
+        env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          git config user.name  "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
-          git add -f .codex/metrics/ci-metrics.jsonl
-          git commit --no-verify -m \
-            "ci(metrics): append run ${{ github.event.workflow_run.id }}"
-          git push
+          git config user.name  "ice-t-bot"
+          METRICS_FILE=".codex/metrics/ci-metrics.jsonl"
+          if [ -s "$METRICS_FILE" ]; then
+            git add -f "$METRICS_FILE"
+            if ! git diff --staged --quiet; then
+              echo "Committing metrics..."
+              git commit --no-verify -m "ci(metrics): append for run ${RUN_ID}"
+              echo "Pushing metrics commit..."
+              git push
+            else
+              echo "No new metrics to commit."
+            fi
+          else
+            echo "Metrics file $METRICS_FILE is empty or not found. Skipping commit."
+          fi
