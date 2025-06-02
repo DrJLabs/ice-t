@@ -18,11 +18,11 @@
 
 1. **Get registration tokens from GitHub:**
    Go to: https://github.com/DrJLabs/ice-t/settings/actions/runners/new
-   
+
 2. **For each runner (1-6), click "New self-hosted runner"**
-   - Select "Linux" 
+   - Select "Linux"
    - Copy the registration token
-   
+
 3. **Configure each runner manually:**
 
 ```bash
@@ -30,7 +30,7 @@
 cd ice-t-runner-1
 ./config.sh --url https://github.com/DrJLabs/ice-t --token YOUR_TOKEN_1 --name ice-t-runner-1 --labels ice-t,linux,build,setup --work _work --replace --unattended --runasservice
 
-# Runner 2  
+# Runner 2
 cd ../ice-t-runner-2
 ./config.sh --url https://github.com/DrJLabs/ice-t --token YOUR_TOKEN_2 --name ice-t-runner-2 --labels ice-t,linux,test,smoke --work _work --replace --unattended --runasservice
 
@@ -56,7 +56,7 @@ cd ../ice-t-runner-6
 ```bash
 # For each runner, install as service
 cd ice-t-runner-1 && sudo ./svc.sh install && sudo ./svc.sh start
-cd ../ice-t-runner-2 && sudo ./svc.sh install && sudo ./svc.sh start  
+cd ../ice-t-runner-2 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-3 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-4 && sudo ./svc.sh install && sudo ./svc.sh start
 cd ../ice-t-runner-5 && sudo ./svc.sh install && sudo ./svc.sh start
@@ -75,7 +75,7 @@ After getting all 6 tokens, you can configure all runners quickly:
 ```bash
 # Set your tokens as variables
 TOKEN_1="YOUR_ACTUAL_TOKEN_1"
-TOKEN_2="YOUR_ACTUAL_TOKEN_2"  
+TOKEN_2="YOUR_ACTUAL_TOKEN_2"
 TOKEN_3="YOUR_ACTUAL_TOKEN_3"
 TOKEN_4="YOUR_ACTUAL_TOKEN_4"
 TOKEN_5="YOUR_ACTUAL_TOKEN_5"

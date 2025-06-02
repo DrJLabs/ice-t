@@ -1,8 +1,14 @@
 ---
 description:
-globs:
+globs: **/*.py,**/*.yaml,**/*.yml,scripts/**/*
 alwaysApply: false
 ---
+---
+description: "Automated workflow, CI/CD, and quality assurance procedures for AI agents on the ice-t project"
+globs: "**/*.py, **/*.yaml, **/*.yml, scripts/**/*"
+alwaysApply: true
+---
+
 # Automated Workflow, CI/CD, and Quality Assurance Rules
 
 This document outlines the mandatory automated workflow and quality assurance procedures for AI agents (Codex and Cursor) operating on the `ice-t` project. Strict adherence is required to maintain code quality, stability, and efficient development cycles.

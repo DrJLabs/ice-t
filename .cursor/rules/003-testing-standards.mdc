@@ -1,6 +1,6 @@
 ---
 description:
-globs:
+globs: tests/**/*.py,**/test_*.py,**/*_test.py,scripts/testing/**/*.py
 alwaysApply: false
 ---
 ---
@@ -247,4 +247,3 @@ def test_full_ci_pipeline(temp_workspace, mock_git_repo):
     # Assert
     assert result.all_stages_passed is True
     assert result.final_coverage >= 94
-```

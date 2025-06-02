@@ -1,6 +1,6 @@
 ---
 description:
-globs:
+globs: agents/**/*.py,agents/**/*.yaml,agents/**/*.md
 alwaysApply: false
 ---
 ---

@@ -73,4 +73,4 @@ jobs:
               title: `🔄 Auto-reverted failed commit ${failedSha.substring(0, 7)}`,
               body: `## Auto-Revert Notification\n\nA commit to the main branch failed CI and has been automatically reverted.\n\n**Failed Commit**: ${failedSha}\n**Workflow Run**: ${workflowUrl}\n\nPlease review the failure and create a new PR with the fix.\n\n/cc @DrJLabs`,
               labels: ['auto-revert', 'ci-failure']
-            }); 
+            });

@@ -1,6 +1,6 @@
 ---
 description:
-globs: src/ice_t/**/*.py
+globs: src/ice_t/**/*.py,tests/**/*.py,scripts/**/*.py,agents/**/*.py
 alwaysApply: false
 ---
 ---

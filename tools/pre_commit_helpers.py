@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 import re
 import sys
-from pathlib import Path
 
 try:
     import yaml  # type: ignore
@@ -70,7 +70,7 @@ def check_yaml(files: list[str]) -> bool:
     ok = True
     for file in files:
         try:
-            with open(file, "r", encoding="utf-8") as fh:
+            with open(file, encoding="utf-8") as fh:
                 yaml.safe_load(fh)
         except Exception as exc:  # pragma: no cover - simple reporting
             print(f"YAML validation failed for {file}: {exc}", file=sys.stderr)
@@ -82,7 +82,7 @@ def check_json(files: list[str]) -> bool:
     ok = True
     for file in files:
         try:
-            with open(file, "r", encoding="utf-8") as fh:
+            with open(file, encoding="utf-8") as fh:
                 json.load(fh)
         except Exception as exc:
             print(f"JSON validation failed for {file}: {exc}", file=sys.stderr)
@@ -113,7 +113,10 @@ def security_check(files: list[str]) -> bool:
         text = Path(file).read_text(errors="ignore")
         for pat in patterns:
             if pat.search(text):
-                print(f"Potential insecure code in {file}: pattern '{pat.pattern}'", file=sys.stderr)
+                print(
+                    f"Potential insecure code in {file}: pattern '{pat.pattern}'",
+                    file=sys.stderr,
+                )
                 ok = False
     return ok
 
@@ -135,8 +138,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     func = COMMANDS[args.command]
-    success = func(args.files)
-    return 0 if success else 1
+    result = func(args.files)
+
+    # For autofix functions (trailing-whitespace, end-of-file), return 1 if changes were made
+    # For check functions, return 1 if checks failed
+    if args.command in ["trailing-whitespace", "end-of-file"]:
+        return 1 if result else 0  # result=True means changes made, so return 1
+    return 0 if result else 1  # result=True means checks passed, so return 0
 
 
 if __name__ == "__main__":

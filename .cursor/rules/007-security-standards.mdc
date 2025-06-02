@@ -1,6 +1,6 @@
 ---
 description:
-globs:
+globs: **/*.py,**/*.yaml,**/*.yml,scripts/**/*
 alwaysApply: false
 ---
 ---

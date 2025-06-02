@@ -23,4 +23,4 @@ echo "🔧 Installing ice-t in development mode..."
 python3 -m pip install -e .
 
 echo "✅ ice-t development environment ready!"
-echo "💡 To activate: source .venv/bin/activate" 
+echo "💡 To activate: source .venv/bin/activate"
