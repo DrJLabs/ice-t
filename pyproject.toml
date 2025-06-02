@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ice-t"
 version = "0.1.0"
 description = "Autonomous high-performance template for web-app projects driven by Cursor & Codex"
+license = { file = "LICENSE" }
 authors = [{name = "DrJLabs", email = "drj@example.com"}]
 requires-python = ">=3.9"
 dependencies = [
