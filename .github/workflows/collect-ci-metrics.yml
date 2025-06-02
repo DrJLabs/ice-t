@@ -17,10 +17,12 @@ jobs:
       - name: 📈 Capture CI metrics
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           GH_FIELDS: >-
             conclusion,duration_ms,run_started_at,actor,headSha,createdAt,updatedAt
         run: |
           set -euo pipefail
+          mkdir -p .codex/metrics
           gh run view ${{ github.event.workflow_run.id }} \
             --json "$GH_FIELDS" \
             --jq '{
