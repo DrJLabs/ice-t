@@ -16,9 +16,16 @@ source .venv/bin/activate
 # Upgrade pip and install dependencies
 echo "⬆️ Upgrading pip and installing dependencies..."
 python3 -m pip install --upgrade pip setuptools wheel --no-input --no-compile
-if [ -f "requirements.txt" ] && [ -f "dev-requirements.txt" ]; then
+# Install dependencies
+if command -v pip-sync >/dev/null 2>&1 && \
+   [ -f requirements.lock ] && [ -f dev-requirements.lock ]; then
+    echo "🔄 Installing dependencies from lock files with pip-sync..."
+    pip-sync requirements.lock dev-requirements.lock
+elif [ -f "requirements.txt" ] && [ -f "dev-requirements.txt" ]; then
+    echo "📦 Installing dependencies from requirements.txt and dev-requirements.txt..."
     python3 -m pip install --no-input --no-compile -r requirements.txt -r dev-requirements.txt
 else
+    echo "📦 Installing dependencies from setup.py with dev group..."
     python3 -m pip install --no-input --no-compile -e .[dev]
 fi
 

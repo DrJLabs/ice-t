@@ -411,7 +411,7 @@ $PYTHON_CMD -m pip install --quiet --upgrade pip wheel setuptools
 echo "  📦 Installing CORE dependencies (Python 3.12 compatible versions)..."
 for attempt in 1 2 3; do
   if $PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    pytest==8.3.4 \
+    pytest>=8.3.0 \
     pytest-cov==6.0.0 \
     pytest-xdist==3.6.3 \
     pytest-asyncio==0.24.0 \
@@ -435,12 +435,12 @@ done
 # Quality tools (CRITICAL for Codex - linters/formatters essential)
 echo "  🔧 Installing QUALITY TOOLS (Python 3.12 compatible versions)..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
-  ruff==0.8.4 \
+  ruff>=0.11.11 \
   mypy==1.13.0 \
   black==24.10.0 \
   bandit==1.8.0 \
   safety==3.2.11 \
-  pre-commit==4.0.0 \
+  pre-commit==4.0.1 \
   pylint==3.3.1 \
   flake8==7.1.1 \
   && echo "  ✅ Quality tools installed successfully" \

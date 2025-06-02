@@ -301,6 +301,10 @@ fi
 export VIRTUAL_ENV="$VENV_DIR"
 export PATH="$VENV_DIR/bin:$PATH"
 
+# Ensure repository dependencies are installed for local usage
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/scripts/setup_dependencies.sh"
+
 # Final verification
 if command -v python >/dev/null 2>&1 && [ -n "$VIRTUAL_ENV" ]; then
     echo "✅ Virtual environment properly activated"

@@ -1,0 +1,13 @@
+-r requirements.in
+types-jsonschema
+pre-commit>=4.0
+tox>=4.15.0
+pytest-cov>=6.0.0
+pytest-xdist>=3.6.0
+hypothesis>=6.131.27
+bandit>=1.7.5
+safety>=3.2.0
+pydantic[mypy]>=2.7.4
+pytest-asyncio>=0.23.0
+yamllint>=1.35.1
+pip-tools==7.4.1
