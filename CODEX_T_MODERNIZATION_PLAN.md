@@ -4,6 +4,17 @@
 
 ---
 
+## Modernization Checklist
+
+- [ ] Phase 0 – AI Agent Guidance Setup
+- [ ] Phase 1 – Dependency Management & Environment Parity
+- [ ] Phase 2 – Testing Strategy & AI Collaboration
+- [ ] Phase 3 – CI Pipeline Optimization & Resilience
+- [ ] Phase 4 – Code Hygiene, Modularity & AI Readability
+- [ ] Phase 5 – Auto-Healing, Conflict Resolution & AI Resilience
+- [ ] Phase 6 – Forward Design Roadmap & Continuous AI Integration
+
+
 ## 📝 Phase 0: AI Agent Guidance Setup
 
 **Goal:** Establish a clear, modern, and effective guidance system for the ChatGPT Codex agent. This system will replace any legacy "Cursor rules" or ad-hoc `AGENTS.md` concepts with a structured approach.

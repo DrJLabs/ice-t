@@ -18,6 +18,13 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    pre-commit install
    ```
    The project expects **pre-commit 3.7.0 or newer**. Verify with `pre-commit --version`.
+   Some security hooks (bandit and safety) may require packages from
+   `dev-requirements.txt`.
+
+   New hooks mirror the CI job matrix. Trigger them manually when needed:
+
+       pre-commit run ice-t-unit-tests
+       pre-commit run ice-t-integration-tests
 5. Run tests to verify the environment:
    ```bash
     pytest
@@ -63,4 +70,9 @@ python scripts/generate_dependency_graphs.py
 ## Self-hosted Runners
 
 The CI pipelines rely on a pool of self-hosted runners labeled `ice-t` with additional role labels such as `build`, `test`, and `quality`. Ensure at least one runner for each role is online so workflows can execute.
+
+## Modernization Guide
+
+The long-term roadmap for this repository lives in `CODEX_T_MODERNIZATION_PLAN.md`.
+Review that document regularly to understand current priorities and progress.
 
