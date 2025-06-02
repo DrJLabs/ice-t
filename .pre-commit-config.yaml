@@ -29,6 +29,13 @@ repos:
         files: \.(yaml|yml)$
         stages: [pre-commit, manual]
 
+      - id: yamllint
+        name: yamllint
+        entry: yamllint
+        language: python
+        files: .github/workflows/.*\.yml$
+        stages: [pre-commit, manual]
+
       - id: check-json
         name: Check JSON
         entry: python3 tools/pre_commit_helpers.py check-json
