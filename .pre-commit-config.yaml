@@ -69,7 +69,7 @@ repos:
         language: python
         types: [python]
         files: ^src/
-        args: ["--config-file", "mypy.ini"]
+        # Configuration is provided via pyproject.toml
         additional_dependencies: [
           "mypy>=1.10",
           "pydantic[mypy]>=2.7.1",
