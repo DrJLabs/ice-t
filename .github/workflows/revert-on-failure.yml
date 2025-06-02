@@ -1,4 +1,4 @@
-name: 🔄 Auto-Revert on Main Failure
+name: "🔄 Auto-Revert on Main Failure"
 
 on:
   workflow_run:
@@ -6,72 +6,64 @@ on:
     types: [completed]
     branches: [main]
 
+env:
+  PYTHONUNBUFFERED: 1
+  CI: true
+
 jobs:
   revert-on-failure:
-    name: 🔄 Revert Failed Main Commit
+    name: "🔄 Revert Failed Main Commit"
     runs-on: [self-hosted, ice-t, build]
     if: ${{ github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.head_branch == 'main' }}
     timeout-minutes: 5
-    
     steps:
-      - name: ⚡ Checkout
+      - name: "⚡ Checkout"
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: 🔄 Create revert pull request
+      - name: "🔄 Create revert pull request"
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get the failed commit SHA
+          set -euo pipefail
           FAILED_SHA="${{ github.event.workflow_run.head_sha }}"
           BRANCH="revert-${FAILED_SHA}"
 
-          # Configure git
+          # Git identity
           git config user.name "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
 
-          # Create new branch and revert the failed commit
-          git checkout -b "$BRANCH"
-          git revert --no-edit "$FAILED_SHA" || {
-            echo "❌ Failed to create revert commit"
-            exit 1
-          }
+          # Revert commit on a new branch
+          git switch -c "$BRANCH"
+          git revert --no-edit "$FAILED_SHA" \
+            || { echo "❌ Failed to create revert commit"; exit 1; }
 
-          # Push the branch
-          git push origin "$BRANCH"
-
-          # Open a pull request for the revert
+          # Push and open PR (auto-merge label optional)
+          git push --set-upstream origin "$BRANCH"
           gh pr create \
             --title "Revert $FAILED_SHA due to CI failure" \
-            --body "This reverts commit $FAILED_SHA which failed in [workflow run](${{ github.event.workflow_run.html_url }})." \
+            --body "Automatically reverting commit $FAILED_SHA which failed in [workflow run](${{ github.event.workflow_run.html_url }})." \
             --base main \
-            --head "$BRANCH"
+            --head "$BRANCH" \
+            --label "auto-merge"
 
           echo "✅ Opened revert PR for commit $FAILED_SHA"
 
-      - name: 📝 Create issue for failed commit
+      - name: "📝 Create issue for failed commit"
         uses: actions/github-script@v7
         with:
           script: |
             const { owner, repo } = context.repo;
             const failedSha = '${{ github.event.workflow_run.head_sha }}';
             const workflowUrl = '${{ github.event.workflow_run.html_url }}';
-            
             await github.rest.issues.create({
               owner,
               repo,
               title: `🔄 Auto-reverted failed commit ${failedSha.substring(0, 7)}`,
-              body: `## Auto-Revert Notification
-              
-              A commit to the main branch failed CI and has been automatically reverted.
-              
-              **Failed Commit**: ${failedSha}
-              **Workflow Run**: ${workflowUrl}
-              
-              Please review the failure and create a new PR with the fix.
-              
-              /cc @DrJLabs`,
+              body: `## Auto-Revert Notification\n\nA commit to the main branch failed CI and has been automatically reverted.\n\n**Failed Commit**: ${failedSha}\n**Workflow Run**: ${workflowUrl}\n\nPlease review the failure and create a new PR with the fix.\n\n/cc @DrJLabs`,
               labels: ['auto-revert', 'ci-failure']
-            }); 
+            });
+
