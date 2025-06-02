@@ -47,6 +47,23 @@ Run a sequence of groups:
 python scripts/adaptive_test_runner.py run --sequence smoke,unit-core,unit-features
 ```
 
+## Tox Environments
+
+The CI workflow defines several job stages which can be reproduced locally via
+`tox`. Available environments mirror the pipeline:
+
+- `lint` – run pre-commit quality checks
+- `type` – execute MyPy for static analysis
+- `security` – run Bandit and Safety scans
+- `tests` – execute the full test suite via the adaptive runner
+- `build` – build the project using `python -m build`
+
+Run a specific environment, for example code quality checks:
+
+```bash
+tox -e lint
+```
+
 ## Diagram Generation
 
 The workflow `.github/workflows/diagram-generation.yml` automatically
