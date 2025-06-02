@@ -40,7 +40,7 @@ defaults:
 jobs:
   generate-diagrams:
     name: "📊 Generate Repository Diagrams"
-    runs-on: [self-hosted, ice-t, diagrams]
+    runs-on: [self-hosted, ice-t, linux, build, setup]
     timeout-minutes: 15
     steps:
       - name: "⚡ Checkout Code"
