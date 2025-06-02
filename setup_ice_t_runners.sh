@@ -125,6 +125,11 @@ manual_config() {
     echo ""
     echo "✅ All ice-t runners configured and started!"
     echo "Check status with: sudo systemctl status actions.runner.*"
+
+    echo ""
+    echo "🔧 Setting up repository dependencies..."
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    source "$SCRIPT_DIR/scripts/setup_dependencies.sh"
 }
 
 # Script execution
