@@ -69,6 +69,19 @@ Run a specific environment, for example code quality checks:
 tox -e lint
 ```
 
+## Dependency Lock Files
+
+The project uses **pip-tools** to pin dependencies. After editing
+`requirements.in` or `dev-requirements.in`, regenerate the lock files:
+
+```bash
+pip-compile requirements.in
+pip-compile dev-requirements.in
+```
+
+Commit the resulting `requirements.txt` and `dev-requirements.txt`. The CI
+workflows also run these commands to ensure lock files remain current.
+
 ## Diagram Generation
 
 The workflow `.github/workflows/diagram-generation.yml` automatically
