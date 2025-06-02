@@ -12,6 +12,7 @@ on:
 env:
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONUNBUFFERED: 1
+  CI: true
 
 # Ensure only one auto-merge workflow runs at a time per PR
 concurrency:
@@ -258,44 +259,36 @@ jobs:
 
                 ⚠️ Could not auto-approve due to permissions, but auto-merge is enabled.
 
-                **To enable auto-approval**: Go to Settings > Actions > General and enable 'Allow GitHub Actions to create and approve pull requests'
+          echo "- ✅ All required status checks must pass" >> $GITHUB_STEP_SUMMARY
 
-                The PR will automatically merge when all required checks pass and approvals are met. ✅" || true
-            fi
-          else
-            echo "✅ PR already approved, skipping auto-approval"
-          fi
+      - name: "💬 Debug on failure"
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/debug_ci.py > debug.log
+      - name: "📤 Upload debug logs"
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-auto-merge-${{ github.run_id }}
+          path: debug.log
+          retention-days: 7
 
-  # Monitor and report auto-merge status
-  monitor-auto-merge:
-    name: 📊 Monitor Auto-Merge Status
+  comment-on-skip:
+    name: "📝 Comment when Auto-Merge Skipped"
     runs-on: [self-hosted, linux]
     needs: evaluate-auto-merge
-    if: always()
+    if: needs.evaluate-auto-merge.outputs.should-auto-merge != 'true'
     steps:
-      - name: 📊 Generate auto-merge summary
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "## 🤖 Auto-Merge Workflow Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+      - name: "💬 Post skip comment"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ needs.evaluate-auto-merge.outputs.pr-number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ Auto-merge skipped: ${{ needs.evaluate-auto-merge.outputs.reason }}`
+            });
 
-          if [ "${{ needs.evaluate-auto-merge.outputs.pr-number }}" != "" ]; then
-            echo "**PR Number**: #${{ needs.evaluate-auto-merge.outputs.pr-number }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Decision**: ${{ needs.evaluate-auto-merge.outputs.should-auto-merge == 'true' && '✅ Auto-merge enabled' || '❌ Auto-merge not enabled' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Reason**: ${{ needs.evaluate-auto-merge.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Merge Method**: ${{ needs.evaluate-auto-merge.outputs.merge-method }}" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "**Decision**: ❌ No eligible PR found" >> $GITHUB_STEP_SUMMARY
-            echo "**Reason**: ${{ needs.evaluate-auto-merge.outputs.reason || 'Event not related to PR or PR not found' }}" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Auto-Merge Criteria" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Target branch: main or develop" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ PR from: dependabot, cursor/*, codex/*, or has 'auto-merge' label" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ PR is mergeable and not draft" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Main branch PRs require review approval" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ All required status checks must pass" >> $GITHUB_STEP_SUMMARY

@@ -15,3 +15,4 @@ pydantic>=2.7.1
 pydantic[mypy]>=2.7.1 # For Mypy plugin and type stubs for Pydantic
 rich>=13.0.0 # For CLI output and Mypy pre-commit hook
 pytest-asyncio>=0.23.0 # For running asyncio tests with pytest
+yamllint
