@@ -20,25 +20,36 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: 🔄 Create revert commit
+      - name: 🔄 Create revert pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get the failed commit SHA
           FAILED_SHA="${{ github.event.workflow_run.head_sha }}"
-          
+          BRANCH="revert-${FAILED_SHA}"
+
           # Configure git
           git config user.name "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
-          
-          # Create revert commit
+
+          # Create new branch and revert the failed commit
+          git checkout -b "$BRANCH"
           git revert --no-edit "$FAILED_SHA" || {
             echo "❌ Failed to create revert commit"
             exit 1
           }
-          
-          # Push the revert
-          git push origin main
-          
-          echo "✅ Reverted commit $FAILED_SHA on main branch"
+
+          # Push the branch
+          git push origin "$BRANCH"
+
+          # Open a pull request for the revert
+          gh pr create \
+            --title "Revert $FAILED_SHA due to CI failure" \
+            --body "This reverts commit $FAILED_SHA which failed in [workflow run](${{ github.event.workflow_run.html_url }})." \
+            --base main \
+            --head "$BRANCH"
+
+          echo "✅ Opened revert PR for commit $FAILED_SHA"
 
       - name: 📝 Create issue for failed commit
         uses: actions/github-script@v7
