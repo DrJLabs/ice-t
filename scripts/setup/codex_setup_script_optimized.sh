@@ -441,7 +441,7 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   isort==5.13.2 \
   bandit==1.8.0 \
   safety==3.2.11 \
-  pre-commit==4.0.1 \
+  pre-commit==3.7.0 \
   pylint==3.3.1 \
   flake8==7.1.1 \
   && echo "  ✅ Quality tools installed successfully" \
@@ -468,12 +468,12 @@ echo "  ✅ Performance monitoring configured (with fallbacks)"
 # Advanced testing (CRITICAL for 94%+ coverage requirement)
 echo "  🧪 Installing ADVANCED TESTING dependencies (Python 3.12 compatible)..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
-  hypothesis==6.122.1 \
+  hypothesis==6.131.27 \
   faker==33.1.0 \
   factory-boy==3.3.1 \
   pytest-mock==3.14.0 \
   pytest-benchmark==4.0.0 \
-  coverage==7.6.9 \
+  coverage==7.8.0 \
   pytest-html==4.1.1 \
   pytest-sugar==1.0.0 \
   && echo "  ✅ Advanced testing tools installed successfully" \
@@ -1827,11 +1827,11 @@ description = "ChatGPT Codex Optimized Development Environment"
 authors = [{name = "Codex Team", email = "codex@example.com"}]
 requires-python = ">=3.9"
 dependencies = [
-    "pytest>=8.2.0",
+    "pytest>=8.3.0",
     "rich>=13.7.1",
     "pydantic>=2.7.4",
     "ruff>=0.11.11",
-    "mypy>=1.10.0",
+    "mypy>=1.15.0",
 ]
 
 [tool.ruff]

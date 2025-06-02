@@ -78,9 +78,9 @@ repos:
         files: ^src/
         # Configuration is provided via pyproject.toml
         additional_dependencies: [
-          "mypy>=1.10",
-          "pydantic[mypy]>=2.7.1",
-          "rich>=13.0.0"
+          "mypy>=1.15.0",
+          "pydantic[mypy]>=2.7.4",
+          "rich>=13.7.1"
         ]
         stages: [pre-commit, manual]
 

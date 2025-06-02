@@ -11,17 +11,17 @@ execnet>=2.0.2
 # Code quality tools
 ruff>=0.11.11
 mypy>=1.15.0
-isort>=5.13.0
+isort>=5.13.2
 
 # Pre-commit hooks
-pre-commit>=3.6.0
+pre-commit>=3.7.0
 
 # User interface and utilities
 rich>=13.7.1
 click>=8.1.6
 
 # Data validation and processing
-pydantic>=2.7.1
+pydantic>=2.7.4
 
 # Enhanced Context Manager dependencies (v2.0)
 # Note: These are optional - the system will fallback gracefully if not available
@@ -42,10 +42,10 @@ bandit>=1.7.5
 safety>=3.2.0
 
 # Optional: Property-based testing
-hypothesis>=6.100.0
+hypothesis>=6.131.27
 
 # For type hints in older Python versions (if needed)
-typing-extensions>=4.12.0
+typing-extensions>=4.12.2
 
 # Build tools
-build>=1.0.0
+build>=1.0.3
