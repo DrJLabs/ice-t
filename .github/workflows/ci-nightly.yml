@@ -17,6 +17,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: "🛠 Setup Dependencies"
+        run: bash scripts/setup_dependencies.sh
       - name: "🔍 Check runner status"
         shell: bash
         run: |
