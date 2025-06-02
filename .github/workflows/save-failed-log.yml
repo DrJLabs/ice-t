@@ -18,20 +18,28 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
 
-      - name: Extract errors
+      - name: Fetch failing log
+        shell: bash
         env:
-          RUN_ID: ${{ github.event.workflow_run.id }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p .codex/logs
+      - name: Fetch and extract CI error summary
+        env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
           echo "Fetching log for run ID: $RUN_ID"
           gh run view "$RUN_ID" --log > /tmp/full.log
-          echo "Extracting error summary..."
-          awk '/##\[error\]/{c=20} c-->0' /tmp/full.log > ".codex/logs/ci_${RUN_ID}.log"
-          echo "Error summary extracted to .codex/logs/ci_${RUN_ID}.log"
 
-      # ────── Extract error slice (previous step) ──────
+          echo "Extracting error summary..."
+          ERROR_DIR=".codex/logs"
+          mkdir -p "$ERROR_DIR"
+          awk '/##\[error]/ { c = 20 } c-- > 0' /tmp/full.log \
+            > "${ERROR_DIR}/ci_${RUN_ID}.log"
+          echo "Error summary extracted to ${ERROR_DIR}/ci_${RUN_ID}.log"
+
       - name: Stage new log and trim to 5 files
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
@@ -40,16 +48,20 @@ jobs:
           ERROR_DIR=".codex/logs"
           NEW_LOG="${ERROR_DIR}/ci_${RUN_ID}.log"
 
-          # add newest log if it exists & not empty
+          # Add the new log
+          git add "$NEW_LOG"
+
+          # Keep only the five most-recent logs
+          ls -1t "${ERROR_DIR}"/ci_* | tail -n +6 | xargs -r git rm -f --
+
           if [ -s "$NEW_LOG" ]; then
             git add -f "$NEW_LOG"
           else
             echo "::warning::${NEW_LOG} missing or empty – skipping add"
           fi
 
-          # trim to last 5 logs (newest first)
-          if [ -d "$ERROR_DIR" ]; then
-            ls -1t ${ERROR_DIR}/ci_*.log | tail -n +6 | xargs -r git rm -f --
+          if [ -d "$LOG_DIR" ]; then
+            ls -1t ${LOG_DIR}/ci_*.log | tail -n +6 | xargs -r git rm -f --
           fi
 
       - id: commit_logs
@@ -62,7 +74,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-            git commit --no-verify -m "ci(errors): run ${RUN_ID}"
+            git commit --no-verify -m "ci(logs): run ${RUN_ID}"
           fi
 
       - name: Push
