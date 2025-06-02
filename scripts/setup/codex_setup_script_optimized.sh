@@ -438,10 +438,9 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   ruff==0.8.4 \
   mypy==1.13.0 \
   black==24.10.0 \
-  isort==5.13.2 \
   bandit==1.8.0 \
   safety==3.2.11 \
-  pre-commit==3.7.0 \
+  pre-commit==4.0.0 \
   pylint==3.3.1 \
   flake8==7.1.1 \
   && echo "  ✅ Quality tools installed successfully" \
