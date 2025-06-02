@@ -73,7 +73,7 @@ split-on-trailing-comma = true
 
 [tool.mypy]
 # Abundance mindset: strict typing for AI optimization
-python_version = "3.9"
+python_version = "3.12"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
