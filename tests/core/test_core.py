@@ -11,3 +11,4 @@ def test_package_version():
 def test_core_module_docstring():
     """The core package should have a docstring."""
     assert ice_t.core.__doc__
+

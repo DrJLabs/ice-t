@@ -1,1 +1,2 @@
-"""Core functionality for ice-t.""" 
+"""Core functionality for ice-t."""
+

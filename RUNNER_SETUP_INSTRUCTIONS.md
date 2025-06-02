@@ -104,4 +104,13 @@ The runners are configured to match the turbo CI workflow:
 - `ice-t,quality,security` - Code quality and security scans
 - `ice-t,test,api` - API and end-to-end tests
 
-This provides 6-way parallel execution as designed for the ice-t project. 
+This provides 6-way parallel execution as designed for the ice-t project.
+
+To confirm everything is running, visit **Settings → Actions → Runners** in the
+GitHub repository. Each runner should display a green `idle` status. If any
+runner appears offline you can restart its service:
+
+```bash
+sudo systemctl restart actions.runner.<owner>-ice-t-runner-<n>.service
+```
+Replace `<n>` with the runner number.
