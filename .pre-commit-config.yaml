@@ -49,7 +49,7 @@ repos:
       - id: ruff-check
         name: Ruff Linter (Check)
         entry: sh
-        args: ['-c', 'if command -v ruff >/dev/null 2>&1; then ruff check --fix --exit-zero --show-fixes "$@"; else echo "⚠️ ruff not available - install with: pip install ruff"; fi', '--']
+        args: ['-c', 'if command -v ruff >/dev/null 2>&1; then ruff check --fix --show-fixes "$@"; else echo "⚠️ ruff not available - install with: pip install ruff"; fi', '--']
         language: system
         types: [python]
         stages: [pre-commit, manual]
@@ -69,7 +69,7 @@ repos:
         language: python
         types: [python]
         files: ^src/
-        args: ["--config-file", "mypy.ini"]
+        # Configuration is provided via pyproject.toml
         additional_dependencies: [
           "mypy>=1.10",
           "pydantic[mypy]>=2.7.1",

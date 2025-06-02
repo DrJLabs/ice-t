@@ -190,7 +190,7 @@ setup_python_tools() {
         pytest-xdist>=3.6.0 \
         pytest-mock>=3.14.0 \
         black>=24.4.2 \
-        ruff>=0.11.0 \
+        ruff>=0.11.11 \
         mypy>=1.10.0 \
         isort>=5.13.0 \
         pre-commit>=3.6.0 \
