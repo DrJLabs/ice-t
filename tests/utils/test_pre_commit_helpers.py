@@ -92,3 +92,22 @@ def test_security_check(tmp_path: Path) -> None:
 
     assert helpers.security_check([str(insecure), str(secure)]) is False
     assert helpers.security_check([str(secure)]) is True
+
+
+def test_main_trailing_whitespace_cli(tmp_path: Path) -> None:
+    """CLI should run ``trailing-whitespace`` on provided files."""
+    file_path = write(tmp_path / "sample.txt", "text  \n")
+
+    exit_code = helpers.main(["trailing-whitespace", str(file_path)])
+
+    assert exit_code == 1
+    assert file_path.read_text() == "text\n"
+
+
+def test_main_check_json_cli(tmp_path: Path) -> None:
+    """CLI should return appropriate status for JSON validation."""
+    good = write(tmp_path / "good.json", "{\"a\": 1}\n")
+    bad = write(tmp_path / "bad.json", "{ bad }")
+
+    assert helpers.main(["check-json", str(good)]) == 0
+    assert helpers.main(["check-json", str(bad)]) == 1
