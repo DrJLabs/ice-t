@@ -1,0 +1,250 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Standards for test organization, markers, structure, fixtures, mocking, coverage, test data, and performance testing in ice-t project"
+globs: "tests/**/*.py, **/test_*.py, **/*_test.py, scripts/testing/**/*.py"
+alwaysApply: false
+---
+
+# Testing Standards for Ice-T
+
+## Test Organization
+
+- Place tests in `tests/` directory mirroring `src/` structure
+- Use `conftest.py` for shared fixtures
+- Group related tests in classes when appropriate
+- Test scripts in `scripts/testing/` for complex test scenarios
+- Use descriptive test file names: `test_feature_name.py`
+
+## Test Markers
+
+Use pytest markers to categorize tests:
+
+```python
+@pytest.mark.unit
+def test_core_logic():
+    """Fast, isolated unit test."""
+    pass
+
+@pytest.mark.integration
+def test_service_integration():
+    """Test with external dependencies."""
+    pass
+
+@pytest.mark.smoke
+def test_critical_path():
+    """Essential functionality test for CI."""
+    pass
+
+@pytest.mark.slow
+def test_performance_benchmark():
+    """Long-running performance test."""
+    pass
+
+@pytest.mark.script
+def test_script_execution():
+    """Test script functionality."""
+    pass
+
+@pytest.mark.agent
+def test_agent_behavior():
+    """Test agent-based functionality."""
+    pass
+```
+
+## Test Structure
+
+Follow the Arrange-Act-Assert pattern:
+
+```python
+def test_runner_executes_test_suite():
+    """Test that TestRunner successfully executes a test suite."""
+    # Arrange
+    runner = TestRunner(config=test_config)
+    suite_path = Path("tests/fixtures/sample_suite.py")
+
+    # Act
+    result = runner.execute(suite_path)
+
+    # Assert
+    assert result.success is True
+    assert result.tests_run > 0
+    assert isinstance(result.duration, float)
+```
+
+## Fixtures for Ice-T Components
+
+Create reusable test data with fixtures:
+
+```python
+@pytest.fixture
+def sample_agent_config():
+    """Provide sample agent configuration for testing."""
+    return {
+        "name": "test_agent",
+        "charter": "agents/charter/test_charter.yaml",
+        "playbooks": ["agents/playbooks/test_playbook.yaml"],
+        "conventions": ["agents/conventions/test_conventions.yaml"]
+    }
+
+@pytest.fixture
+def mock_script_runner():
+    """Provide mock script runner for testing."""
+    return MockScriptRunner()
+
+@pytest.fixture
+def temp_workspace(tmp_path):
+    """Create temporary workspace for testing."""
+    workspace = tmp_path / "test_workspace"
+    workspace.mkdir()
+
+    # Create basic structure
+    (workspace / "src" / "ice_t").mkdir(parents=True)
+    (workspace / "tests").mkdir()
+    (workspace / "scripts").mkdir()
+
+    return workspace
+```
+
+## Script Testing
+
+- Test script execution with different parameters
+- Mock external dependencies and file system operations
+- Test both success and failure scenarios
+
+```python
+def test_deployment_script_success(mock_subprocess, temp_workspace):
+    """Test successful deployment script execution."""
+    # Arrange
+    script_path = temp_workspace / "scripts" / "deployment" / "deploy.py"
+    mock_subprocess.return_value.returncode = 0
+
+    # Act
+    result = run_deployment_script(script_path, target="staging")
+
+    # Assert
+    assert result.success is True
+    mock_subprocess.assert_called_once()
+```
+
+## Agent Testing
+
+- Test agent behavior and decision making
+- Mock agent interactions with external systems
+- Test playbook execution and charter compliance
+
+```python
+def test_agent_follows_charter(sample_agent_config):
+    """Test that agent follows its charter specifications."""
+    # Arrange
+    agent = Agent(config=sample_agent_config)
+    task = Task(type="deployment", target="production")
+
+    # Act
+    decision = agent.make_decision(task)
+
+    # Assert
+    assert decision.complies_with_charter is True
+    assert decision.playbook_selected is not None
+```
+
+## Mocking
+
+- Mock external dependencies and I/O operations
+- Use `unittest.mock` or `pytest-mock`
+- Mock at system boundaries
+- Verify mock interactions when relevant
+
+```python
+from unittest.mock import Mock, patch
+
+def test_diagnostic_runner_handles_timeout(mock_subprocess):
+    """Test that diagnostic runner handles subprocess timeout."""
+    # Arrange
+    mock_subprocess.side_effect = subprocess.TimeoutExpired("cmd", 30)
+    runner = DiagnosticRunner(timeout=30)
+
+    # Act
+    result = runner.run_diagnostic("system_check")
+
+    # Assert
+    assert result.success is False
+    assert "timeout" in result.error_message.lower()
+```
+
+## Coverage Requirements
+
+- Maintain 94%+ test coverage across the project
+- Focus on critical business logic and script functionality
+- Test edge cases and error conditions
+- Use coverage reports to identify gaps
+- Include script coverage in overall metrics
+
+## Test Data and Fixtures
+
+- Store test data in `tests/fixtures/`
+- Use factories or builders for complex test data
+- Keep test data minimal and focused
+- Use realistic but anonymized data
+
+```python
+# tests/fixtures/sample_configs.py
+def create_test_config(override_values=None):
+    """Create test configuration with optional overrides."""
+    base_config = {
+        "runners": {
+            "pytest": {"enabled": True, "timeout": 300},
+            "tox": {"enabled": False, "environments": ["py39", "py310"]}
+        },
+        "coverage": {"target": 94, "fail_under": 90}
+    }
+
+    if override_values:
+        base_config.update(override_values)
+
+    return base_config
+```
+
+## Performance Testing
+
+- Include performance benchmarks for critical operations
+- Use `pytest-benchmark` for timing tests
+- Set reasonable performance thresholds
+- Monitor performance regression in CI
+
+```python
+def test_test_runner_performance(benchmark):
+    """Benchmark test runner execution time."""
+    large_test_suite = create_large_test_suite(size=100)
+    runner = TestRunner()
+
+    result = benchmark(runner.execute, large_test_suite)
+
+    assert result.success is True
+    # Benchmark automatically measures execution time
+```
+
+## Integration Testing
+
+- Test end-to-end workflows
+- Test script interactions with real file systems (in isolated environments)
+- Test agent coordination and communication
+- Use docker containers for complex integration scenarios
+
+```python
+@pytest.mark.integration
+def test_full_ci_pipeline(temp_workspace, mock_git_repo):
+    """Test complete CI pipeline execution."""
+    # Arrange
+    pipeline = CIPipeline(workspace=temp_workspace)
+
+    # Act
+    result = pipeline.run_full_cycle()
+
+    # Assert
+    assert result.all_stages_passed is True
+    assert result.final_coverage >= 94
+```

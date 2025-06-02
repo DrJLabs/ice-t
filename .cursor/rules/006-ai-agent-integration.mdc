@@ -1,0 +1,251 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Guidelines for AI agent integration, behavior, and coordination within the ice-t project ecosystem"
+globs: "agents/**/*.py, agents/**/*.yaml, agents/**/*.md"
+alwaysApply: false
+---
+
+# AI Agent Integration Standards for Ice-T
+
+## Agent Architecture Overview
+
+The ice-t project uses an agent-based architecture with three main components:
+
+### Agent Components
+- **Charter** (`agents/charter/`) - Defines agent mission, scope, and constraints
+- **Conventions** (`agents/conventions/`) - Establishes coding and operational standards
+- **Playbooks** (`agents/playbooks/`) - Provides executable procedures and workflows
+
+## Agent Charter Compliance
+
+All AI agents must adhere to their defined charter:
+
+```python
+class Agent:
+    """Base agent implementation."""
+
+    def __init__(self, charter_path: Path):
+        self.charter = self.load_charter(charter_path)
+        self.validate_charter_compliance()
+
+    def execute_task(self, task: Task) -> TaskResult:
+        """Execute task while maintaining charter compliance."""
+        if not self.is_charter_compliant(task):
+            raise CharterViolationError(f"Task violates charter: {task}")
+
+        return self.perform_task(task)
+```
+
+## Playbook-Driven Operations
+
+Agents should follow established playbooks for common operations:
+
+### Deployment Playbook
+```yaml
+# agents/playbooks/deployment.yaml
+name: "Standard Deployment"
+steps:
+  - name: "Pre-deployment Checks"
+    script: "scripts/validation/pre_deploy_check.py"
+    required: true
+
+  - name: "Execute Deployment"
+    script: "scripts/deployment/deploy.py"
+    parameters:
+      - target_environment
+      - version
+
+  - name: "Post-deployment Validation"
+    script: "scripts/validation/post_deploy_check.py"
+    required: true
+```
+
+### Testing Playbook
+```yaml
+# agents/playbooks/testing.yaml
+name: "Comprehensive Testing"
+steps:
+  - name: "Unit Tests"
+    command: "pytest tests/unit/"
+    markers: ["unit"]
+
+  - name: "Integration Tests"
+    command: "pytest tests/integration/"
+    markers: ["integration"]
+
+  - name: "Smoke Tests"
+    command: "pytest tests/smoke/"
+    markers: ["smoke"]
+    required_for_ci: true
+```
+
+## Agent Coordination
+
+### Communication Protocols
+- Use structured logging for agent actions
+- Implement event-driven communication between agents
+- Maintain audit trails of agent decisions
+
+```python
+import logging
+from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
+
+class AgentCoordinator:
+    """Coordinates multiple agents working on the same project."""
+
+    def coordinate_task(self, task: Task, agents: List[Agent]) -> CoordinationResult:
+        """Coordinate task execution across multiple agents."""
+        logger.info(
+            "Starting task coordination",
+            extra={
+                "task_id": task.id,
+                "agents": [agent.name for agent in agents],
+                "operation": "coordinate"
+            }
+        )
+
+        # Determine agent assignments based on charter and capabilities
+        assignments = self.assign_agents(task, agents)
+
+        # Execute coordinated workflow
+        results = self.execute_coordinated(assignments)
+
+        return CoordinationResult(task=task, results=results)
+```
+
+## Convention-Based Development
+
+Agents must follow established conventions:
+
+### Code Generation Conventions
+- Follow the project's coding standards automatically
+- Use consistent naming patterns
+- Generate comprehensive tests alongside code
+- Include proper documentation and type hints
+
+### Script Integration Conventions
+- Use existing scripts in `scripts/` directory when available
+- Create reusable scripts for common operations
+- Follow script naming and organization patterns
+- Include proper error handling and logging
+
+## Agent Decision Making
+
+### Decision Framework
+```python
+class AgentDecision:
+    """Represents an agent's decision with rationale."""
+
+    def __init__(
+        self,
+        action: str,
+        rationale: str,
+        confidence: float,
+        charter_compliant: bool,
+        playbook_reference: Optional[str] = None
+    ):
+        self.action = action
+        self.rationale = rationale
+        self.confidence = confidence
+        self.charter_compliant = charter_compliant
+        self.playbook_reference = playbook_reference
+
+    def validate(self) -> bool:
+        """Validate decision against charter and conventions."""
+        return (
+            self.charter_compliant and
+            self.confidence >= 0.7 and
+            self.action in self.allowed_actions
+        )
+```
+
+### Decision Logging
+```python
+def log_agent_decision(agent_name: str, decision: AgentDecision):
+    """Log agent decision for audit and analysis."""
+    logger.info(
+        "Agent decision made",
+        extra={
+            "agent": agent_name,
+            "action": decision.action,
+            "rationale": decision.rationale,
+            "confidence": decision.confidence,
+            "charter_compliant": decision.charter_compliant,
+            "playbook": decision.playbook_reference,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    )
+```
+
+## Testing Agent Behavior
+
+### Agent Testing Requirements
+- Test charter compliance for all agent actions
+- Verify playbook execution accuracy
+- Test agent coordination and communication
+- Validate decision-making logic
+
+```python
+@pytest.mark.agent
+def test_agent_follows_charter():
+    """Test that agent adheres to charter specifications."""
+    agent = Agent(charter_path="agents/charter/test_charter.yaml")
+    task = Task(type="deployment", target="staging")
+
+    # Verify charter compliance
+    assert agent.is_charter_compliant(task)
+
+    # Execute task and verify behavior
+    result = agent.execute_task(task)
+    assert result.charter_violations == []
+
+@pytest.mark.agent
+def test_playbook_execution():
+    """Test playbook-driven task execution."""
+    agent = Agent(charter_path="agents/charter/deployment_agent.yaml")
+    playbook = Playbook.load("agents/playbooks/deployment.yaml")
+
+    result = agent.execute_playbook(playbook, parameters={"target": "staging"})
+
+    assert result.success
+    assert all(step.completed for step in result.steps if step.required)
+```
+
+## Agent Monitoring and Metrics
+
+### Performance Metrics
+- Track agent task completion rates
+- Monitor decision confidence scores
+- Measure charter compliance rates
+- Analyze coordination efficiency
+
+### Health Checks
+```python
+def agent_health_check(agent: Agent) -> HealthStatus:
+    """Perform health check on agent."""
+    checks = [
+        agent.charter_is_valid(),
+        agent.playbooks_are_accessible(),
+        agent.conventions_are_current(),
+        agent.can_communicate()
+    ]
+
+    return HealthStatus(
+        healthy=all(checks),
+        issues=[check.name for check in checks if not check.passed]
+    )
+```
+
+## Best Practices for Agent Development
+
+- **Modularity**: Design agents as composable, reusable components
+- **Transparency**: Log all decisions and actions with clear rationale
+- **Robustness**: Handle errors gracefully and provide meaningful feedback
+- **Testability**: Ensure all agent behavior can be tested automatically
+- **Documentation**: Maintain clear documentation of agent capabilities and limitations
