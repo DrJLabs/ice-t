@@ -61,7 +61,7 @@ jobs:
             git add -f "$METRICS_FILE"
             if ! git diff --staged --quiet; then
               echo "Committing metrics..."
-              git commit --no-verify -m "ci(metrics): append for run ${RUN_ID}"
+              git commit --no-verify -m "ci(metrics): append for run ${RUN_ID} [skip ci]"
               echo "Pushing metrics commit..."
               git push
             else
