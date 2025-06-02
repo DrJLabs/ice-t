@@ -31,73 +31,40 @@ jobs:
           awk '/##\[error\]/{c=20} c-->0' /tmp/full.log > ".codex/errors/ci_${RUN_ID}.log"
           echo "Error summary extracted to .codex/errors/ci_${RUN_ID}.log"
 
-      - name: Commit error log
+      # ────── Extract error slice (previous step) ──────
+      - name: Stage new log and trim to 5 files
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          git config user.email "ice-t-bot@users.noreply.github.com"
-          git config user.name  "ice-t-bot"
-          ERROR_LOG_FILE=".codex/errors/ci_${RUN_ID}.log"
-          if [ -s "$ERROR_LOG_FILE" ]; then # Check if file exists and is not empty
-            echo "Adding $ERROR_LOG_FILE to git..."
-            git add -f "$ERROR_LOG_FILE"
-            if ! git diff --staged --quiet; then
-              echo "Committing $ERROR_LOG_FILE..."
-              git commit --no-verify -m "ci(errors): run ${RUN_ID}"
-              echo "Pushing commit..."
-              git push
-            else
-              echo "No changes to commit for $ERROR_LOG_FILE."
-            fi
+          ERROR_DIR=".codex/errors"
+          NEW_LOG="${ERROR_DIR}/ci_${RUN_ID}.log"
+
+          # add newest log if it exists & not empty
+          if [ -s "$NEW_LOG" ]; then
+            git add -f "$NEW_LOG"
           else
-            echo "Error log file $ERROR_LOG_FILE is empty or does not exist. Skipping commit."
+            echo "::warning::${NEW_LOG} missing or empty – skipping add"
           fi
 
-      - name: Trim old error logs
+          # trim to last 5 logs (newest first)
+          if [ -d "$ERROR_DIR" ]; then
+            ls -1t ${ERROR_DIR}/ci_*.log | tail -n +6 | xargs -r git rm -f --
+          fi
+
+      - id: commit_logs
+        name: Commit log changes
         run: |
           set -euo pipefail
-          ERROR_DIR=".codex/errors"
-          if [ -d "$ERROR_DIR" ]; then
-            echo "Checking for old error logs to trim in $ERROR_DIR..."
-            # Temporarily cd into the directory for easier file operations
-            cd "$ERROR_DIR"
-            # Check if there are any log files
-            if ls ci_*.log 1>/dev/null 2>&1; then
-              LOG_FILES_COUNT=$(ls -1q ci_*.log | wc -l)
-              echo "Found $LOG_FILES_COUNT error logs."
-              if [ "$LOG_FILES_COUNT" -gt 50 ]; then
-                echo "Trimming oldest logs beyond 50..."
-                # ls -1t lists newest first. tail -n +51 gives all but the first 50.
-                ls -1t ci_*.log | tail -n +51 | xargs -r git rm -f --ignore-unmatch
-                # cd back to the repo root before attempting git operations that need .git
-                cd ../..
-                # Check if git rm actually staged any files
-                if ! git diff --staged --quiet -- "$ERROR_DIR"; then
-                  echo "Committing removal of old error logs..."
-                  git config user.email "ice-t-bot@users.noreply.github.com"
-                  git config user.name  "ice-t-bot"
-                  git commit --no-verify -m "ci(maintenance): trim old error logs"
-                  echo "Pushing commit for trimmed logs..."
-                  git push
-                else
-                  echo "No old logs were staged for removal by git rm."
-                fi
-              else
-                echo "Fewer than 50 error logs. No trimming needed."
-                cd ../.. # cd back if no trimming was needed but we entered the dir
-              fi
-            else
-              echo "No ci_*.log files found in $ERROR_DIR. No trimming needed."
-              cd ../.. # cd back if no logs found but we entered the dir
-            fi
+          git config user.name  "ice-t-bot"
+          git config user.email "ice-t-bot@users.noreply.github.com"
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
           else
-            echo "$ERROR_DIR directory not found. Skipping trim."
+            git commit --no-verify -m "ci(errors): run ${RUN_ID}"
           fi
 
-      - name: Upload full log artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ci-full-log-${{ github.event.workflow_run.id }}
-          path: /tmp/full.log
-          retention-days: 90
+      - name: Push
+        if: steps.commit_logs.outcome == 'success'
+        run: git push
