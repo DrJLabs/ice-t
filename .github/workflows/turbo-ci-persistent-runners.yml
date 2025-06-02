@@ -1,11 +1,19 @@
+---
 name: 🚀 Turbo CI - ice-t Persistent Runners
 
-on:
+"on":
   push:
-    branches: [main, develop]  # Only run on direct pushes to main/develop
+    branches:
+      - main
+      - develop # Only run on direct pushes to main/develop
   pull_request:
-    branches: [main, develop]  # Run on PRs to main/develop
-    types: [opened, synchronize, reopened]  # Only on relevant PR events
+    branches:
+      - main
+      - develop # Run on PRs to main/develop
+    types:
+      - opened
+      - synchronize
+      - reopened # Only on relevant PR events
   workflow_dispatch:
     inputs:
       performance_mode:
@@ -125,7 +133,7 @@ jobs:
           name: debug-workflow-validation-${{ github.run_id }}
           path: debug.log
           retention-days: 7
-  # Fast setup using local filesystem persistence
+
   persistent-setup:
     name: 🚀 Local Setup (Persistent)
     runs-on: [self-hosted, ice-t, linux, build, setup]
@@ -140,7 +148,8 @@ jobs:
       - name: ⚡ Checkout (reuse local .git)
         uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 1 }}
+          fetch-depth: >-
+            ${{ github.event_name == 'pull_request' && 2 || 1 }}
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -156,10 +165,12 @@ jobs:
       - name: 📊 Calculate requirements hash
         id: requirements
         run: |
-            # Calculate hash for cache invalidation similar to Adam Johnson's approach
+            # Calculate hash for cache invalidation
             HASH=""
-            [ -f "requirements.txt" ] && HASH+=$(sha256sum requirements.txt | cut -d' ' -f1)
-            [ -f "dev-requirements.txt" ] && HASH+=$(sha256sum dev-requirements.txt | cut -d' ' -f1)
+            [ -f "requirements.txt" ] && \
+              HASH+=$(sha256sum requirements.txt | cut -d' ' -f1)
+            [ -f "dev-requirements.txt" ] && \
+              HASH+=$(sha256sum dev-requirements.txt | cut -d' ' -f1)
             HASH+=$(/usr/bin/python3 --version | sha256sum | cut -d' ' -f1)
             FINAL_HASH=$(echo "$HASH" | sha256sum | cut -d' ' -f1)
             echo "hash=$FINAL_HASH" >> $GITHUB_OUTPUT
@@ -172,12 +183,6 @@ jobs:
           key: pip-${{ steps.requirements.outputs.hash }}
           restore-keys: |
             pip-
-
-      - name: 📦 Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ steps.requirements.outputs.hash }}-pip
 
       - name: 🐍 Setup persistent virtual environment
         id: venv
@@ -194,7 +199,7 @@ jobs:
             echo "⚡ Using persistent virtual environment (2-3 second fast path)"
             SETUP_TIME="fast"
           else
-            echo "🔧 Creating persistent virtual environment (30-40 seconds one-time setup)"
+            echo "🔧 Creating persistent venv (30-40 seconds one-time setup)"
             rm -rf "$VENV_DIR" || true
             /usr/bin/python3 -m venv "$VENV_DIR" --clear
 
@@ -205,9 +210,14 @@ jobs:
             mkdir -p "$PIP_CACHE_DIR"
 
             echo "⬆️ Installing dependencies..."
-            python -m pip install --upgrade pip wheel setuptools --no-input --no-compile --quiet
-            [ -f "requirements.txt" ] && python -m pip install --no-input --no-compile -r requirements.txt --quiet
-            [ -f "dev-requirements.txt" ] && python -m pip install --no-input --no-compile -r dev-requirements.txt --quiet
+            python -m pip install --upgrade pip wheel setuptools \
+              --no-input --no-compile --quiet
+            [ -f "requirements.txt" ] && \
+              python -m pip install --no-input --no-compile \
+                -r requirements.txt --quiet
+            [ -f "dev-requirements.txt" ] && \
+              python -m pip install --no-input --no-compile \
+                -r dev-requirements.txt --quiet
             echo "✅ Persistent virtual environment created"
             SETUP_TIME="created"
           fi
@@ -241,17 +251,20 @@ jobs:
         run: |
           SETUP_TIME="${{ steps.venv.outputs.setup_time }}"
           echo "## 🚀 Persistent Runner Performance" >> $GITHUB_STEP_SUMMARY
-          echo "- **Virtual Environment**: ${{ env.VIRTUAL_ENV }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Virtual Environment**: ${{ env.VIRTUAL_ENV }}" \
+            >> $GITHUB_STEP_SUMMARY
           echo "- **Setup Strategy**: ${SETUP_TIME}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Requirements Hash**: ${{ env.ICE_T_VENV_HASH }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Requirements Hash**: ${{ env.ICE_T_VENV_HASH }}" \
+            >> $GITHUB_STEP_SUMMARY
           if [ "$SETUP_TIME" = "fast" ]; then
-            echo "- **Setup Time**: ⚡ 2-3 seconds (cached)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Setup Time**: ⚡ 2-3 seconds (cached)" \
+              >> $GITHUB_STEP_SUMMARY
           else
-            echo "- **Setup Time**: 🔧 30-40 seconds (one-time creation)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Setup Time**: 🔧 30-40 seconds (one-time creation)" \
+              >> $GITHUB_STEP_SUMMARY
           fi
           echo "- **Next runs**: Will use fast path" >> $GITHUB_STEP_SUMMARY
 
-  # Code quality using self-contained environment
   persistent-code-quality:
     name: 🚀 Code Quality (Local Cache)
     runs-on: [self-hosted, ice-t, linux, quality, security]
@@ -265,16 +278,16 @@ jobs:
       - name: ⚡ Activate persistent virtual environment
         uses: ./.github/actions/setup-venv
         with:
-          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
+          requirements-hash: >-
+            ${{ needs.persistent-setup.outputs.requirements-hash }}
 
-      - name: ⚡ Run pre-commit (using local cache)
-        run: |
       - name: "🧹 Run pre-commit checks"
         shell: bash
         run: |
           set -euo pipefail
           echo "Using pre-commit cache: ~/.cache/pre-commit"
-          pre-commit run --all-files --show-diff-on-failure | tee precommit.log
+          pre-commit run --all-files --show-diff-on-failure \
+            | tee precommit.log
 
       - name: "📤 Upload pre-commit logs"
         if: always()
@@ -292,8 +305,15 @@ jobs:
           try:
               with open(sys.argv[1]) as f:
                   tree = ast.parse(f.read())
-                  complexity = len([node for node in ast.walk(tree) if isinstance(node, (ast.If, ast.For, ast.While, ast.FunctionDef, ast.ClassDef))])
-                  print(f'{"⚠️" if complexity > 50 else "✅"} {sys.argv[1]}: {complexity} nodes')
+                  complexity = len([
+                    node for node in ast.walk(tree)
+                    if isinstance(node, (
+                      ast.If, ast.For, ast.While,
+                      ast.FunctionDef, ast.ClassDef
+                    ))
+                  ])
+                  print(f'{'⚠️' if complexity > 50 else '✅'} ' +
+                        f'{sys.argv[1]}: {complexity} nodes')
           except Exception as e:
               print(f'❌ {sys.argv[1]}: {e}')
           " {} \; >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
@@ -312,7 +332,6 @@ jobs:
           path: debug.log
           retention-days: 7
 
-  # Type checking with self-contained environment
   persistent-type-checking:
     name: 🚀 Type Safety (Local Cache)
     runs-on: [self-hosted, ice-t, linux, quality, security]
@@ -326,19 +345,21 @@ jobs:
       - name: ⚡ Activate persistent virtual environment
         uses: ./.github/actions/setup-venv
         with:
-          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
+          requirements-hash: >-
+            ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔍 Run MyPy type checking (using .mypy_cache)
         run: |
           echo "## Type Checking Results" >> $GITHUB_STEP_SUMMARY
           if [ -d src/ice_t ]; then
-              # MyPy automatically uses .mypy_cache in the current directory
-              mypy --explicit-package-bases --namespace-packages --strict-optional --show-error-codes src/ice_t
+              # MyPy automatically uses .mypy_cache
+              mypy --explicit-package-bases --namespace-packages \
+                --strict-optional --show-error-codes src/ice_t
           else
-              echo "No src/ice_t directory found, skipping type checking" >> $GITHUB_STEP_SUMMARY
+              echo "No src/ice_t directory found, skipping type checking" \
+                >> $GITHUB_STEP_SUMMARY
           fi
 
-  # Security scanning with self-contained environment
   persistent-security:
     name: 🚀 Security (Local Cache)
     runs-on: [self-hosted, ice-t, linux, quality, security]
@@ -352,7 +373,8 @@ jobs:
       - name: ⚡ Activate persistent virtual environment
         uses: ./.github/actions/setup-venv
         with:
-          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
+          requirements-hash: >-
+            ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔒 Run Bandit security scan
         run: |
@@ -363,7 +385,8 @@ jobs:
         run: |
           if command -v safety >/dev/null 2>&1; then
             echo "## Safety Vulnerability Report" >> $GITHUB_STEP_SUMMARY
-            safety check --full-report --json > safety-report.json || true
+            safety check --full-report --json > safety-report.json \
+              || true
             cat safety-report.json >> $GITHUB_STEP_SUMMARY || true
           fi
 
@@ -389,7 +412,6 @@ jobs:
           path: debug.log
           retention-days: 7
 
-  # Testing with self-contained environments and 6-way parallel execution
   persistent-tests:
     name: 🚀 Tests (${{ matrix.test-group }})
     runs-on: [self-hosted, ice-t, linux, test, smoke]
@@ -433,7 +455,8 @@ jobs:
       - name: ⚡ Activate persistent virtual environment
         uses: ./.github/actions/setup-venv
         with:
-          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
+          requirements-hash: >-
+            ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔧 Self-healing test setup
         run: |
@@ -453,11 +476,14 @@ jobs:
               PYTEST_CMD="pytest ${{ matrix.path }}"
 
               if [ "${{ matrix.coverage }}" = "true" ]; then
-                PYTEST_CMD="$PYTEST_CMD --cov=ice_t --cov-report=xml:coverage-${{ matrix.test-group }}.xml --cov-fail-under=94"
+                PYTEST_CMD="$PYTEST_CMD --cov=ice_t"
+                PYTEST_CMD="$PYTEST_CMD --cov-report=xml:coverage-${{ matrix.test-group }}.xml"
+                PYTEST_CMD="$PYTEST_CMD --cov-fail-under=94"
               fi
 
               # Use local pytest cache (.pytest_cache) automatically
-              PYTEST_CMD="$PYTEST_CMD -n auto --dist=worksteal --tb=short --maxfail=5"
+              PYTEST_CMD="$PYTEST_CMD -n auto --dist=worksteal"
+              PYTEST_CMD="$PYTEST_CMD --tb=short --maxfail=5"
 
               echo "Running: $PYTEST_CMD"
               eval $PYTEST_CMD
@@ -491,11 +517,13 @@ jobs:
           path: debug.log
           retention-days: 7
 
-  # Build using self-contained environment
   persistent-build:
     name: 🚀 Build (Local Cache)
     runs-on: [self-hosted, build, linux]
-    needs: [bypass-check, persistent-setup, persistent-code-quality]
+    needs:
+      - bypass-check
+      - persistent-setup
+      - persistent-code-quality
     if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 6
     steps:
@@ -505,12 +533,13 @@ jobs:
       - name: ⚡ Activate persistent virtual environment
         uses: ./.github/actions/setup-venv
         with:
-          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
+          requirements-hash: >-
+            ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔧 Install build tools (cached in venv)
         run: |
           if [ ! -f "pyproject.toml" ] && [ ! -f "setup.py" ]; then
-            echo "⚠️ No build configuration found (pyproject.toml or setup.py), skipping build"
+            echo "⚠️ No build config found (pyproject.toml or setup.py), skipping build"
             exit 0
           fi
 
@@ -534,7 +563,8 @@ jobs:
           else
             echo "📝 No package configuration found, build skipped"
             echo "## Build Status" >> $GITHUB_STEP_SUMMARY
-            echo "No package configuration found (pyproject.toml or setup.py)" >> $GITHUB_STEP_SUMMARY
+            echo "No package config (pyproject.toml or setup.py)" \
+              >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: 📦 Upload build artifacts
@@ -559,11 +589,17 @@ jobs:
           path: debug.log
           retention-days: 7
 
-  # Summary job to collect all results
   persistent-summary:
     name: 🎯 CI Summary
     runs-on: [self-hosted, build]
-    needs: [bypass-check, persistent-setup, persistent-code-quality, persistent-type-checking, persistent-security, persistent-tests, persistent-build]
+    needs:
+      - bypass-check
+      - persistent-setup
+      - persistent-code-quality
+      - persistent-type-checking
+      - persistent-security
+      - persistent-tests
+      - persistent-build
     if: always()
     timeout-minutes: 1
     steps:
@@ -579,7 +615,8 @@ jobs:
           set -euo pipefail
           python -m coverage combine coverage/**/.coverage*
           python -m coverage xml -o coverage.xml
-          python -m coverage report --fail-under=94 >> "$GITHUB_STEP_SUMMARY"
+          python -m coverage report --fail-under=94 \
+            >> "$GITHUB_STEP_SUMMARY"
 
       - name: "📤 Upload combined coverage"
         if: always()
@@ -592,20 +629,32 @@ jobs:
         run: |
           echo "## 🚀 Turbo CI - Persistent Runners Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Performance Mode:** ${{ needs.persistent-setup.outputs.performance-mode }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Python Version:** ${{ needs.persistent-setup.outputs.python-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Requirements Hash:** ${{ needs.persistent-setup.outputs.requirements-hash }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Performance Mode:**" \
+            "${{ needs.persistent-setup.outputs.performance-mode }}" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "**Python Version:**" \
+            "${{ needs.persistent-setup.outputs.python-version }}" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "**Requirements Hash:**" \
+            "${{ needs.persistent-setup.outputs.requirements-hash }}" \
+            >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Job Results" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Setup | ${{ needs.persistent-setup.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Quality | ${{ needs.persistent-code-quality.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Type Safety | ${{ needs.persistent-type-checking.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Security | ${{ needs.persistent-security.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Tests | ${{ needs.persistent-tests.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build | ${{ needs.persistent-build.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Setup | ${{ needs.persistent-setup.result == 'success' && '✅' || '❌' }} |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Code Quality | ${{ needs.persistent-code-quality.result == 'success' && '✅' || '❌' }} |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Type Safety | ${{ needs.persistent-type-checking.result == 'success' && '✅' || '❌' }} |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.persistent-security.result == 'success' && '✅' || '❌' }} |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ needs.persistent-tests.result == 'success' && '✅' || '❌' }} |" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.persistent-build.result == 'success' && '✅' || '❌' }} |" \
+            >> $GITHUB_STEP_SUMMARY
 
           # Set overall status
           if [ "${{ needs.persistent-setup.result }}" = "success" ] && \
@@ -619,7 +668,8 @@ jobs:
             exit 0
           else
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "❌ **Some jobs failed. Check the individual job logs for details.**" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Some jobs failed. Check logs for details.**" \
+              >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
 
