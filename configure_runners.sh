@@ -46,7 +46,7 @@ echo ""
 for i in {1..6}; do
     echo "Configuring runner $i..."
     cd "ice-t-runner-$i"
-    
+
     ./config.sh \
         --url "$REPO_URL" \
         --token "${TOKENS[$i]}" \
@@ -56,7 +56,7 @@ for i in {1..6}; do
         --replace \
         --unattended \
         --runasservice
-    
+
     echo "✅ Runner $i configured"
     cd ..
 done
@@ -81,4 +81,4 @@ echo "Check status with:"
 echo "   sudo systemctl status actions.runner.*"
 echo ""
 echo "View logs with:"
-echo "   sudo journalctl -u actions.runner.* -f" 
+echo "   sudo journalctl -u actions.runner.* -f"

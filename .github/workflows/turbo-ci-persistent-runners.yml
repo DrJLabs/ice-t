@@ -451,14 +451,14 @@ jobs:
             else
               # For unit tests, use pytest directly with coverage
               PYTEST_CMD="pytest ${{ matrix.path }}"
-              
+
               if [ "${{ matrix.coverage }}" = "true" ]; then
                 PYTEST_CMD="$PYTEST_CMD --cov=ice_t --cov-report=xml:coverage-${{ matrix.test-group }}.xml --cov-fail-under=94"
               fi
-              
+
               # Use local pytest cache (.pytest_cache) automatically
               PYTEST_CMD="$PYTEST_CMD -n auto --dist=worksteal --tb=short --maxfail=5"
-              
+
               echo "Running: $PYTEST_CMD"
               eval $PYTEST_CMD
             fi

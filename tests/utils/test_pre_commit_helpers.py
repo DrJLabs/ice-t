@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from types import SimpleNamespace
-
 import builtins
-import sys
 from importlib import import_module
+from pathlib import Path
+import sys
+from types import SimpleNamespace
 
 import pytest
 

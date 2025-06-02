@@ -4,26 +4,28 @@ Workflow Diagram Generator for ice-t
 Generates visual representations of CI/CD workflows and runner relationships.
 """
 
-import yaml
-from pathlib import Path
 import json
+from pathlib import Path
+
+import yaml
+
 
 def parse_workflow_files() -> dict:
     """Parse all GitHub Actions workflow files."""
     workflows = {}
     workflows_dir = Path('.github/workflows')
-    
+
     if not workflows_dir.exists():
         return workflows
-    
+
     for workflow_file in workflows_dir.glob('*.yml'):
         try:
-            with open(workflow_file, 'r') as f:
+            with open(workflow_file) as f:
                 workflow_data = yaml.safe_load(f)
                 workflows[workflow_file.stem] = workflow_data
         except Exception as e:
             print(f"Warning: Could not parse {workflow_file}: {e}")
-    
+
     return workflows
 
 def generate_runner_mapping() -> str:
@@ -93,7 +95,7 @@ def generate_runner_mapping() -> str:
     class BUILD,SMOKE,UNIT,INTEG,QUALITY,API,DIAG jobStyle
     class PUSH,PR,SCHEDULE,MANUAL triggerStyle
 """
-    
+
     return mermaid
 
 def generate_ci_pipeline_flow() -> str:
@@ -154,23 +156,23 @@ def generate_ci_pipeline_flow() -> str:
     class SUCCESS,AUTOMERGE,DEPLOY successStyle
     class FAIL,PARTIAL,BLOCK,AUTOREVERT failStyle
 """
-    
+
     return mermaid
 
 def create_workflow_dependency_graph() -> str:
     """Create a dependency graph of workflows."""
     workflows = parse_workflow_files()
-    
+
     dot = """digraph workflow_dependencies {
     rankdir=TB;
     node [shape=box, style=filled];
     
     // Define workflow nodes
     """
-    
+
     for workflow_name, workflow_data in workflows.items():
         dot += f'    "{workflow_name}" [fillcolor=lightblue];\n'
-    
+
     dot += """
     // Add trigger relationships
     subgraph cluster_triggers {
@@ -186,7 +188,7 @@ def create_workflow_dependency_graph() -> str:
     
     // Connect triggers to workflows
     """
-    
+
     for workflow_name, workflow_data in workflows.items():
         if 'on' in workflow_data:
             triggers = workflow_data['on']
@@ -196,61 +198,61 @@ def create_workflow_dependency_graph() -> str:
             elif isinstance(triggers, list):
                 for trigger in triggers:
                     dot += f'    "{trigger}" -> "{workflow_name}";\n'
-    
+
     dot += "}"
-    
+
     return dot
 
 def generate_diagrams():
     """Generate all workflow diagrams."""
     print("🔄 Generating workflow diagrams...")
-    
+
     # Create output directory
     docs_dir = Path('docs/diagrams')
     docs_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Generate runner mapping diagram
     runner_mapping = generate_runner_mapping()
     with open(docs_dir / 'runner_mapping.mmd', 'w') as f:
         f.write(runner_mapping)
-    
+
     # Generate CI pipeline flow
     pipeline_flow = generate_ci_pipeline_flow()
     with open(docs_dir / 'ci_pipeline_flow.mmd', 'w') as f:
         f.write(pipeline_flow)
-    
+
     # Generate workflow dependency graph
     workflow_deps = create_workflow_dependency_graph()
     with open(docs_dir / 'workflow_dependencies.dot', 'w') as f:
         f.write(workflow_deps)
-    
+
     # Parse and save workflow metadata
     workflows = parse_workflow_files()
     workflow_metadata = {
         'total_workflows': len(workflows),
         'workflows': {}
     }
-    
+
     for name, data in workflows.items():
         jobs = data.get('jobs', {})
         triggers = data.get('on', {})
-        
+
         workflow_metadata['workflows'][name] = {
             'jobs': list(jobs.keys()),
             'job_count': len(jobs),
             'triggers': list(triggers.keys()) if isinstance(triggers, dict) else triggers,
             'has_self_hosted': any(
-                isinstance(job.get('runs-on'), list) and 
+                isinstance(job.get('runs-on'), list) and
                 any('self-hosted' in str(runner) for runner in job['runs-on'])
                 for job in jobs.values()
             )
         }
-    
+
     with open(docs_dir / 'workflow_metadata.json', 'w') as f:
         json.dump(workflow_metadata, f, indent=2)
-    
+
     print(f"📊 Found {len(workflows)} workflow files")
     print("✅ Workflow diagrams generated successfully!")
 
 if __name__ == '__main__':
-    generate_diagrams() 
+    generate_diagrams()

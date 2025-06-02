@@ -172,4 +172,4 @@ jobs:
             docs/diagrams/
             *.png
             *.svg
-          retention-days: 30 
+          retention-days: 30

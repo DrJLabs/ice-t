@@ -1,5 +1,5 @@
-import sys
 from pathlib import Path
+import sys
 
 # Ensure src directory is on the Python path for tests
 SRC_PATH = Path(__file__).resolve().parents[1] / "src"

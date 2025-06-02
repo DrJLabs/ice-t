@@ -4,71 +4,72 @@ Documentation Updater for ice-t
 Updates README and documentation with auto-generated diagrams.
 """
 
+from datetime import datetime
 import json
 from pathlib import Path
-from datetime import datetime
+
 
 def update_readme_with_diagrams():
     """Update README.md with diagram links and project stats."""
     readme_path = Path('README.md')
     docs_dir = Path('docs/diagrams')
-    
+
     if not readme_path.exists():
         print("⚠️  README.md not found, creating basic one...")
         create_basic_readme()
         return
-    
+
     # Read current README
-    with open(readme_path, 'r') as f:
+    with open(readme_path) as f:
         content = f.read()
-    
+
     # Generate diagrams section
     diagrams_section = generate_diagrams_section()
     stats_section = generate_stats_section()
-    
+
     # Look for existing sections to replace
     if '## 📊 Project Architecture' in content:
         # Replace existing section
         lines = content.split('\n')
         start_idx = None
         end_idx = None
-        
+
         for i, line in enumerate(lines):
             if line.startswith('## 📊 Project Architecture'):
                 start_idx = i
             elif start_idx is not None and line.startswith('## ') and not line.startswith('## 📊'):
                 end_idx = i
                 break
-        
+
         if start_idx is not None:
             if end_idx is not None:
                 lines = lines[:start_idx] + diagrams_section.split('\n') + lines[end_idx:]
             else:
                 lines = lines[:start_idx] + diagrams_section.split('\n')
-            
+
             content = '\n'.join(lines)
     else:
         # Add new section before any existing "##" sections or at the end
         lines = content.split('\n')
         insert_idx = len(lines)
-        
+
         for i, line in enumerate(lines):
             if line.startswith('## ') and i > 0:  # Skip the first title
                 insert_idx = i
                 break
-        
+
         lines.insert(insert_idx, diagrams_section)
         content = '\n'.join(lines)
-    
+
     # Add stats badge if not present
     if '![Project Stats]' not in content and docs_dir.exists():
         stats_badge = f"\n{stats_section}\n"
         content = content.replace('# ice-t', f'# ice-t\n{stats_badge}')
-    
+
     # Write updated README
     with open(readme_path, 'w') as f:
         f.write(content)
-    
+
     print("✅ README.md updated with diagrams and stats")
 
 def create_basic_readme():
@@ -114,7 +115,7 @@ The project uses an adaptive test runner with ≥94% coverage baseline:
 ice-t follows a modular architecture:
 
 - `src/ice_t/core/` - Core functionality
-- `src/ice_t/features/` - Feature implementations  
+- `src/ice_t/features/` - Feature implementations
 - `src/ice_t/utilities/` - Utility functions
 - `src/ice_t/integrations/` - External integrations
 
@@ -134,17 +135,17 @@ The project uses 7 self-hosted runners for 6-way parallel testing:
 
 Statistics are auto-generated from the codebase and updated automatically.
 """
-    
+
     with open('README.md', 'w') as f:
         f.write(readme_content)
-    
+
     print("✅ Created basic README.md")
 
 def generate_diagrams_section() -> str:
     """Generate the diagrams section for README."""
     docs_dir = Path('docs/diagrams')
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M UTC")
-    
+
     section = f"""## 📊 Project Architecture
 
 > Auto-generated diagrams updated on {timestamp}
@@ -156,17 +157,17 @@ graph TB
         subgraph "Core Layer"
             CORE[Core Modules]
         end
-        
+
         subgraph "Feature Layer"
             FEAT[Features]
         end
-        
+
         subgraph "CI/CD Pipeline"
             RUNNERS[7 Self-Hosted Runners]
             WORKFLOWS[Automated Workflows]
         end
     end
-    
+
     CORE --> FEAT
     RUNNERS --> WORKFLOWS
     WORKFLOWS --> CORE
@@ -176,7 +177,7 @@ graph TB
 ### 📋 Available Diagrams
 
 """
-    
+
     if docs_dir.exists():
         diagram_files = {
             'architecture_overview.mmd': '🏗️ System Architecture Overview',
@@ -186,7 +187,7 @@ graph TB
             'detailed_architecture.png': '🎯 Detailed Architecture',
             'component_diagram.png': '🧩 Component Diagram'
         }
-        
+
         for filename, description in diagram_files.items():
             filepath = docs_dir / filename
             if filepath.exists():
@@ -194,14 +195,14 @@ graph TB
                     section += f"- **{description}**: [View Mermaid Source](docs/diagrams/{filename})\n"
                 else:
                     section += f"- **{description}**: ![{description}](docs/diagrams/{filename})\n"
-    
+
     section += "\n### 🔄 Diagram Generation\n\n"
     section += "Diagrams are automatically generated when:\n"
     section += "- Code is pushed to `main` or `develop`\n"
     section += "- Pull requests are created\n"
     section += "- Manual workflow dispatch is triggered\n"
     section += "\nGeneration runs on `ice-t-runner-7` with labels: `diagrams`, `documentation`, `visualization`\n"
-    
+
     return section
 
 def generate_stats_section() -> str:
@@ -211,44 +212,44 @@ def generate_stats_section() -> str:
         'docs/diagrams/workflow_metadata.json',
         'docs/diagrams/dependency_analysis.json'
     ]
-    
+
     stats = {}
     for stats_file in stats_files:
         if Path(stats_file).exists():
-            with open(stats_file, 'r') as f:
+            with open(stats_file) as f:
                 file_stats = json.load(f)
                 stats.update(file_stats)
-    
+
     if not stats:
         return "![Project Status](https://img.shields.io/badge/status-active-brightgreen)"
-    
+
     badges = []
-    
+
     # Add module count badge
     if 'total_modules' in stats:
         badges.append(f"![Modules](https://img.shields.io/badge/modules-{stats['total_modules']}-blue)")
-    
+
     # Add package count badge
     if 'total_external_packages' in stats:
         badges.append(f"![Dependencies](https://img.shields.io/badge/dependencies-{stats['total_external_packages']}-orange)")
-    
+
     # Add workflow count badge
     if 'total_workflows' in stats:
         badges.append(f"![Workflows](https://img.shields.io/badge/workflows-{stats['total_workflows']}-purple)")
-    
+
     # Add runner count badge
     badges.append("![Runners](https://img.shields.io/badge/runners-7-green)")
-    
+
     # Add coverage badge (assuming ≥94% target)
     badges.append("![Coverage](https://img.shields.io/badge/coverage-%E2%89%A594%25-brightgreen)")
-    
+
     return ' '.join(badges)
 
 def create_docs_index():
     """Create or update docs/index.md with diagram links."""
     docs_dir = Path('docs')
     docs_dir.mkdir(exist_ok=True)
-    
+
     index_content = f"""# ice-t Documentation
 
 Auto-generated on {datetime.now().strftime("%Y-%m-%d %H:%M UTC")}
@@ -273,13 +274,13 @@ Auto-generated on {datetime.now().strftime("%Y-%m-%d %H:%M UTC")}
 
 ### Project Metrics
 """
-    
+
     # Add statistics if available
     stats_file = Path('docs/diagrams/project_stats.json')
     if stats_file.exists():
-        with open(stats_file, 'r') as f:
+        with open(stats_file) as f:
             stats = json.load(f)
-        
+
         index_content += f"""
 - **Total Modules**: {stats.get('total_modules', 'Unknown')}
 - **Core Modules**: {stats.get('core_modules', 'Unknown')}
@@ -287,7 +288,7 @@ Auto-generated on {datetime.now().strftime("%Y-%m-%d %H:%M UTC")}
 - **Test Files**: {stats.get('test_files', 'Unknown')}
 - **Scripts**: {stats.get('scripts', 'Unknown')}
 """
-    
+
     index_content += """
 ## 🔄 Auto-Generation
 
@@ -303,23 +304,23 @@ The generation process analyzes:
 - Test organization
 - Script relationships
 """
-    
+
     with open(docs_dir / 'index.md', 'w') as f:
         f.write(index_content)
-    
+
     print("✅ Created/updated docs/index.md")
 
 def main():
     """Main function to update all documentation."""
     print("📚 Updating documentation with generated diagrams...")
-    
+
     # Update README
     update_readme_with_diagrams()
-    
+
     # Create/update docs index
     create_docs_index()
-    
+
     print("✅ Documentation updated successfully!")
 
 if __name__ == '__main__':
-    main() 
+    main()
