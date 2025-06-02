@@ -7,12 +7,12 @@ REPO_URL="https://github.com/DrJLabs/ice-t"
 
 # Runner labels
 declare -A RUNNER_LABELS
-RUNNER_LABELS[1]="ice-t,build,setup"
-RUNNER_LABELS[2]="ice-t,test,smoke" 
-RUNNER_LABELS[3]="ice-t,test,unit"
-RUNNER_LABELS[4]="ice-t,test,integration"
-RUNNER_LABELS[5]="ice-t,quality,security"
-RUNNER_LABELS[6]="ice-t,test,api"
+RUNNER_LABELS[1]="ice-t,linux,build,setup"
+RUNNER_LABELS[2]="ice-t,linux,test,smoke"
+RUNNER_LABELS[3]="ice-t,linux,test,unit"
+RUNNER_LABELS[4]="ice-t,linux,test,integration"
+RUNNER_LABELS[5]="ice-t,linux,quality,security"
+RUNNER_LABELS[6]="ice-t,linux,test,api"
 
 echo "🚀 ice-t GitHub Actions Runners Configuration"
 echo "=============================================="
