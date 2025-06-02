@@ -33,7 +33,6 @@ env:
   COVERAGE_PARALLEL: true
   # Disable GitHub Actions cache - counterproductive for persistent runners
   ACTIONS_CACHE_DISABLED: true
-  CI: true
 
 defaults:
   run:
