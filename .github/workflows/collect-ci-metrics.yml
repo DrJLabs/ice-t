@@ -1,0 +1,46 @@
+---
+name: collect-ci-metrics
+"on":
+  workflow_run:
+    workflows: ["CI"]          # ‼Replace<CI> with your real workflow name
+    types: [completed]
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📈 Capture CI metrics
+        shell: bash
+        env:
+          GH_FIELDS: >-
+            conclusion,duration_ms,run_started_at,actor,headSha,createdAt,updatedAt
+        run: |
+          set -euo pipefail
+          gh run view ${{ github.event.workflow_run.id }} \
+            --json "$GH_FIELDS" \
+            --jq '{
+              run_id:     '"${{ github.event.workflow_run.id }}"',
+              conclusion: .conclusion,
+              duration_ms: .duration_ms,
+              queued_ms: ((.run_started_at|fromdateiso8601) - \
+                         (.createdAt|fromdateiso8601))*1000,
+              actor: .actor.login,
+              head_sha: .headSha,
+              finished_at: .updatedAt
+            }' >> .codex/metrics/ci-metrics.jsonl
+
+      - name: 📤 Commit metrics
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "ice-t-bot"
+          git config user.email "ice-t-bot@users.noreply.github.com"
+          git add .codex/metrics/ci-metrics.jsonl
+          git commit -m \
+            "ci(metrics): append run ${{ github.event.workflow_run.id }}"
+          git push
