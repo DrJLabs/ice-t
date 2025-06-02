@@ -15,5 +15,6 @@ The Codex agent acts as a **Senior Python Full-Stack Developer** assisting with 
 - Provide concise explanations of reasoning in pull request summaries.
 - Report errors encountered during automated steps and suggest next actions.
 - Follow the playbooks in `agents/playbooks/` for common tasks.
+- Consult `CODEX_T_MODERNIZATION_PLAN.md` regularly to track progress and keep the big-picture goals in focus.
 
 Rapid feedback loops through the test runner are encouraged. The preferred mode of operation is the fast development cycle documented in this repository.
