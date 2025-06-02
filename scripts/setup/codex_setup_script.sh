@@ -100,7 +100,7 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   pytest-cov>=6.0.0 \
   rich>=13.7.1 \
   click>=8.1.6 \
-  pydantic>=2.7.1 \
+  pydantic>=2.7.4 \
   || {
     echo "❌ Critical dependencies failed - trying system packages"
     # Fallback to system packages if pip fails
@@ -114,7 +114,7 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   pytest-xdist==3.6.0 \
   pytest-mock==3.14.0 \
   hypothesis==6.131.27 \
-  coverage==7.2.7 \
+  coverage==7.8.0 \
   || echo "⚠️ Some testing dependencies failed (will use fallbacks)"
 
 # Code quality tools
@@ -132,7 +132,7 @@ echo "  Installing utility tools..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   typing-extensions==4.12.2 \
   build==1.0.3 \
-  pre-commit==3.6.0 \
+  pre-commit==3.7.0 \
   || echo "⚠️ Some utility tools failed (will use fallbacks)"
 
 # Note about pre-commit in sandboxed environments

@@ -59,7 +59,7 @@ $PYTHON_CMD -m pip install --quiet \
 # Tier 3: Codebase-specific (used in current code)
 echo "  Installing codebase-specific tools..."
 $PYTHON_CMD -m pip install --quiet \
-    "pydantic>=2.7.1" \
+    "pydantic>=2.7.4" \
     "coverage>=7.8.0" \
     "pytest-cov>=6.0.0" \
     || echo "⚠️ Some codebase tools failed"

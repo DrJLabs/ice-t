@@ -185,19 +185,19 @@ setup_python_tools() {
     # Install our project dependencies in venv
     echo "  - Installing Python tools in virtual environment..."
     pip install \
-        pytest>=8.2.0 \
-        pytest-cov>=5.0.0 \
+        pytest>=8.3.0 \
+        pytest-cov>=6.0.0 \
         pytest-xdist>=3.6.0 \
         pytest-mock>=3.14.0 \
         black>=24.4.2 \
         ruff>=0.11.11 \
-        mypy>=1.10.0 \
-        isort>=5.13.0 \
-        pre-commit>=3.6.0 \
+        mypy>=1.15.0 \
+        isort>=5.13.2 \
+        pre-commit>=3.7.0 \
         rich>=13.7.1 \
-        click>=8.1.7 \
-        pydantic>=2.7.1 \
-        hypothesis>=6.100.0 \
+        click>=8.1.6 \
+        pydantic>=2.7.4 \
+        hypothesis>=6.131.27 \
         bandit[toml]>=1.7.5 \
         safety>=3.2.0 \
         semgrep \

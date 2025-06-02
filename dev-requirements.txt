@@ -6,13 +6,13 @@ pre-commit>=3.7.0
 tox>=4.15.0
 
 # Additional CI/CD requirements
-pytest-cov>=5.0.0
+pytest-cov>=6.0.0
 pytest-xdist>=3.6.0
-hypothesis>=6.100.0
+hypothesis>=6.131.27
 bandit>=1.7.5
 safety>=3.2.0
-pydantic>=2.7.1
-pydantic[mypy]>=2.7.1 # For Mypy plugin and type stubs for Pydantic
-rich>=13.0.0 # For CLI output and Mypy pre-commit hook
+pydantic>=2.7.4
+pydantic[mypy]>=2.7.4 # For Mypy plugin and type stubs for Pydantic
+rich>=13.7.1 # For CLI output and Mypy pre-commit hook
 pytest-asyncio>=0.23.0 # For running asyncio tests with pytest
 yamllint>=1.35.1

@@ -36,7 +36,7 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
     pytest-xdist==3.7.0 \
     rich==13.9.4 \
     click==8.1.7 \
-    pydantic==2.10.3 || echo "⚠️ Some core deps failed"
+    pydantic==2.7.4 || echo "⚠️ Some core deps failed"
 
 echo "🔧 Installing quality tools..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
@@ -52,8 +52,8 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
 
 echo "🧪 Installing testing tools..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    hypothesis==6.122.1 \
-    coverage==7.6.9 \
+    hypothesis==6.131.27 \
+    coverage==7.8.0 \
     pytest-mock==3.14.0 || echo "⚠️ Some testing tools failed"
 
 echo "🌐 Installing web dependencies..."
