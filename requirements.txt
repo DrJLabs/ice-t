@@ -9,7 +9,7 @@ pytest-forked>=1.6.0
 execnet>=2.0.2
 
 # Code quality tools
-ruff>=0.11.0
+ruff>=0.11.11
 mypy>=1.15.0
 isort>=5.13.0
 

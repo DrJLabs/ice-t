@@ -52,7 +52,7 @@ $PYTHON_CMD -m pip install --quiet \
 # Tier 2: Quality tools (needed for code quality)
 echo "  Installing quality tools..."
 $PYTHON_CMD -m pip install --quiet \
-    "ruff>=0.11.0" \
+    "ruff>=0.11.11" \
     "mypy>=1.15.0" \
     || echo "⚠️ Quality tools failed (will use fallbacks)"
 
