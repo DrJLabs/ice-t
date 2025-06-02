@@ -18,6 +18,8 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    pre-commit install
    ```
    The project expects **pre-commit 3.7.0 or newer**. Verify with `pre-commit --version`.
+   Some security hooks (bandit and safety) may require packages from
+   `dev-requirements.txt`.
 5. Run tests to verify the environment:
    ```bash
     pytest
