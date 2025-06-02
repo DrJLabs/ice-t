@@ -1,7 +1,0 @@
-alwaysApply: false
-globs:
-  - ".codex/logs/**/*.log"
-  - ".codex/metrics/**/*.jsonl"
-priority: 5
-agentInstructions: |
-  Use log files and CI metrics to diagnose failures and recommend runner tuning.
