@@ -2,7 +2,7 @@
 name: collect-ci-metrics
 "on":
   workflow_run:
-    workflows: ["CI"]          # ‼Replace<CI> with your real workflow name
+    workflows: ["🚀 Turbo CI - ice-t Persistent Runners"]
     types: [completed]
 
 jobs:
