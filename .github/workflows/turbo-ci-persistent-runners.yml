@@ -251,26 +251,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: ⚡ Activate persistent virtual environment
-        run: |
-          # Use the persistent shared virtual environment created in setup
-          REQ_HASH="${{ needs.persistent-setup.outputs.requirements-hash }}"
-          VENV_DIR="$HOME/.cache/ice-t-venv-${REQ_HASH:0:12}"
-
-          echo "⚡ Activating persistent venv: ${VENV_DIR}"
-
-          # Verify the environment exists (should always exist after setup)
-          if [ ! -d "$VENV_DIR" ]; then
-            echo "❌ Persistent virtual environment not found! Setup job may have failed."
-            exit 1
-          fi
-
-          # Activate for current and future steps
-          export VIRTUAL_ENV="$VENV_DIR"
-          export PATH="$VENV_DIR/bin:$PATH"
-          echo "VIRTUAL_ENV=$VENV_DIR" >> $GITHUB_ENV
-          echo "PATH=$VENV_DIR/bin:$PATH" >> $GITHUB_ENV
-
-          echo "🐍 Using Python: $(python --version)"
+        uses: ./.github/actions/setup-venv
+        with:
+          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: ⚡ Run pre-commit (using local cache)
         run: |
@@ -327,26 +310,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: ⚡ Activate persistent virtual environment
-        run: |
-          # Use the persistent shared virtual environment created in setup
-          REQ_HASH="${{ needs.persistent-setup.outputs.requirements-hash }}"
-          VENV_DIR="$HOME/.cache/ice-t-venv-${REQ_HASH:0:12}"
-
-          echo "⚡ Activating persistent venv: ${VENV_DIR}"
-
-          # Verify the environment exists (should always exist after setup)
-          if [ ! -d "$VENV_DIR" ]; then
-            echo "❌ Persistent virtual environment not found! Setup job may have failed."
-            exit 1
-          fi
-
-          # Activate for current and future steps
-          export VIRTUAL_ENV="$VENV_DIR"
-          export PATH="$VENV_DIR/bin:$PATH"
-          echo "VIRTUAL_ENV=$VENV_DIR" >> $GITHUB_ENV
-          echo "PATH=$VENV_DIR/bin:$PATH" >> $GITHUB_ENV
-
-          echo "🐍 Using Python: $(python --version)"
+        uses: ./.github/actions/setup-venv
+        with:
+          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔍 Run MyPy type checking (using .mypy_cache)
         run: |
@@ -370,26 +336,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: ⚡ Activate persistent virtual environment
-        run: |
-          # Use the persistent shared virtual environment created in setup
-          REQ_HASH="${{ needs.persistent-setup.outputs.requirements-hash }}"
-          VENV_DIR="$HOME/.cache/ice-t-venv-${REQ_HASH:0:12}"
-
-          echo "⚡ Activating persistent venv: ${VENV_DIR}"
-
-          # Verify the environment exists (should always exist after setup)
-          if [ ! -d "$VENV_DIR" ]; then
-            echo "❌ Persistent virtual environment not found! Setup job may have failed."
-            exit 1
-          fi
-
-          # Activate for current and future steps
-          export VIRTUAL_ENV="$VENV_DIR"
-          export PATH="$VENV_DIR/bin:$PATH"
-          echo "VIRTUAL_ENV=$VENV_DIR" >> $GITHUB_ENV
-          echo "PATH=$VENV_DIR/bin:$PATH" >> $GITHUB_ENV
-
-          echo "🐍 Using Python: $(python --version)"
+        uses: ./.github/actions/setup-venv
+        with:
+          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔒 Run Bandit security scan
         run: |
@@ -467,26 +416,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: ⚡ Activate persistent virtual environment
-        run: |
-          # Use the persistent shared virtual environment created in setup
-          REQ_HASH="${{ needs.persistent-setup.outputs.requirements-hash }}"
-          VENV_DIR="$HOME/.cache/ice-t-venv-${REQ_HASH:0:12}"
-
-          echo "⚡ Activating persistent venv: ${VENV_DIR}"
-
-          # Verify the environment exists (should always exist after setup)
-          if [ ! -d "$VENV_DIR" ]; then
-            echo "❌ Persistent virtual environment not found! Setup job may have failed."
-            exit 1
-          fi
-
-          # Activate for current and future steps
-          export VIRTUAL_ENV="$VENV_DIR"
-          export PATH="$VENV_DIR/bin:$PATH"
-          echo "VIRTUAL_ENV=$VENV_DIR" >> $GITHUB_ENV
-          echo "PATH=$VENV_DIR/bin:$PATH" >> $GITHUB_ENV
-
-          echo "🐍 Using Python: $(python --version)"
+        uses: ./.github/actions/setup-venv
+        with:
+          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔧 Self-healing test setup
         run: |
@@ -554,26 +486,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: ⚡ Activate persistent virtual environment
-        run: |
-          # Use the persistent shared virtual environment created in setup
-          REQ_HASH="${{ needs.persistent-setup.outputs.requirements-hash }}"
-          VENV_DIR="$HOME/.cache/ice-t-venv-${REQ_HASH:0:12}"
-
-          echo "⚡ Activating persistent venv: ${VENV_DIR}"
-
-          # Verify the environment exists (should always exist after setup)
-          if [ ! -d "$VENV_DIR" ]; then
-            echo "❌ Persistent virtual environment not found! Setup job may have failed."
-            exit 1
-          fi
-
-          # Activate for current and future steps
-          export VIRTUAL_ENV="$VENV_DIR"
-          export PATH="$VENV_DIR/bin:$PATH"
-          echo "VIRTUAL_ENV=$VENV_DIR" >> $GITHUB_ENV
-          echo "PATH=$VENV_DIR/bin:$PATH" >> $GITHUB_ENV
-
-          echo "🐍 Using Python: $(python --version)"
+        uses: ./.github/actions/setup-venv
+        with:
+          requirements-hash: ${{ needs.persistent-setup.outputs.requirements-hash }}
 
       - name: 🔧 Install build tools (cached in venv)
         run: |
