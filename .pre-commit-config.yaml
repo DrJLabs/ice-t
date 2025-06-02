@@ -110,6 +110,24 @@ repos:
         pass_filenames: false
         stages: [pre-commit, manual]
 
+      # ice-t unit tests
+      - id: ice-t-unit-tests
+        name: ice-t Unit Tests
+        entry: python3
+        args: ['scripts/adaptive_test_runner.py', 'run', '--level', 'full', '--cov-fail-under=94']
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, manual]
+
+      # ice-t integration tests
+      - id: ice-t-integration-tests
+        name: ice-t Integration Tests
+        entry: python3
+        args: ['scripts/adaptive_test_runner.py', 'run', '--level', 'integration']
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, manual]
+
 - repo: https://github.com/adrienverge/yamllint.git
   rev: v1.35.1
   hooks:
