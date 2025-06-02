@@ -61,9 +61,6 @@ jobs:
             echo "::warning::${NEW_LOG} missing or empty – skipping add"
           fi
 
-          if [ -d "$LOG_DIR" ]; then
-            ls -1t ${LOG_DIR}/ci_*.log | tail -n +6 | xargs -r git rm -f --
-          fi
 
       - id: commit_logs
         name: Commit log changes
