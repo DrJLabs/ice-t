@@ -11,4 +11,3 @@ def test_project_structure():
     src_dir = Path(__file__).parent.parent.parent / "src" / "ice_t"
     assert src_dir.exists()
     assert (src_dir / "__init__.py").exists()
-
