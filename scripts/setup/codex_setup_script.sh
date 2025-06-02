@@ -135,7 +135,7 @@ echo "  Installing utility tools..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   typing-extensions==4.12.2 \
   build==1.0.3 \
-  pre-commit==4.0.0 \
+  pre-commit==4.0.1 \
   || echo "⚠️ Some utility tools failed (will use fallbacks)"
 
 # Note about pre-commit in sandboxed environments

@@ -123,7 +123,7 @@ repos:
 # =============================================================================
 default_stages: [pre-commit]
 fail_fast: false  # Continue running hooks even if one fails
-minimum_pre_commit_version: "4.0"
+minimum_pre_commit_version: "4.0.1"
 
 # Exclude patterns
 exclude: |
