@@ -6,15 +6,30 @@ build-backend = "setuptools.build_meta"
 name = "ice-t"
 version = "0.1.0"
 description = "Autonomous high-performance template for web-app projects driven by Cursor & Codex"
-license = { file = "LICENSE" }
 authors = [{name = "DrJLabs", email = "drj@example.com"}]
 requires-python = ">=3.9"
 dependencies = [
     "pytest>=8.3.0",
     "rich>=13.7.1",
     "pydantic>=2.7.4",
+]
+
+[project.optional-dependencies]
+dev = [
     "ruff>=0.11.11",
     "mypy>=1.15.0",
+    "pre-commit>=4.0",
+    "tox>=4.15.0",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.6.0",
+    "hypothesis>=6.131.27",
+    "bandit>=1.7.5",
+    "safety>=3.2.0",
+    "pydantic[mypy]>=2.7.4",
+    "pytest-asyncio>=0.23.0",
+    "yamllint>=1.35.1",
+    "coverage>=7.8.0",
+    "types-jsonschema",
 ]
 
 [tool.ruff]
