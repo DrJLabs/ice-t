@@ -23,3 +23,8 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    pytest
    ```
 
+
+## Self-hosted Runners
+
+The CI pipelines rely on a pool of self-hosted runners labeled `ice-t` with additional role labels such as `build`, `test`, and `quality`. Ensure at least one runner for each role is online so workflows can execute.
+
