@@ -4,20 +4,22 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
 
 ## Development Setup
 
-1. Create and activate a Python 3.12 virtual environment.
-2. Install runtime dependencies:
+1. Run the setup script to create the virtual environment and install all
+   dependencies:
    ```bash
-   pip install -r requirements.txt
+   scripts/setup_dependencies.sh
    ```
-3. Install development tools:
+   The script uses Python **3.12** as specified in `.python-version` and installs
+   both runtime and development requirements.
+2. Activate the environment:
    ```bash
-   pip install -r dev-requirements.txt
+   source .venv/bin/activate
    ```
-4. Copy the sample environment file and edit as needed:
+3. Copy the sample environment file and edit as needed:
    ```bash
    cp .env.example .env
    ```
-5. Install pre-commit hooks:
+4. Install pre-commit hooks:
    ```bash
    pre-commit install
    ```
@@ -30,7 +32,7 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
 
        pre-commit run ice-t-unit-tests
        pre-commit run ice-t-integration-tests
-6. Run tests to verify the environment:
+5. Run tests to verify the environment:
    ```bash
     pytest
     ```
