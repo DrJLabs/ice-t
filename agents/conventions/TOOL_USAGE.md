@@ -7,3 +7,4 @@ The AI uses the following tools during development:
 - **adaptive_test_runner.py** – execute relevant tests after changes.
 
 Use `run_terminal_cmd` for installation or formatting commands. After modifying code, always run the adaptive test runner to verify correctness before creating a pull request.
+Consult the modernization checklist to align tooling commands with current priorities.
