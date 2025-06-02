@@ -18,12 +18,13 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    pre-commit install
    ```
    The project expects **pre-commit 3.7.0 or newer**. Verify with `pre-commit --version`.
+   Some security hooks (bandit and safety) may require packages from
+   `dev-requirements.txt`.
 
    New hooks mirror the CI job matrix. Trigger them manually when needed:
-   ```bash
-   pre-commit run ice-t-unit-tests
-   pre-commit run ice-t-integration-tests
-   ```
+
+       pre-commit run ice-t-unit-tests
+       pre-commit run ice-t-integration-tests
 5. Run tests to verify the environment:
    ```bash
     pytest

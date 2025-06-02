@@ -101,6 +101,24 @@ repos:
         types: [python]
         stages: [pre-commit, manual]
 
+      # Additional security scanning (bandit and safety may require packages
+      # from dev-requirements.txt)
+      - id: bandit
+        name: Bandit Security Scan
+        entry: bandit
+        args: ['-r', 'src/', '-f', 'json', '-o', 'bandit-report.json']
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, manual]
+
+      - id: safety
+        name: Safety Dependency Check
+        entry: safety
+        args: ['check', '--full-report']
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, manual]
+
       # ice-t smoke tests
       - id: ice-t-smoke-tests
         name: ice-t Smoke Tests
