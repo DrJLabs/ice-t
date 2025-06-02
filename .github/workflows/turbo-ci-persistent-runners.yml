@@ -3,6 +3,8 @@ name: 🚀 Turbo CI - ice-t Persistent Runners
 
 "on":
   push:  # Runs on push to any branch
+    paths-ignore:
+      - '.codex/**'
   pull_request:  # Runs on PRs to any branch
     types:
       - opened
