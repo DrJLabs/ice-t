@@ -440,7 +440,7 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   black==24.10.0 \
   bandit==1.8.0 \
   safety==3.2.11 \
-  pre-commit>=4.0 \
+  pre-commit==4.0.1 \
   pylint==3.3.1 \
   flake8==7.1.1 \
   && echo "  ✅ Quality tools installed successfully" \
