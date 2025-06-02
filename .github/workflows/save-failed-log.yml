@@ -13,25 +13,69 @@ jobs:
       actions: read
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out failing branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
 
-      - name: 📥 Fetch failing log
-        shell: bash
+      - name: Extract error block
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p .codex/logs
-          gh run view ${{ github.event.workflow_run.id }} --log \
-            > .codex/logs/ci_${{ github.event.workflow_run.id }}.log
+          RUN_ID=${{ github.event.workflow_run.id }}
+          mkdir -p .codex/errors
+          # Download full log
+          gh run view "$RUN_ID" --log > /tmp/full.log
+          # Extract error lines + 20 lines of context
+          awk '/##\[error\]/{c=20} c-->0' /tmp/full.log > ".codex/errors/ci_${RUN_ID}.log"
 
-      - name: 📝 Commit log for Codex
-        shell: bash
+      - name: Commit error log
+        id: commit_error_log_step
         run: |
-          set -euo pipefail
           git config user.name  "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
-          git add -f .codex/logs
-          git commit --no-verify -m \
-            "ci(log): add failed run ${{ github.event.workflow_run.id }}"
-          git push
+          git add -f .codex/errors/ci_${{ github.event.workflow_run.id }}.log
+          # Check if there are any files to commit to avoid empty commit error
+          if ! git diff --staged --quiet; then
+            git commit --no-verify -m "ci(errors): run ${{ github.event.workflow_run.id }}"
+            git push
+          else
+            echo "No new error logs to commit."
+          fi
+
+      - name: Trim old error logs
+        if: steps.commit_error_log_step.conclusion == 'success'
+        run: |
+          set -euo pipefail
+          echo "Checking for old error logs to trim..."
+          # Ensure the directory exists
+          if [ -d ".codex/errors" ]; then
+            cd .codex/errors
+            LOG_FILES_COUNT=$(ls -1q ci_*.log 2>/dev/null | wc -l)
+            if [ "$LOG_FILES_COUNT" -gt 50 ]; then
+              echo "Found $LOG_FILES_COUNT error logs. Trimming oldest ones beyond 50..."
+              # List all ci_*.log files, sort by modification time (oldest first via `tac` after `ls -t`), take all but the newest 50.
+              # ls -1t lists newest first. tail -n +51 gives all but the first 50 (newest).
+              ls -1t ci_*.log | tail -n +51 | xargs -r git rm -f
+              # Check if git rm actually staged any files
+              if ! git diff --staged --quiet; then
+                git commit --no-verify -m "ci(maintenance): trim old error logs"
+                git push
+              else
+                echo "No old logs were removed by git rm."
+              fi
+            else
+              echo "Fewer than 50 error logs ($LOG_FILES_COUNT). No trimming needed."
+            fi
+            cd ../..
+          else
+            echo "No .codex/errors directory found. Skipping trim."
+          fi
+
+      - name: Upload full log artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-full-log-${{ github.event.workflow_run.id }}
+          path: /tmp/full.log
+          retention-days: 30

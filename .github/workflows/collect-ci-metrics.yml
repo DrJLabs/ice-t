@@ -13,35 +13,32 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
 
-      - name: 📈 Capture CI metrics
+      - name: 📈 Append CI metrics
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_FIELDS: >-
-            conclusion,actor,headSha,createdAt,startedAt,updatedAt
         run: |
           set -euo pipefail
           mkdir -p .codex/metrics
-          gh run view ${{ github.event.workflow_run.id }} \
-            --json "$GH_FIELDS" \
-            --jq '{
-              run_id:     '"${{ github.event.workflow_run.id }}"',
-              conclusion: .conclusion,
-              run_duration_ms: (
-                ((.updatedAt|fromdateiso8601) - (.startedAt|fromdateiso8601))
-                * 1000
-              ),
-              queued_ms: (
-                ((.startedAt|fromdateiso8601) - (.createdAt|fromdateiso8601))
-                * 1000
-              ),
-              actor: .actor.login,
-              head_sha: .headSha,
-              created_at: .createdAt,
-              started_at: .startedAt,
-              finished_at: .updatedAt
-            }' >> .codex/metrics/ci-metrics.jsonl
+          jq -n \
+            --argjson run_id ${{ github.event.workflow_run.id }} \
+            --arg branch "${{ github.event.workflow_run.head_branch }}" \
+            --arg status "${{ github.event.workflow_run.conclusion }}" \
+            --arg created_at "${{ github.event.workflow_run.created_at }}" \
+            --arg started_at "${{ github.event.workflow_run.run_started_at }}" \
+            --arg updated_at "${{ github.event.workflow_run.updated_at }}" \
+            '{
+              run_id: $run_id,
+              branch: $branch,
+              status: $status,
+              created_at: $created_at,
+              started_at: $started_at,
+              updated_at: $updated_at,
+              duration_ms: ( ( ($updated_at | fromdateiso8601) - ($started_at | fromdateiso8601) ) * 1000 ),
+              queued_ms: ( ( ($started_at | fromdateiso8601) - ($created_at | fromdateiso8601) ) * 1000 )
+            }' \
+          >> .codex/metrics/ci-metrics.jsonl
 
       - name: 📤 Commit metrics
         shell: bash
@@ -50,6 +47,5 @@ jobs:
           git config user.name  "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
           git add -f .codex/metrics/ci-metrics.jsonl
-          git commit --no-verify -m \
-            "ci(metrics): append run ${{ github.event.workflow_run.id }}"
+          git commit --no-verify -m "ci(metrics): append run ${{ github.event.workflow_run.id }} for ${{ github.event.workflow_run.head_branch }}"
           git push
