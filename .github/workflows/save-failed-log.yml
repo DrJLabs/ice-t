@@ -17,8 +17,11 @@ jobs:
 
       - name: 📥 Fetch failing log
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          mkdir -p .codex/logs
           gh run view ${{ github.event.workflow_run.id }} --log \
             > .codex/logs/ci_${{ github.event.workflow_run.id }}.log
 
