@@ -25,16 +25,34 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .codex/logs
-          gh run view ${{ github.event.workflow_run.id }} --log \
-            > .codex/logs/ci_${{ github.event.workflow_run.id }}.log
+      - name: Fetch and extract CI error summary
+        env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          echo "Fetching log for run ID: $RUN_ID"
+          gh run view "$RUN_ID" --log > /tmp/full.log
+
+          echo "Extracting error summary..."
+          ERROR_DIR=".codex/logs"
+          mkdir -p "$ERROR_DIR"
+          awk '/##\[error]/ { c = 20 } c-- > 0' /tmp/full.log \
+            > "${ERROR_DIR}/ci_${RUN_ID}.log"
+          echo "Error summary extracted to ${ERROR_DIR}/ci_${RUN_ID}.log"
 
       - name: Stage new log and trim to 5 files
         env:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          LOG_DIR=".codex/logs"
-          NEW_LOG="${LOG_DIR}/ci_${RUN_ID}.log"
+          ERROR_DIR=".codex/logs"
+          NEW_LOG="${ERROR_DIR}/ci_${RUN_ID}.log"
+
+          # Add the new log
+          git add "$NEW_LOG"
+
+          # Keep only the five most-recent logs
+          ls -1t "${ERROR_DIR}"/ci_* | tail -n +6 | xargs -r git rm -f --
 
           if [ -s "$NEW_LOG" ]; then
             git add -f "$NEW_LOG"
