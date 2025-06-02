@@ -243,7 +243,7 @@ fi
 
 # Install security tools with conflict resolution
 echo "🔐 Installing security tools with conflict resolution..."
-pip install bandit safety --quiet --no-warn-script-location || echo "Some security tools may not be available"
+pip install bandit safety pre-commit==4.0.1 --quiet --no-warn-script-location || echo "Some security tools may not be available"
 
 # Install semgrep separately to handle rich version conflicts
 if ! command -v semgrep >/dev/null 2>&1; then

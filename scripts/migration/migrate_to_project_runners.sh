@@ -192,7 +192,7 @@ setup_python_tools() {
         black>=24.4.2 \
         ruff>=0.11.11 \
         mypy>=1.15.0 \
-        pre-commit>=4.0 \
+        pre-commit>=4.0.1 \
         rich>=13.7.1 \
         click>=8.1.6 \
         pydantic>=2.7.4 \
