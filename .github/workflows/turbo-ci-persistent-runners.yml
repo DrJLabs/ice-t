@@ -32,12 +32,28 @@ env:
   COVERAGE_PARALLEL: true
   # Disable GitHub Actions cache - counterproductive for persistent runners
   ACTIONS_CACHE_DISABLED: true
+  CI: true
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
 
 concurrency:
   group: persistent-ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  workflow-validation:
+    name: ✅ Workflow Validation
+    runs-on: [self-hosted, linux]
+    timeout-minutes: 2
+    steps:
+      - name: ⚡ Checkout
+        uses: actions/checkout@v4
+      - name: 🧪 Run yamllint
+        run: |
+          yamllint .github/workflows
+
   # Determine if CI jobs can be safely bypassed
   bypass-check:
     name: 🚦 Bypass Check
@@ -108,17 +124,25 @@ jobs:
           echo "🧹 Force cleaning requested..."
           rm -rf ~/.cache/ice-t-venv-* ~/.cache/pip ~/.cache/pre-commit || true
 
-      - name: 📊 Calculate requirements hash
-        id: requirements
-        run: |
-          # Calculate hash for cache invalidation similar to Adam Johnson's approach
-          HASH=""
-          [ -f "requirements.txt" ] && HASH+=$(sha256sum requirements.txt | cut -d' ' -f1)
-          [ -f "dev-requirements.txt" ] && HASH+=$(sha256sum dev-requirements.txt | cut -d' ' -f1)
-          HASH+=$(/usr/bin/python3 --version | sha256sum | cut -d' ' -f1)
-          FINAL_HASH=$(echo "$HASH" | sha256sum | cut -d' ' -f1)
-          echo "hash=$FINAL_HASH" >> $GITHUB_OUTPUT
-          echo "🔍 Requirements hash: $FINAL_HASH"
+        - name: 📊 Calculate requirements hash
+          id: requirements
+          run: |
+            # Calculate hash for cache invalidation similar to Adam Johnson's approach
+            HASH=""
+            [ -f "requirements.txt" ] && HASH+=$(sha256sum requirements.txt | cut -d' ' -f1)
+            [ -f "dev-requirements.txt" ] && HASH+=$(sha256sum dev-requirements.txt | cut -d' ' -f1)
+            HASH+=$(/usr/bin/python3 --version | sha256sum | cut -d' ' -f1)
+            FINAL_HASH=$(echo "$HASH" | sha256sum | cut -d' ' -f1)
+            echo "hash=$FINAL_HASH" >> $GITHUB_OUTPUT
+            echo "🔍 Requirements hash: $FINAL_HASH"
+
+      - name: 📦 Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ steps.requirements.outputs.hash }}
+          restore-keys: |
+            pip-
 
       - name: 🐍 Setup persistent virtual environment
         id: venv
@@ -146,9 +170,9 @@ jobs:
             mkdir -p "$PIP_CACHE_DIR"
 
             echo "⬆️ Installing dependencies..."
-            python -m pip install --upgrade pip wheel setuptools --quiet
-            [ -f "requirements.txt" ] && python -m pip install -r requirements.txt --quiet
-            [ -f "dev-requirements.txt" ] && python -m pip install -r dev-requirements.txt --quiet
+            python -m pip install --upgrade pip wheel setuptools --no-input --no-compile --quiet
+            [ -f "requirements.txt" ] && python -m pip install --no-input --no-compile -r requirements.txt --quiet
+            [ -f "dev-requirements.txt" ] && python -m pip install --no-input --no-compile -r dev-requirements.txt --quiet
 
             echo "✅ Persistent virtual environment created"
             SETUP_TIME="created"
@@ -228,9 +252,15 @@ jobs:
 
       - name: ⚡ Run pre-commit (using local cache)
         run: |
-          # Pre-commit uses ~/.cache/pre-commit by default - perfect for persistent runners
           echo "Using pre-commit cache: ~/.cache/pre-commit"
-          pre-commit run --all-files --show-diff-on-failure
+          pre-commit run --all-files --show-diff-on-failure 2>&1 | tee precommit.log
+      - name: 📥 Upload pre-commit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: precommit-log-${{ github.run_id }}
+          path: precommit.log
+          retention-days: 7
 
       - name: 🔍 Code complexity analysis
         run: |
@@ -331,7 +361,8 @@ jobs:
         run: |
           if command -v safety >/dev/null 2>&1; then
             echo "## Safety Vulnerability Report" >> $GITHUB_STEP_SUMMARY
-            safety check >> $GITHUB_STEP_SUMMARY || echo "No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+            safety check --full-report --json > safety-report.json || true
+            cat safety-report.json >> $GITHUB_STEP_SUMMARY || true
           fi
 
       - name: 📊 Upload security reports
@@ -442,7 +473,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.test-group }}-${{ github.run_id }}
-          path: coverage-${{ matrix.test-group }}.xml
+          path: |
+            coverage-${{ matrix.test-group }}.xml
+            .coverage*
           retention-days: 7
 
   # Build using self-contained environment
@@ -487,7 +520,7 @@ jobs:
 
           # Install build tools if not already present
           if ! command -v build >/dev/null 2>&1; then
-            pip install build wheel
+            pip install --no-input --no-compile build wheel
           fi
 
       - name: 🏗️ Build package
@@ -524,6 +557,24 @@ jobs:
     if: always()
     timeout-minutes: 1
     steps:
+      - name: 📥 Download coverage
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*-${{ github.run_id }}
+          path: coverage
+
+      - name: 🧮 Combine coverage
+        run: |
+          python -m coverage combine coverage/**/.coverage*
+          python -m coverage xml -o coverage.xml
+          python -m coverage report --fail-under=94 >> $GITHUB_STEP_SUMMARY
+
+      - name: 📤 Upload combined coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-coverage-${{ github.run_id }}
+          path: coverage.xml
       - name: 📊 Generate summary
         run: |
           echo "## 🚀 Turbo CI - Persistent Runners Summary" >> $GITHUB_STEP_SUMMARY
@@ -558,3 +609,4 @@ jobs:
             echo "❌ **Some jobs failed. Check the individual job logs for details.**" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
+

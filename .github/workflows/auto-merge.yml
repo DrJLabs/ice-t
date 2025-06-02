@@ -12,6 +12,11 @@ on:
 env:
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONUNBUFFERED: 1
+  CI: true
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
 
 # Ensure only one auto-merge workflow runs at a time per PR
 concurrency:

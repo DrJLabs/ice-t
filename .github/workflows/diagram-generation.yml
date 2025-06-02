@@ -31,6 +31,11 @@ on:
 env:
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONUNBUFFERED: 1
+  CI: true
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
 
 jobs:
   generate-diagrams:
@@ -45,21 +50,26 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: 🐍 Setup Python Environment
         run: |
-          source .venv/bin/activate || {
-            echo "Virtual environment not found, creating one..."
-            python3 -m venv .venv
-            source .venv/bin/activate
-            pip install --upgrade pip setuptools wheel
-          }
-          pip install -e .
+            source .venv/bin/activate || {
+              echo "Virtual environment not found, creating one..."
+              python3 -m venv .venv
+              source .venv/bin/activate
+              pip install --upgrade pip setuptools wheel --no-input --no-compile
+            }
+            pip install --no-input --no-compile -e .
 
       - name: 📦 Install Diagram Dependencies
         run: |
-          source .venv/bin/activate
-          pip install \
-            graphviz \
+            source .venv/bin/activate
+            pip install --no-input --no-compile \
+              graphviz \
             matplotlib \
             seaborn \
             networkx \

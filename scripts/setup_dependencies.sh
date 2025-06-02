@@ -15,8 +15,8 @@ source .venv/bin/activate
 
 # Upgrade pip and install dependencies
 echo "⬆️ Upgrading pip and installing dependencies..."
-python3 -m pip install --upgrade pip setuptools wheel
-python3 -m pip install -r requirements.txt -r dev-requirements.txt
+python3 -m pip install --upgrade pip setuptools wheel --no-input --no-compile
+python3 -m pip install --no-input --no-compile -r requirements.txt -r dev-requirements.txt
 
 # Install ice-t in development mode
 echo "🔧 Installing ice-t in development mode..."
