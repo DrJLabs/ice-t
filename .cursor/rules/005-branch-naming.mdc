@@ -1,7 +1,7 @@
 ---
 description:
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
 ---
 description: "Branch naming conventions and git workflow standards for the ice-t project"

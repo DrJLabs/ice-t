@@ -146,6 +146,8 @@ exclude: |
     .*/node_modules/.*|
     .*/venv/.*|
     .*/\.venv/.*|
+    \.venv/.*|
+    venv/.*|
     build/.*|
     dist/.*|
     logs/.*|

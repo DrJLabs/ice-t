@@ -1,6 +1,6 @@
 ---
 description:
-globs:
+globs: **/*.py
 alwaysApply: false
 ---
 ---
@@ -215,4 +215,3 @@ class ConfigurationService:
         return config.get(key)
 
 # Easy to test with mocked config_loader
-```
