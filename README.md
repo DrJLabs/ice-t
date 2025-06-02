@@ -21,7 +21,7 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    ```bash
    pre-commit install
    ```
-   The project expects **pre-commit 4.0 or newer**. Verify with `pre-commit --version`.
+   The project expects **pre-commit 4.0.1 or newer**. Verify with `pre-commit --version`.
    The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
    Some security hooks (bandit and safety) may require packages from
    `dev-requirements.txt`.
