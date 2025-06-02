@@ -147,8 +147,7 @@ cat << 'EOF'
    pre-commit run --all-files
 
 3. **Specific hooks**: Run individual hooks:
-   pre-commit run black
-   pre-commit run ruff-check
+   pre-commit run ruff
    pre-commit run mypy
 
 4. **Manual stages**: Run additional checks:
@@ -157,15 +156,13 @@ cat << 'EOF'
 5. **Skip hooks**: Skip hooks for a commit (use sparingly):
    git commit -m "WIP: work in progress" --no-verify
 
-🔧 Available Hooks:
+-🔧 Available Hooks:
 - trailing-whitespace: Remove trailing whitespace
 - end-of-file-fixer: Ensure files end with newline
 - check-yaml: Validate YAML syntax
 - check-json: Validate JSON syntax
 - check-merge-conflict: Check for merge conflict markers
-- black: Auto-format Python code
-- isort: Sort Python imports
-- ruff-check: Lint Python code (auto-fix)
+- ruff: Lint and format Python code
 - ruff-format: Format Python code with Ruff
 - mypy: Type checking (src/ only)
 - python-check-ast: Syntax validation
@@ -181,7 +178,7 @@ For quick fixes after making changes:
 
 🚨 Troubleshooting:
 - If hooks fail: Fix the issues and commit again
-- If tools missing: pip install black ruff mypy isort
+- If tools missing: pip install ruff mypy
 - Skip problematic hooks temporarily: SKIP=hook-name git commit
 
 Happy coding! 🚀

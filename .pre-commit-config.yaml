@@ -50,25 +50,6 @@ repos:
         types: [text]
         stages: [pre-commit, manual]
 
-      # Python code formatting (auto-fix) - using Ruff for both linting and import sorting
-
-      # Python linting (auto-fix where possible)
-      - id: ruff-check
-        name: Ruff Linter (Check)
-        entry: sh
-        args: ['-c', 'if command -v ruff >/dev/null 2>&1; then ruff check --fix --show-fixes "$@"; else echo "⚠️ ruff not available - install with: pip install ruff"; fi', '--']
-        language: system
-        types: [python]
-        stages: [pre-commit, manual]
-
-      - id: ruff-format
-        name: Ruff Formatter
-        entry: sh
-        args: ['-c', 'if command -v ruff >/dev/null 2>&1; then ruff format "$@"; else echo "⚠️ ruff not available - install with: pip install ruff"; fi', '--']
-        language: system
-        types: [python]
-        stages: [pre-commit, manual]
-
       # Type checking
       - id: mypy
         name: MyPy Type Checking
@@ -128,6 +109,13 @@ repos:
         pass_filenames: false
         stages: [manual]
 
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.11
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
 
 
 # =============================================================================
@@ -135,7 +123,7 @@ repos:
 # =============================================================================
 default_stages: [pre-commit]
 fail_fast: false  # Continue running hooks even if one fails
-minimum_pre_commit_version: "3.7.0"
+minimum_pre_commit_version: "4.0"
 
 # Exclude patterns
 exclude: |

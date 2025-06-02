@@ -124,7 +124,6 @@ echo "  Installing code quality tools..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   ruff>=0.11.11 \
   mypy>=1.15.0 \
-  isort>=5.13.2 \
   bandit>=1.7.5 \
   safety>=3.2.0 \
   yamllint>=1.35.1 \
@@ -136,7 +135,7 @@ echo "  Installing utility tools..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   typing-extensions==4.12.2 \
   build==1.0.3 \
-  pre-commit==3.7.0 \
+  pre-commit==4.0.0 \
   || echo "⚠️ Some utility tools failed (will use fallbacks)"
 
 # Note about pre-commit in sandboxed environments

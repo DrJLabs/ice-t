@@ -13,11 +13,16 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    ```bash
    pip install -r dev-requirements.txt
    ```
-4. Install pre-commit hooks:
+4. Copy the sample environment file and edit as needed:
+   ```bash
+   cp .env.example .env
+   ```
+5. Install pre-commit hooks:
    ```bash
    pre-commit install
    ```
-   The project expects **pre-commit 3.7.0 or newer**. Verify with `pre-commit --version`.
+   The project expects **pre-commit 4.0 or newer**. Verify with `pre-commit --version`.
+   The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
    Some security hooks (bandit and safety) may require packages from
    `dev-requirements.txt`.
 
@@ -25,7 +30,7 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
 
        pre-commit run ice-t-unit-tests
        pre-commit run ice-t-integration-tests
-5. Run tests to verify the environment:
+6. Run tests to verify the environment:
    ```bash
     pytest
     ```
