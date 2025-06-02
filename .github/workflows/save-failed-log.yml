@@ -24,12 +24,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p .codex/errors
+          mkdir -p .codex/logs
           echo "Fetching log for run ID: $RUN_ID"
           gh run view "$RUN_ID" --log > /tmp/full.log
           echo "Extracting error summary..."
-          awk '/##\[error\]/{c=20} c-->0' /tmp/full.log > ".codex/errors/ci_${RUN_ID}.log"
-          echo "Error summary extracted to .codex/errors/ci_${RUN_ID}.log"
+          awk '/##\[error\]/{c=20} c-->0' /tmp/full.log > ".codex/logs/ci_${RUN_ID}.log"
+          echo "Error summary extracted to .codex/logs/ci_${RUN_ID}.log"
 
       # ────── Extract error slice (previous step) ──────
       - name: Stage new log and trim to 5 files
@@ -37,7 +37,7 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          ERROR_DIR=".codex/errors"
+          ERROR_DIR=".codex/logs"
           NEW_LOG="${ERROR_DIR}/ci_${RUN_ID}.log"
 
           # add newest log if it exists & not empty
