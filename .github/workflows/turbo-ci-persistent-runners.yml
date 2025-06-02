@@ -38,10 +38,59 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Determine if CI jobs can be safely bypassed
+  bypass-check:
+    name: 🚦 Bypass Check
+    runs-on: [self-hosted, linux]
+    outputs:
+      bypass: ${{ steps.set.outputs.bypass }}
+    steps:
+      - name: ⚡ Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📂 Determine changed files
+        id: diff
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+            BASE_SHA=$(git rev-parse FETCH_HEAD)
+          else
+            BASE_SHA=${{ github.event.before }}
+          fi
+          git diff --name-only "$BASE_SHA" ${{ github.sha }} > changed_files.txt
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          cat changed_files.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: ⚙️ Evaluate bypass rules
+        id: set
+        run: |
+          BYPASS=true
+          while IFS= read -r file; do
+            case "$file" in
+              AGENTS.md|agents/*|.cursor/rules*|docs/*|*.md|*.mmd|*.dot|*.png|*.svg|*.jpg|*.jpeg )
+                ;;
+              *)
+                BYPASS=false
+                break
+                ;;
+            esac
+          done < changed_files.txt
+          echo "bypass=$BYPASS" >> $GITHUB_OUTPUT
+
+      - name: 📊 Bypass summary
+        run: |
+          echo "## Bypass Check" >> $GITHUB_STEP_SUMMARY
+          cat changed_files.txt >> $GITHUB_STEP_SUMMARY
+          echo "Bypass: ${{ steps.set.outputs.bypass }}" >> $GITHUB_STEP_SUMMARY
   # Fast setup using local filesystem persistence
   persistent-setup:
     name: 🚀 Local Setup (Persistent)
     runs-on: [self-hosted, ice-t, build]
+    needs: bypass-check
+    if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 2
     outputs:
       python-version: ${{ steps.python.outputs.version }}
@@ -148,7 +197,8 @@ jobs:
   persistent-code-quality:
     name: 🚀 Code Quality (Local Cache)
     runs-on: [self-hosted, ice-t, quality]
-    needs: persistent-setup
+    needs: [bypass-check, persistent-setup]
+    if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 3
     steps:
       - name: ⚡ Checkout
@@ -200,7 +250,8 @@ jobs:
   persistent-type-checking:
     name: 🚀 Type Safety (Local Cache)
     runs-on: [self-hosted, ice-t, quality]
-    needs: persistent-setup
+    needs: [bypass-check, persistent-setup]
+    if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 5
     steps:
       - name: ⚡ Checkout
@@ -242,7 +293,8 @@ jobs:
   persistent-security:
     name: 🚀 Security (Local Cache)
     runs-on: [self-hosted, ice-t, security]
-    needs: persistent-setup
+    needs: [bypass-check, persistent-setup]
+    if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 3
     steps:
       - name: ⚡ Checkout
@@ -294,7 +346,8 @@ jobs:
   persistent-tests:
     name: 🚀 Tests (${{ matrix.test-group }})
     runs-on: [self-hosted, ice-t, test]
-    needs: persistent-setup
+    needs: [bypass-check, persistent-setup]
+    if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 6
     strategy:
       fail-fast: false
@@ -396,7 +449,8 @@ jobs:
   persistent-build:
     name: 🚀 Build (Local Cache)
     runs-on: [self-hosted, build, linux]
-    needs: [persistent-setup, persistent-code-quality]
+    needs: [bypass-check, persistent-setup, persistent-code-quality]
+    if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 6
     steps:
       - name: ⚡ Checkout
@@ -466,7 +520,7 @@ jobs:
   persistent-summary:
     name: 🎯 CI Summary
     runs-on: [self-hosted, build]
-    needs: [persistent-setup, persistent-code-quality, persistent-type-checking, persistent-security, persistent-tests, persistent-build]
+    needs: [bypass-check, persistent-setup, persistent-code-quality, persistent-type-checking, persistent-security, persistent-tests, persistent-build]
     if: always()
     timeout-minutes: 1
     steps:
