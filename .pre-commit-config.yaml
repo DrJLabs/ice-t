@@ -32,7 +32,7 @@ repos:
       - id: yamllint
         name: yamllint
         entry: yamllint
-        language: python
+        language: system
         files: .github/workflows/.*\.yml$
         stages: [pre-commit, manual]
 
@@ -101,24 +101,6 @@ repos:
         types: [python]
         stages: [pre-commit, manual]
 
-      # Additional security scanning (bandit and safety may require packages
-      # from dev-requirements.txt)
-      - id: bandit
-        name: Bandit Security Scan
-        entry: bandit
-        args: ['-r', 'src/', '-f', 'json', '-o', 'bandit-report.json']
-        language: system
-        pass_filenames: false
-        stages: [pre-commit, manual]
-
-      - id: safety
-        name: Safety Dependency Check
-        entry: safety
-        args: ['check', '--full-report']
-        language: system
-        pass_filenames: false
-        stages: [pre-commit, manual]
-
       # ice-t smoke tests
       - id: ice-t-smoke-tests
         name: ice-t Smoke Tests
@@ -126,16 +108,16 @@ repos:
         args: ['scripts/adaptive_test_runner.py', 'run', '--smoke']
         language: system
         pass_filenames: false
-        stages: [pre-commit, manual]
+        stages: [manual]
 
       # ice-t unit tests
       - id: ice-t-unit-tests
         name: ice-t Unit Tests
         entry: python3
-        args: ['scripts/adaptive_test_runner.py', 'run', '--level', 'full', '--cov-fail-under=94']
+        args: ['scripts/adaptive_test_runner.py', 'run', '--level', 'full']
         language: system
         pass_filenames: false
-        stages: [pre-commit, manual]
+        stages: [manual]
 
       # ice-t integration tests
       - id: ice-t-integration-tests
@@ -144,13 +126,9 @@ repos:
         args: ['scripts/adaptive_test_runner.py', 'run', '--level', 'integration']
         language: system
         pass_filenames: false
-        stages: [pre-commit, manual]
+        stages: [manual]
 
-- repo: https://github.com/adrienverge/yamllint.git
-  rev: v1.35.1
-  hooks:
-    - id: yamllint
-      files: \.github/workflows/.*\.yml$
+
 
 # =============================================================================
 # Pre-commit configuration

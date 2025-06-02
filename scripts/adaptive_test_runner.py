@@ -30,45 +30,57 @@ class AdaptiveTestRunner:
     def run_fast_tests(self) -> int:
         """Run fast smoke tests."""
         cmd = [
-            "python", "-m", "pytest",
+            sys.executable,
+            "-m",
+            "pytest",
             str(self.tests_dir / "smoke"),
-            "-v", "--tb=short", "--maxfail=3"
+            "-v",
+            "--tb=short",
+            "--maxfail=3",
         ]
         return subprocess.call(cmd)
 
     def run_smoke_tests(self) -> int:
         """Run smoke tests for pre-commit."""
         cmd = [
-            "python", "-m", "pytest",
+            sys.executable,
+            "-m",
+            "pytest",
             str(self.tests_dir / "smoke"),
-            "-x", "--tb=line"
+            "-x",
+            "--tb=line",
         ]
         return subprocess.call(cmd)
 
     def run_full_tests(self) -> int:
         """Run full test suite with coverage."""
         cmd = [
-            "python", "-m", "pytest",
+            sys.executable,
+            "-m",
+            "pytest",
             str(self.tests_dir),
             "--cov=ice_t",
             "--cov-report=term-missing",
             f"--cov-fail-under={self.coverage_threshold}",
-            "-v"
+            "-v",
         ]
         return subprocess.call(cmd)
 
     def run_integration_tests(self) -> int:
         """Run integration tests."""
         cmd = [
-            "python", "-m", "pytest",
+            sys.executable,
+            "-m",
+            "pytest",
             str(self.tests_dir / "integration"),
-            "-v", "--tb=short"
+            "-v",
+            "--tb=short",
         ]
         return subprocess.call(cmd)
 
     def run_group_tests(self, group: str, coverage: bool = True) -> int:
         """Run tests for a specific group directory."""
-        cmd = ["python", "-m", "pytest", str(self.tests_dir / group), "-v"]
+        cmd = [sys.executable, "-m", "pytest", str(self.tests_dir / group), "-v"]
         if coverage:
             cmd += [
                 "--cov=ice_t",

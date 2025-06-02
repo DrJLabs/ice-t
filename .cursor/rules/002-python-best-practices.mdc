@@ -1,0 +1,218 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Python coding standards, patterns, and best practices for the ice-t project"
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python Best Practices for Ice-T
+
+## Code Style and Formatting
+
+- Follow PEP 8 style guidelines
+- Use `ruff format` for consistent formatting
+- Maximum line length: 88 characters (Black standard)
+- Use double quotes for strings consistently
+- Organize imports: standard library, third-party, local imports
+
+```python
+# Good import organization
+import os
+import sys
+from pathlib import Path
+
+import click
+import pytest
+from pydantic import BaseModel
+
+from ice_t.core.base import BaseService
+from ice_t.utilities.logging import get_logger
+```
+
+## Type Hints
+
+- Use comprehensive type hints for all function signatures
+- Import types from `typing` module when needed
+- Use `Optional` for nullable values
+- Use `Union` sparingly, prefer specific types
+
+```python
+from typing import Dict, List, Optional, Any
+from pathlib import Path
+
+def process_config_file(
+    config_path: Path,
+    options: Dict[str, Any],
+    dry_run: bool = False
+) -> Optional[Dict[str, str]]:
+    """Process configuration file with given options."""
+    pass
+```
+
+## Error Handling
+
+- Use specific exception types
+- Create custom exceptions for domain-specific errors
+- Always include meaningful error messages
+- Use try-except-finally appropriately
+
+```python
+class IceTConfigurationError(Exception):
+    """Raised when configuration is invalid."""
+    pass
+
+def load_config(config_path: Path) -> Dict[str, Any]:
+    """Load configuration from file."""
+    try:
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        raise IceTConfigurationError(f"Config file not found: {config_path}")
+    except yaml.YAMLError as e:
+        raise IceTConfigurationError(f"Invalid YAML in config: {e}")
+```
+
+## Data Classes and Models
+
+- Use `dataclasses` for simple data containers
+- Use `pydantic` models for data validation
+- Implement `__str__` and `__repr__` methods when helpful
+
+```python
+from dataclasses import dataclass
+from typing import List, Optional
+
+@dataclass
+class TestResult:
+    """Represents the result of a test execution."""
+    test_name: str
+    passed: bool
+    duration: float
+    error_message: Optional[str] = None
+
+    def __str__(self) -> str:
+        status = "PASS" if self.passed else "FAIL"
+        return f"{self.test_name}: {status} ({self.duration:.2f}s)"
+```
+
+## Functions and Methods
+
+- Keep functions focused and single-purpose
+- Use descriptive names
+- Limit function parameters (max 5-7)
+- Use keyword arguments for clarity
+
+```python
+def run_diagnostic_check(
+    *,
+    check_type: str,
+    target_system: str,
+    include_performance: bool = False,
+    timeout_seconds: int = 30
+) -> DiagnosticResult:
+    """Run diagnostic check on target system."""
+    pass
+```
+
+## Classes and Inheritance
+
+- Follow single responsibility principle
+- Use composition over inheritance when possible
+- Implement abstract base classes for interfaces
+- Use `@property` for computed attributes
+
+```python
+from abc import ABC, abstractmethod
+
+class BaseRunner(ABC):
+    """Abstract base class for test runners."""
+
+    @abstractmethod
+    def execute(self, test_suite: str) -> TestResult:
+        """Execute the test suite."""
+        pass
+
+    @property
+    def is_available(self) -> bool:
+        """Check if runner is available in current environment."""
+        return True
+```
+
+## File and Path Handling
+
+- Use `pathlib.Path` instead of string paths
+- Handle file operations with proper error checking
+- Use context managers for file operations
+
+```python
+from pathlib import Path
+
+def read_script_file(script_path: Path) -> str:
+    """Read script file content safely."""
+    if not script_path.exists():
+        raise FileNotFoundError(f"Script not found: {script_path}")
+
+    try:
+        return script_path.read_text(encoding='utf-8')
+    except UnicodeDecodeError:
+        return script_path.read_text(encoding='latin-1')
+```
+
+## Logging
+
+- Use structured logging with consistent formatting
+- Include relevant context in log messages
+- Use appropriate log levels
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+def deploy_component(component_name: str, version: str) -> bool:
+    """Deploy a component with given version."""
+    logger.info(
+        "Starting deployment",
+        extra={
+            "component": component_name,
+            "version": version,
+            "operation": "deploy"
+        }
+    )
+
+    try:
+        # Deployment logic here
+        logger.info(f"Successfully deployed {component_name} v{version}")
+        return True
+    except Exception as e:
+        logger.error(
+            f"Deployment failed for {component_name}: {e}",
+            exc_info=True
+        )
+        return False
+```
+
+## Testing Integration
+
+- Write testable code with dependency injection
+- Use factories for test data creation
+- Mock external dependencies appropriately
+
+```python
+class ConfigurationService:
+    """Service for managing configuration."""
+
+    def __init__(self, config_loader: ConfigLoader):
+        self.config_loader = config_loader
+
+    def get_setting(self, key: str) -> Any:
+        """Get configuration setting by key."""
+        config = self.config_loader.load()
+        return config.get(key)
+
+# Easy to test with mocked config_loader
+```

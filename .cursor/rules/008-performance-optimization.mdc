@@ -1,0 +1,431 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Performance optimization guidelines for the ice-t project including profiling, benchmarking, and optimization strategies"
+globs: "**/*.py, scripts/**/*"
+alwaysApply: false
+---
+
+# Performance Optimization Standards for Ice-T
+
+## Performance Monitoring and Benchmarking
+
+### Benchmark Integration
+- Use `pytest-benchmark` for consistent performance testing
+- Establish baseline performance metrics for critical operations
+- Monitor performance regression in CI/CD pipeline
+
+```python
+import pytest
+from pathlib import Path
+
+@pytest.mark.benchmark
+def test_test_runner_performance(benchmark):
+    """Benchmark test runner execution time."""
+    runner = TestRunner()
+    test_suite = create_test_suite(size=50)
+
+    result = benchmark(runner.execute, test_suite)
+
+    # Verify result while benchmark measures performance
+    assert result.success
+    assert result.tests_run == 50
+
+@pytest.mark.benchmark
+def test_script_execution_performance(benchmark):
+    """Benchmark script execution performance."""
+    script_path = Path("scripts/diagnostics/system_check.py")
+
+    result = benchmark(execute_script, script_path)
+
+    assert result.exit_code == 0
+```
+
+### Performance Profiling
+- Implement profiling for CPU and memory usage
+- Use `cProfile` and `memory_profiler` for detailed analysis
+- Create performance reports for optimization decisions
+
+```python
+import cProfile
+import pstats
+from memory_profiler import profile
+from functools import wraps
+
+def profile_performance(func):
+    """Decorator to profile function performance."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        profiler = cProfile.Profile()
+        profiler.enable()
+
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            profiler.disable()
+
+        # Generate performance report
+        stats = pstats.Stats(profiler)
+        stats.sort_stats('cumulative')
+        stats.print_stats(20)  # Top 20 functions
+
+        return result
+    return wrapper
+
+@profile_performance
+def run_heavy_operation():
+    """Example of profiled operation."""
+    # Heavy computation here
+    pass
+```
+
+## Algorithm and Data Structure Optimization
+
+### Efficient Data Structures
+- Use appropriate data structures for the task
+- Prefer sets for membership testing
+- Use deques for frequent append/pop operations
+- Consider defaultdict for grouped data
+
+```python
+from collections import defaultdict, deque
+from typing import Dict, List, Set
+
+class OptimizedTestRunner:
+    """Test runner with optimized data structures."""
+
+    def __init__(self):
+        self.test_cache: Dict[str, TestResult] = {}
+        self.pending_tests: deque = deque()
+        self.executed_tests: Set[str] = set()
+        self.test_groups: defaultdict = defaultdict(list)
+
+    def add_test(self, test_name: str, group: str):
+        """Add test to runner with O(1) operations."""
+        if test_name not in self.executed_tests:
+            self.pending_tests.append(test_name)
+            self.test_groups[group].append(test_name)
+
+    def is_test_executed(self, test_name: str) -> bool:
+        """O(1) lookup for test execution status."""
+        return test_name in self.executed_tests
+```
+
+### Lazy Loading and Caching
+- Implement lazy loading for expensive operations
+- Use memoization for frequently called functions
+- Cache computation results appropriately
+
+```python
+from functools import lru_cache, cached_property
+import weakref
+
+class LazyTestSuite:
+    """Test suite with lazy loading and caching."""
+
+    def __init__(self, suite_path: Path):
+        self.suite_path = suite_path
+        self._test_cache = weakref.WeakValueDictionary()
+
+    @cached_property
+    def metadata(self) -> Dict[str, Any]:
+        """Lazy load suite metadata."""
+        return self._load_metadata()
+
+    @lru_cache(maxsize=128)
+    def get_test_by_name(self, test_name: str) -> Test:
+        """Cached test retrieval."""
+        if test_name in self._test_cache:
+            return self._test_cache[test_name]
+
+        test = self._load_test(test_name)
+        self._test_cache[test_name] = test
+        return test
+```
+
+## I/O and File Operations Optimization
+
+### Efficient File Processing
+- Use buffered I/O for large files
+- Process files in chunks when appropriate
+- Minimize disk I/O operations
+
+```python
+from pathlib import Path
+import mmap
+from typing import Iterator
+
+def process_large_file_efficiently(file_path: Path, chunk_size: int = 8192) -> Iterator[str]:
+    """Process large files with memory-mapped I/O."""
+    with open(file_path, 'rb') as f:
+        with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+            for i in range(0, len(mm), chunk_size):
+                chunk = mm[i:i + chunk_size].decode('utf-8', errors='ignore')
+                yield chunk
+
+def batch_file_operations(file_paths: List[Path], batch_size: int = 10):
+    """Process files in batches to optimize I/O."""
+    for i in range(0, len(file_paths), batch_size):
+        batch = file_paths[i:i + batch_size]
+
+        # Process batch together
+        results = []
+        for file_path in batch:
+            result = process_file(file_path)
+            results.append(result)
+
+        # Yield batch results
+        yield results
+```
+
+### Concurrent Processing
+- Use multiprocessing for CPU-bound tasks
+- Use asyncio for I/O-bound operations
+- Implement proper resource management
+
+```python
+import asyncio
+import concurrent.futures
+from typing import List, Callable
+
+class ConcurrentTestRunner:
+    """Test runner with concurrent execution capabilities."""
+
+    def __init__(self, max_workers: int = 4):
+        self.max_workers = max_workers
+
+    async def run_tests_async(self, test_commands: List[str]) -> List[TestResult]:
+        """Run tests concurrently using asyncio."""
+        semaphore = asyncio.Semaphore(self.max_workers)
+
+        async def run_single_test(command: str) -> TestResult:
+            async with semaphore:
+                proc = await asyncio.create_subprocess_shell(
+                    command,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+                stdout, stderr = await proc.communicate()
+                return TestResult(
+                    command=command,
+                    exit_code=proc.returncode,
+                    stdout=stdout.decode(),
+                    stderr=stderr.decode()
+                )
+
+        tasks = [run_single_test(cmd) for cmd in test_commands]
+        return await asyncio.gather(*tasks)
+
+    def run_cpu_intensive_tests(self, test_functions: List[Callable]) -> List[Any]:
+        """Run CPU-intensive tests using multiprocessing."""
+        with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = [executor.submit(func) for func in test_functions]
+            return [future.result() for future in concurrent.futures.as_completed(futures)]
+```
+
+## Memory Optimization
+
+### Memory Management
+- Use generators for large datasets
+- Implement proper cleanup of resources
+- Monitor memory usage in long-running processes
+
+```python
+import gc
+import psutil
+import os
+from typing import Generator
+
+class MemoryOptimizedProcessor:
+    """Processor with memory optimization features."""
+
+    def __init__(self, memory_threshold: float = 0.8):
+        self.memory_threshold = memory_threshold
+
+    def process_large_dataset(self, data_source) -> Generator[ProcessedItem, None, None]:
+        """Process large datasets with memory monitoring."""
+        for item in data_source:
+            # Check memory usage
+            if self._get_memory_usage() > self.memory_threshold:
+                gc.collect()  # Force garbage collection
+
+                if self._get_memory_usage() > self.memory_threshold:
+                    raise MemoryError("Memory usage exceeded threshold")
+
+            yield self._process_item(item)
+
+    def _get_memory_usage(self) -> float:
+        """Get current memory usage as percentage."""
+        process = psutil.Process(os.getpid())
+        memory_info = process.memory_info()
+        system_memory = psutil.virtual_memory()
+        return memory_info.rss / system_memory.total
+
+    def cleanup_resources(self):
+        """Explicit resource cleanup."""
+        # Clear caches
+        self.__dict__.clear()
+        gc.collect()
+```
+
+## Script Performance Optimization
+
+### Optimized Script Execution
+- Minimize subprocess creation overhead
+- Cache script validation results
+- Use efficient command-line argument parsing
+
+```python
+import subprocess
+from pathlib import Path
+from functools import lru_cache
+
+class OptimizedScriptRunner:
+    """Script runner with performance optimizations."""
+
+    def __init__(self):
+        self.process_pool = {}  # Reuse processes when possible
+
+    @lru_cache(maxsize=64)
+    def validate_script(self, script_path: Path) -> bool:
+        """Cached script validation."""
+        return script_path.exists() and script_path.is_file()
+
+    def run_script_optimized(self, script_path: Path, args: List[str]) -> ScriptResult:
+        """Run script with optimizations."""
+        if not self.validate_script(script_path):
+            raise FileNotFoundError(f"Script not found: {script_path}")
+
+        # Prepare command
+        command = [str(script_path)] + args
+
+        # Use cached environment if available
+        env = self._get_cached_environment()
+
+        # Execute with minimal overhead
+        try:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                env=env,
+                timeout=300
+            )
+            return ScriptResult(
+                exit_code=result.returncode,
+                stdout=result.stdout,
+                stderr=result.stderr,
+                duration=time.time() - start_time
+            )
+        except subprocess.TimeoutExpired:
+            raise TimeoutError(f"Script timed out: {script_path}")
+
+    @lru_cache(maxsize=1)
+    def _get_cached_environment(self) -> dict:
+        """Cache environment variables."""
+        return os.environ.copy()
+```
+
+## Performance Testing and Monitoring
+
+### Continuous Performance Monitoring
+- Implement performance regression detection
+- Set up alerts for performance degradation
+- Track performance metrics over time
+
+```python
+import time
+import statistics
+from dataclasses import dataclass
+from typing import List
+
+@dataclass
+class PerformanceMetrics:
+    """Performance metrics container."""
+    operation: str
+    duration: float
+    memory_usage: int
+    cpu_usage: float
+    timestamp: float
+
+class PerformanceMonitor:
+    """Monitor and track performance metrics."""
+
+    def __init__(self):
+        self.metrics: List[PerformanceMetrics] = []
+        self.baselines: dict = {}
+
+    def measure_performance(self, operation_name: str):
+        """Context manager for measuring performance."""
+        return PerformanceMeasurement(operation_name, self)
+
+    def add_metric(self, metric: PerformanceMetrics):
+        """Add performance metric."""
+        self.metrics.append(metric)
+
+        # Check for regression
+        if operation_name in self.baselines:
+            baseline = self.baselines[operation_name]
+            if metric.duration > baseline * 1.2:  # 20% regression threshold
+                self._alert_performance_regression(metric, baseline)
+
+    def get_performance_summary(self, operation: str) -> dict:
+        """Get performance summary for operation."""
+        operation_metrics = [m for m in self.metrics if m.operation == operation]
+
+        if not operation_metrics:
+            return {}
+
+        durations = [m.duration for m in operation_metrics]
+        return {
+            "mean_duration": statistics.mean(durations),
+            "median_duration": statistics.median(durations),
+            "std_deviation": statistics.stdev(durations) if len(durations) > 1 else 0,
+            "min_duration": min(durations),
+            "max_duration": max(durations),
+            "sample_count": len(durations)
+        }
+
+class PerformanceMeasurement:
+    """Context manager for performance measurement."""
+
+    def __init__(self, operation_name: str, monitor: PerformanceMonitor):
+        self.operation_name = operation_name
+        self.monitor = monitor
+        self.start_time = None
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        duration = time.time() - self.start_time
+
+        # Collect system metrics
+        process = psutil.Process()
+        memory_usage = process.memory_info().rss
+        cpu_usage = process.cpu_percent()
+
+        metric = PerformanceMetrics(
+            operation=self.operation_name,
+            duration=duration,
+            memory_usage=memory_usage,
+            cpu_usage=cpu_usage,
+            timestamp=time.time()
+        )
+
+        self.monitor.add_metric(metric)
+```
+
+## Best Practices Summary
+
+1. **Profile Before Optimizing**: Always measure performance before making optimizations
+2. **Focus on Bottlenecks**: Optimize the slowest parts first (80/20 rule)
+3. **Use Appropriate Data Structures**: Choose the right tool for the job
+4. **Minimize I/O Operations**: Batch operations and use efficient file handling
+5. **Cache Expensive Operations**: Use memoization and caching strategically
+6. **Monitor Continuously**: Track performance metrics and detect regressions
+7. **Test Performance Changes**: Ensure optimizations actually improve performance

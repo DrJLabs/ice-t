@@ -1,0 +1,74 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Automated Workflow, CI/CD, and Quality Assurance Rules
+
+This document outlines the mandatory automated workflow and quality assurance procedures for AI agents (Codex and Cursor) operating on the `ice-t` project. Strict adherence is required to maintain code quality, stability, and efficient development cycles.
+
+## 1. Development & Testing Cycle (Iterative Test and Repair)
+
+*   **Test-Driven Approach:** Where practical, tests (unit, integration) should be written *before* or concurrently with feature code. This ensures requirements are understood and code is testable.
+*   **Comprehensive Testing (Pytest):** All new functionalities, changes, or bug fixes must be accompanied by thorough tests. Target >94% code coverage. Utilize appropriate markers (e.g., `unit`, `integration`, `smoke`, `script`, `agent`).
+*   **Iterative Local Repair Loop:**
+    1.  Write or update tests for the changes.
+    2.  Implement or modify the application code.
+    3.  Execute relevant tests (e.g., using `scripts/testing/adaptive_test_runner.py --changed-files ...` or specific pytest commands).
+    4.  If tests fail: Analyze failures, debug the code, and apply corrections.
+    5.  Repeat steps 3-4 until all relevant local tests pass.
+*   **Test Artifact Cleanup:** Any temporary files, mock data, or configurations generated specifically for a test run (and not part of the permanent suite) must be cleaned up automatically after tests complete.
+
+## 2. Pre-Commit Quality Gates (Codex Responsibility)
+
+*   **Mandatory Execution:** Before any `git commit` action, Codex **must** trigger and ensure the success of all configured pre-commit hooks.
+*   **Ice-T Hook Suite:** All 10 pre-commit hooks must pass successfully:
+    *   Trailing whitespace check
+    *   End of file fixer
+    *   YAML check
+    *   JSON check
+    *   Merge conflict check
+    *   Ruff linter: `ruff check .`
+    *   Ruff formatter: `ruff format .`
+    *   MyPy type checking: `mypy src/ tests/`
+    *   Python AST check
+    *   Security check and smoke tests
+*   **Strict Enforcement:** If any hook fails, Codex **must** automatically analyze the output and apply the necessary code modifications to resolve the issues. The commit process shall only proceed once all pre-commit hooks pass successfully.
+
+## 3. Automated Version Control (Codex Responsibility)
+
+*   **Pre-conditions:** Proceed only after all local tests pass (Section 1) AND all pre-commit hooks succeed (Section 2).
+*   **Atomic & Descriptive Commits:**
+    *   Stage relevant changes (`git add <specific_files_or_paths>` or `git add .` if all changes in the working directory are part of the logical unit).
+    *   Commit changes with clear, descriptive messages adhering to Conventional Commits specification (e.g., `fix(runner): resolve timeout issue in test execution`, `feat(agent): add new playbook execution logic`).
+*   **Automated Push:** Automatically `git push` the committed changes to the remote repository on the current working branch.
+
+## 4. GitHub Actions CI/CD Workflow - Monitoring & Repair (Cursor Responsibility)
+
+*   **Post-Push Monitoring:** Immediately after Codex pushes changes (Section 3), Cursor **must** begin monitoring the relevant GitHub Actions workflow associated with the commit.
+*   **Initial Wait Period:** Allow approximately 2 minutes for the workflow to be triggered and to report an initial status.
+*   **Status Verification:** Actively check the outcome of the GitHub Actions run.
+*   **CI Bypass Mechanism:** For CI-only changes (workflows, scripts, configs), utilize the implemented CI bypass mechanism that automatically creates successful status checks for required CI jobs.
+*   **Automated CI Repair Loop (Cursor):**
+    1.  **Failure Detection:** If the workflow fails, Cursor **must** retrieve and meticulously analyze the logs to pinpoint the failing step(s) and the root cause(s).
+    2.  **Repair Strategy:** Formulate a plan to fix the issue. This may involve code changes, updates to workflow files, adjustments to dependencies, script modifications, or test corrections.
+    3.  **Implement Fix:** Apply the corrective changes to the codebase.
+    4.  **Local Validation:** Before pushing the fix, Cursor **must** ensure the fix is validated locally by re-running the relevant parts of the "Development & Testing Cycle" (Section 1) and ensuring "Pre-Commit Quality Gates" (Section 2) pass for the changes made.
+    5.  **Commit & Push Fix:** Codex will commit (with a message like `chore(ci): attempt to fix failing build step`) and push the correction.
+    6.  **Re-Monitor:** Cursor will then restart the monitoring process for the new workflow run (back to step 2 of this section).
+*   **Escalation Protocol:** If Cursor attempts to automatically fix a CI failure 3 consecutive times for the same underlying issue without success, it **must** cease further automated attempts, document the problem, the attempted fixes, and the persistent errors, and then alert the human user for manual intervention.
+*   **Success Confirmation:** If the workflow succeeds, the automated cycle for that set of changes is considered complete.
+
+## 5. Script and Agent Testing Requirements
+
+*   **Script Validation:** All scripts in `scripts/` must be tested for functionality, error handling, and edge cases.
+*   **Agent Behavior Testing:** Agent implementations must include tests for charter compliance, playbook execution, and decision-making logic.
+*   **Integration Testing:** Test interactions between scripts, agents, and core functionality.
+*   **Performance Benchmarks:** Include performance tests for critical operations and long-running processes.
+
+## 6. Adherence to Bleeding-Edge Best Practices
+
+*   All AI agents (Codex and Cursor) are mandated to employ current, industry-leading best practices in software development, Python programming, testing methodologies, automation techniques, and CI/CD processes.
+*   Prioritize solutions that are robust, maintainable, secure, scalable, and performant.
+*   Proactively identify and suggest improvements to these established rules and project workflows if new, superior best practices or tools emerge.
+*   Leverage the ice-t project's agent-based architecture and comprehensive script ecosystem for enhanced automation.

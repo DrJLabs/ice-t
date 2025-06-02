@@ -1,0 +1,391 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Detailed unit testing guidelines and patterns for the ice-t project"
+globs: "tests/unit/**/*.py, tests/**/test_*.py"
+alwaysApply: false
+---
+
+# Unit Testing Guidelines for Ice-T
+
+## Unit Test Structure and Organization
+
+### Test File Organization
+```
+tests/
+├── unit/
+│   ├── core/
+│   │   ├── test_base_classes.py
+│   │   └── test_utilities.py
+│   ├── features/
+│   │   ├── test_agent_management.py
+│   │   └── test_script_execution.py
+│   └── scripts/
+│       ├── test_deployment_scripts.py
+│       └── test_diagnostic_scripts.py
+└── conftest.py
+```
+
+### Test Class Structure
+```python
+import pytest
+from unittest.mock import Mock, patch, MagicMock
+from pathlib import Path
+
+class TestScriptRunner:
+    """Unit tests for ScriptRunner class."""
+
+    def setup_method(self):
+        """Set up test fixtures for each test method."""
+        self.runner = ScriptRunner()
+        self.mock_script_path = Path("scripts/test_script.py")
+
+    def teardown_method(self):
+        """Clean up after each test method."""
+        # Clean up any test artifacts
+        pass
+
+    @pytest.mark.unit
+    def test_runner_initialization(self):
+        """Test ScriptRunner initializes correctly."""
+        assert self.runner is not None
+        assert hasattr(self.runner, 'execute')
+
+    @pytest.mark.unit
+    def test_script_execution_success(self):
+        """Test successful script execution."""
+        # Arrange
+        mock_result = Mock()
+        mock_result.returncode = 0
+        mock_result.stdout = "Success"
+
+        # Act
+        with patch('subprocess.run', return_value=mock_result):
+            result = self.runner.execute(self.mock_script_path)
+
+        # Assert
+        assert result.success is True
+        assert result.output == "Success"
+
+    @pytest.mark.unit
+    def test_script_execution_failure(self):
+        """Test script execution failure handling."""
+        # Arrange
+        mock_result = Mock()
+        mock_result.returncode = 1
+        mock_result.stderr = "Error occurred"
+
+        # Act & Assert
+        with patch('subprocess.run', return_value=mock_result):
+            with pytest.raises(ScriptExecutionError):
+                self.runner.execute(self.mock_script_path)
+```
+
+## Mocking and Test Doubles
+
+### File System Mocking
+```python
+from unittest.mock import patch, mock_open
+import tempfile
+
+class TestFileOperations:
+    """Test file operations with proper mocking."""
+
+    @pytest.mark.unit
+    def test_file_reading_with_mock(self):
+        """Test file reading using mock_open."""
+        mock_content = "test content"
+
+        with patch('builtins.open', mock_open(read_data=mock_content)):
+            result = read_config_file("config.yaml")
+
+        assert result == mock_content
+
+    @pytest.mark.unit
+    def test_file_operations_with_temp_dir(self, tmp_path):
+        """Test file operations using temporary directory."""
+        # Create test file
+        test_file = tmp_path / "test_config.yaml"
+        test_file.write_text("test: value")
+
+        # Test the operation
+        result = load_configuration(test_file)
+
+        assert result["test"] == "value"
+```
+
+### External Service Mocking
+```python
+class TestAgentIntegration:
+    """Test agent integration with external services."""
+
+    @pytest.mark.unit
+    @patch('requests.get')
+    def test_agent_api_call(self, mock_get):
+        """Test agent API call with mocked response."""
+        # Arrange
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"status": "success"}
+        mock_get.return_value = mock_response
+
+        agent = Agent()
+
+        # Act
+        result = agent.call_external_service("test-endpoint")
+
+        # Assert
+        assert result["status"] == "success"
+        mock_get.assert_called_once_with("test-endpoint")
+```
+
+## Parametrized Testing
+
+### Testing Multiple Scenarios
+```python
+@pytest.mark.unit
+@pytest.mark.parametrize("input_value,expected_output", [
+    ("development", "dev"),
+    ("staging", "stg"),
+    ("production", "prod"),
+    ("test", "test")
+])
+def test_environment_abbreviation(input_value, expected_output):
+    """Test environment abbreviation for various inputs."""
+    result = abbreviate_environment(input_value)
+    assert result == expected_output
+
+@pytest.mark.unit
+@pytest.mark.parametrize("script_name,expected_category", [
+    ("deploy.py", "deployment"),
+    ("test_runner.py", "testing"),
+    ("diagnostic_check.py", "diagnostics"),
+    ("backup_data.py", "maintenance")
+])
+def test_script_categorization(script_name, expected_category):
+    """Test script categorization logic."""
+    result = categorize_script(script_name)
+    assert result == expected_category
+```
+
+### Error Condition Testing
+```python
+@pytest.mark.unit
+@pytest.mark.parametrize("invalid_input,expected_exception", [
+    ("", ValueError),
+    (None, TypeError),
+    ("invalid-env", ValueError),
+    (123, TypeError)
+])
+def test_input_validation_errors(invalid_input, expected_exception):
+    """Test input validation raises appropriate exceptions."""
+    with pytest.raises(expected_exception):
+        validate_environment(invalid_input)
+```
+
+## Fixtures and Test Data
+
+### Custom Fixtures
+```python
+@pytest.fixture
+def sample_test_config():
+    """Provide sample test configuration."""
+    return {
+        "timeout": 300,
+        "retries": 3,
+        "verbose": True,
+        "markers": ["unit", "integration"]
+    }
+
+@pytest.fixture
+def mock_agent():
+    """Provide mock agent for testing."""
+    agent = Mock(spec=Agent)
+    agent.name = "test_agent"
+    agent.status = "active"
+    agent.execute.return_value = AgentResult(success=True)
+    return agent
+
+@pytest.fixture
+def temp_script_directory(tmp_path):
+    """Create temporary directory with sample scripts."""
+    script_dir = tmp_path / "scripts"
+    script_dir.mkdir()
+
+    # Create sample scripts
+    (script_dir / "deploy.py").write_text("#!/usr/bin/env python\nprint('Deploy')")
+    (script_dir / "test.py").write_text("#!/usr/bin/env python\nprint('Test')")
+
+    return script_dir
+```
+
+### Fixture Scoping
+```python
+@pytest.fixture(scope="module")
+def expensive_setup():
+    """Module-scoped fixture for expensive setup."""
+    # This runs once per test module
+    database = create_test_database()
+    yield database
+    database.cleanup()
+
+@pytest.fixture(scope="function")
+def fresh_runner():
+    """Function-scoped fixture for clean runner instance."""
+    # This runs for each test function
+    return ScriptRunner()
+```
+
+## Test Coverage and Quality
+
+### Coverage Requirements
+```python
+# pytest.ini configuration for coverage
+[tool:pytest]
+addopts =
+    --cov=src/ice_t
+    --cov-report=html
+    --cov-report=term-missing
+    --cov-fail-under=94
+    --strict-markers
+    --strict-config
+
+markers =
+    unit: Unit tests
+    integration: Integration tests
+    smoke: Smoke tests
+    slow: Slow running tests
+    agent: Agent-specific tests
+    script: Script testing
+```
+
+### Quality Assertions
+```python
+class TestCodeQuality:
+    """Test code quality metrics and standards."""
+
+    @pytest.mark.unit
+    def test_function_has_docstring(self):
+        """Test that functions have proper docstrings."""
+        from src.ice_t.core.runner import ScriptRunner
+
+        assert ScriptRunner.execute.__doc__ is not None
+        assert len(ScriptRunner.execute.__doc__.strip()) > 10
+
+    @pytest.mark.unit
+    def test_class_follows_naming_convention(self):
+        """Test that classes follow PascalCase naming."""
+        from src.ice_t.core import runner
+
+        classes = [cls for cls in dir(runner) if isinstance(getattr(runner, cls), type)]
+        for class_name in classes:
+            assert class_name[0].isupper(), f"Class {class_name} should be PascalCase"
+```
+
+## Performance Testing in Unit Tests
+
+### Micro-benchmarks
+```python
+import time
+import pytest
+
+class TestPerformance:
+    """Performance-focused unit tests."""
+
+    @pytest.mark.unit
+    def test_script_execution_performance(self):
+        """Test script execution completes within time limit."""
+        runner = ScriptRunner()
+        script_path = Path("scripts/fast_script.py")
+
+        start_time = time.time()
+        result = runner.execute(script_path)
+        duration = time.time() - start_time
+
+        assert result.success
+        assert duration < 5.0, f"Script took {duration:.2f}s, expected < 5.0s"
+
+    @pytest.mark.unit
+    def test_large_data_processing_memory(self):
+        """Test memory usage stays within bounds for large data."""
+        import psutil
+        import os
+
+        process = psutil.Process(os.getpid())
+        initial_memory = process.memory_info().rss
+
+        # Process large dataset
+        processor = DataProcessor()
+        result = processor.process_large_dataset(size=10000)
+
+        final_memory = process.memory_info().rss
+        memory_increase = final_memory - initial_memory
+
+        assert memory_increase < 100 * 1024 * 1024  # Less than 100MB increase
+```
+
+## Test Utilities and Helpers
+
+### Custom Assertions
+```python
+def assert_script_result_valid(result):
+    """Custom assertion for script results."""
+    assert hasattr(result, 'success')
+    assert hasattr(result, 'output')
+    assert hasattr(result, 'duration')
+    assert isinstance(result.success, bool)
+    assert isinstance(result.duration, (int, float))
+
+def assert_agent_response_format(response):
+    """Custom assertion for agent responses."""
+    required_fields = ['status', 'message', 'data', 'timestamp']
+    for field in required_fields:
+        assert field in response, f"Missing required field: {field}"
+```
+
+### Test Data Builders
+```python
+class TestDataBuilder:
+    """Builder pattern for creating test data."""
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        """Reset builder to default state."""
+        self.data = {
+            'name': 'test_script',
+            'path': 'scripts/test.py',
+            'timeout': 300,
+            'env': 'development'
+        }
+        return self
+
+    def with_name(self, name):
+        """Set script name."""
+        self.data['name'] = name
+        return self
+
+    def with_timeout(self, timeout):
+        """Set script timeout."""
+        self.data['timeout'] = timeout
+        return self
+
+    def build(self):
+        """Build the test data."""
+        return ScriptConfig(**self.data)
+
+# Usage
+def test_with_builder():
+    """Test using builder pattern."""
+    config = (TestDataBuilder()
+              .with_name("deployment_script")
+              .with_timeout(600)
+              .build())
+
+    assert config.name == "deployment_script"
+    assert config.timeout == 600
+```

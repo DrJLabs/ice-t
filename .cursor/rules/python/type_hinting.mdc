@@ -1,0 +1,443 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Comprehensive type hinting standards and practices for the ice-t project"
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Type Hinting Standards for Ice-T
+
+## Basic Type Annotations
+
+### Function Signatures
+```python
+from typing import List, Dict, Optional, Union, Any, Tuple
+from pathlib import Path
+
+def execute_script(
+    script_path: Path,
+    args: List[str],
+    timeout: int = 300,
+    env_vars: Optional[Dict[str, str]] = None
+) -> ScriptResult:
+    """Execute script with type-safe parameters."""
+    pass
+
+def process_test_results(
+    results: List[TestResult],
+    filter_passed: bool = True
+) -> Tuple[int, int, List[str]]:
+    """Process test results and return counts and failures."""
+    passed = sum(1 for r in results if r.passed)
+    failed = len(results) - passed
+    failures = [r.name for r in results if not r.passed and not filter_passed]
+    return passed, failed, failures
+```
+
+### Class Attributes and Properties
+```python
+from typing import ClassVar, Optional
+from dataclasses import dataclass
+
+@dataclass
+class AgentConfig:
+    """Agent configuration with type annotations."""
+    name: str
+    charter_path: Path
+    timeout_seconds: int = 300
+    retry_count: int = 3
+    environment_vars: Dict[str, str] = field(default_factory=dict)
+
+class TestRunner:
+    """Test runner with typed attributes."""
+
+    # Class variable
+    DEFAULT_TIMEOUT: ClassVar[int] = 300
+
+    def __init__(self, config_path: Path):
+        self.config_path: Path = config_path
+        self.is_initialized: bool = False
+        self.test_cache: Dict[str, TestResult] = {}
+        self.active_tests: Optional[List[str]] = None
+
+    @property
+    def is_ready(self) -> bool:
+        """Check if runner is ready for execution."""
+        return self.is_initialized and self.config_path.exists()
+```
+
+## Advanced Type Annotations
+
+### Generic Types
+```python
+from typing import TypeVar, Generic, Protocol, runtime_checkable
+
+T = TypeVar('T')
+K = TypeVar('K')
+V = TypeVar('V')
+
+class Container(Generic[T]):
+    """Generic container for any type."""
+
+    def __init__(self, item: T):
+        self._item: T = item
+
+    def get_item(self) -> T:
+        """Get the contained item."""
+        return self._item
+
+    def set_item(self, item: T) -> None:
+        """Set the contained item."""
+        self._item = item
+
+class Cache(Generic[K, V]):
+    """Generic cache implementation."""
+
+    def __init__(self):
+        self._data: Dict[K, V] = {}
+
+    def get(self, key: K) -> Optional[V]:
+        """Get value by key."""
+        return self._data.get(key)
+
+    def set(self, key: K, value: V) -> None:
+        """Set key-value pair."""
+        self._data[key] = value
+
+# Usage
+script_cache: Cache[str, ScriptResult] = Cache()
+test_container: Container[TestSuite] = Container(test_suite)
+```
+
+### Protocols and Structural Typing
+```python
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class Executable(Protocol):
+    """Protocol for executable objects."""
+
+    def execute(self, *args: Any, **kwargs: Any) -> Any:
+        """Execute the object."""
+        ...
+
+    @property
+    def is_ready(self) -> bool:
+        """Check if object is ready for execution."""
+        ...
+
+@runtime_checkable
+class Configurable(Protocol):
+    """Protocol for configurable objects."""
+
+    def configure(self, config: Dict[str, Any]) -> None:
+        """Configure the object."""
+        ...
+
+    def get_config(self) -> Dict[str, Any]:
+        """Get current configuration."""
+        ...
+
+class ScriptRunner:
+    """Script runner implementing protocols."""
+
+    def execute(self, script_path: Path, args: List[str]) -> ScriptResult:
+        """Execute script."""
+        pass
+
+    @property
+    def is_ready(self) -> bool:
+        """Check if runner is ready."""
+        return True
+
+    def configure(self, config: Dict[str, Any]) -> None:
+        """Configure runner."""
+        pass
+
+    def get_config(self) -> Dict[str, Any]:
+        """Get configuration."""
+        return {}
+
+# Type checking
+def run_executable(executor: Executable) -> Any:
+    """Run any executable object."""
+    if not executor.is_ready:
+        raise RuntimeError("Executor not ready")
+    return executor.execute()
+
+# Works with any object implementing the protocol
+runner = ScriptRunner()
+result = run_executable(runner)  # Type-safe
+```
+
+## Union Types and Literal Types
+
+### Union Types
+```python
+from typing import Union, Literal
+from pathlib import Path
+
+# Union types for multiple acceptable types
+PathLike = Union[str, Path]
+ConfigValue = Union[str, int, bool, List[str]]
+TestResult = Union[SuccessResult, FailureResult, SkippedResult]
+
+def load_config(config_source: Union[Path, Dict[str, Any]]) -> Config:
+    """Load configuration from file or dictionary."""
+    if isinstance(config_source, Path):
+        return Config.from_file(config_source)
+    else:
+        return Config.from_dict(config_source)
+```
+
+### Literal Types
+```python
+from typing import Literal
+
+Environment = Literal["development", "staging", "production"]
+LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+TestMarker = Literal["unit", "integration", "smoke", "slow", "agent", "script"]
+
+def deploy_to_environment(
+    target: Environment,
+    log_level: LogLevel = "INFO"
+) -> DeploymentResult:
+    """Deploy to specific environment with type safety."""
+    pass
+
+def run_tests_by_marker(marker: TestMarker) -> TestSuiteResult:
+    """Run tests filtered by marker."""
+    pass
+
+# Type-safe usage
+deploy_to_environment("production")  # OK
+deploy_to_environment("invalid")     # Type error
+```
+
+## Custom Types and NewType
+
+### NewType for Domain-Specific Types
+```python
+from typing import NewType
+
+# Create distinct types for domain concepts
+ScriptPath = NewType('ScriptPath', Path)
+AgentId = NewType('AgentId', str)
+TestSuiteId = NewType('TestSuiteId', str)
+TimeoutSeconds = NewType('TimeoutSeconds', int)
+
+def execute_agent_script(
+    agent_id: AgentId,
+    script_path: ScriptPath,
+    timeout: TimeoutSeconds
+) -> AgentExecutionResult:
+    """Execute script for specific agent."""
+    pass
+
+# Usage with type safety
+agent_id = AgentId("deployment_agent")
+script_path = ScriptPath(Path("scripts/deploy.py"))
+timeout = TimeoutSeconds(300)
+
+result = execute_agent_script(agent_id, script_path, timeout)
+```
+
+### Type Aliases for Complex Types
+```python
+from typing import Dict, List, Callable, Any
+
+# Complex type aliases
+ConfigDict = Dict[str, Union[str, int, bool, List[str]]]
+EventHandler = Callable[[str, Dict[str, Any]], None]
+TestFilter = Callable[[TestCase], bool]
+ScriptValidator = Callable[[Path], bool]
+
+class EventManager:
+    """Event manager with typed handlers."""
+
+    def __init__(self):
+        self._handlers: Dict[str, List[EventHandler]] = {}
+
+    def register_handler(self, event_type: str, handler: EventHandler) -> None:
+        """Register event handler."""
+        if event_type not in self._handlers:
+            self._handlers[event_type] = []
+        self._handlers[event_type].append(handler)
+
+    def emit_event(self, event_type: str, data: Dict[str, Any]) -> None:
+        """Emit event to all registered handlers."""
+        for handler in self._handlers.get(event_type, []):
+            handler(event_type, data)
+```
+
+## Error Handling with Types
+
+### Typed Exceptions
+```python
+from typing import Optional, Type
+
+class IceTException(Exception):
+    """Base exception for ice-t project."""
+
+    def __init__(self, message: str, error_code: Optional[str] = None):
+        super().__init__(message)
+        self.message: str = message
+        self.error_code: Optional[str] = error_code
+
+class ScriptExecutionError(IceTException):
+    """Script execution failed."""
+
+    def __init__(
+        self,
+        message: str,
+        script_path: Path,
+        exit_code: int,
+        stderr: Optional[str] = None
+    ):
+        super().__init__(message)
+        self.script_path: Path = script_path
+        self.exit_code: int = exit_code
+        self.stderr: Optional[str] = stderr
+
+def handle_typed_error(
+    error: Exception,
+    expected_types: Tuple[Type[Exception], ...]
+) -> bool:
+    """Handle error if it matches expected types."""
+    return isinstance(error, expected_types)
+```
+
+### Result Types for Error Handling
+```python
+from typing import Union, Generic, TypeVar
+from dataclasses import dataclass
+
+T = TypeVar('T')
+E = TypeVar('E', bound=Exception)
+
+@dataclass
+class Success(Generic[T]):
+    """Represents successful result."""
+    value: T
+
+@dataclass
+class Failure(Generic[E]):
+    """Represents failed result."""
+    error: E
+
+Result = Union[Success[T], Failure[E]]
+
+def safe_execute_script(script_path: Path) -> Result[ScriptResult, ScriptExecutionError]:
+    """Execute script safely with typed result."""
+    try:
+        result = execute_script(script_path)
+        return Success(result)
+    except ScriptExecutionError as e:
+        return Failure(e)
+
+# Usage
+result = safe_execute_script(Path("scripts/deploy.py"))
+if isinstance(result, Success):
+    print(f"Script succeeded: {result.value}")
+else:
+    print(f"Script failed: {result.error}")
+```
+
+## Async Type Annotations
+
+### Async Functions and Coroutines
+```python
+import asyncio
+from typing import Awaitable, AsyncIterator, AsyncContextManager
+
+async def run_script_async(
+    script_path: Path,
+    timeout: int = 300
+) -> ScriptResult:
+    """Run script asynchronously."""
+    proc = await asyncio.create_subprocess_exec(
+        str(script_path),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await proc.communicate()
+
+    return ScriptResult(
+        exit_code=proc.returncode or 0,
+        stdout=stdout.decode(),
+        stderr=stderr.decode()
+    )
+
+async def process_scripts_concurrently(
+    script_paths: List[Path]
+) -> List[ScriptResult]:
+    """Process multiple scripts concurrently."""
+    tasks: List[Awaitable[ScriptResult]] = [
+        run_script_async(path) for path in script_paths
+    ]
+    return await asyncio.gather(*tasks)
+
+async def watch_test_results() -> AsyncIterator[TestResult]:
+    """Watch for test results asynchronously."""
+    while True:
+        result = await get_next_test_result()
+        if result is None:
+            break
+        yield result
+```
+
+## Type Checking Configuration
+
+### MyPy Configuration
+```ini
+# mypy.ini
+[mypy]
+python_version = 3.9
+warn_return_any = True
+warn_unused_configs = True
+disallow_untyped_defs = True
+disallow_incomplete_defs = True
+check_untyped_defs = True
+disallow_untyped_decorators = True
+no_implicit_optional = True
+warn_redundant_casts = True
+warn_unused_ignores = True
+warn_no_return = True
+warn_unreachable = True
+strict_equality = True
+
+[mypy-tests.*]
+disallow_untyped_defs = False
+
+[mypy-scripts.*]
+disallow_untyped_defs = False
+```
+
+### Type Checking Best Practices
+```python
+from typing import TYPE_CHECKING
+
+# Import only for type checking to avoid circular imports
+if TYPE_CHECKING:
+    from src.ice_t.core.runner import ScriptRunner
+
+class Agent:
+    """Agent with forward reference typing."""
+
+    def __init__(self, runner: 'ScriptRunner'):
+        self.runner = runner
+
+    def execute_with_runner(self) -> 'ScriptResult':
+        """Execute using the runner."""
+        return self.runner.execute(self.script_path)
+
+# Type assertions when needed
+def process_config(config: Any) -> ConfigDict:
+    """Process configuration with type assertion."""
+    assert isinstance(config, dict), "Config must be a dictionary"
+    return config  # MyPy now knows this is a dict
+```

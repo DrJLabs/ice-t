@@ -129,7 +129,7 @@ jobs:
   # Fast setup using local filesystem persistence
   persistent-setup:
     name: 🚀 Local Setup (Persistent)
-    runs-on: [self-hosted, ice-t, build]
+    runs-on: [self-hosted, ice-t, linux, build, setup]
     needs: bypass-check
     if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 2
@@ -154,9 +154,9 @@ jobs:
           echo "🧹 Force cleaning requested..."
           rm -rf ~/.cache/ice-t-venv-* ~/.cache/pip ~/.cache/pre-commit || true
 
-        - name: 📊 Calculate requirements hash
-          id: requirements
-          run: |
+      - name: 📊 Calculate requirements hash
+        id: requirements
+        run: |
             # Calculate hash for cache invalidation similar to Adam Johnson's approach
             HASH=""
             [ -f "requirements.txt" ] && HASH+=$(sha256sum requirements.txt | cut -d' ' -f1)
@@ -255,7 +255,7 @@ jobs:
   # Code quality using self-contained environment
   persistent-code-quality:
     name: 🚀 Code Quality (Local Cache)
-    runs-on: [self-hosted, ice-t, quality]
+    runs-on: [self-hosted, ice-t, linux, quality, security]
     needs: [bypass-check, persistent-setup]
     if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 3
@@ -282,7 +282,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: precommit-${{ github.run_id }}
-          path: precommit.log
           path: precommit.log
           retention-days: 7
 
@@ -317,7 +316,7 @@ jobs:
   # Type checking with self-contained environment
   persistent-type-checking:
     name: 🚀 Type Safety (Local Cache)
-    runs-on: [self-hosted, ice-t, quality]
+    runs-on: [self-hosted, ice-t, linux, quality, security]
     needs: [bypass-check, persistent-setup]
     if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 5
@@ -343,7 +342,7 @@ jobs:
   # Security scanning with self-contained environment
   persistent-security:
     name: 🚀 Security (Local Cache)
-    runs-on: [self-hosted, ice-t, security]
+    runs-on: [self-hosted, ice-t, linux, quality, security]
     needs: [bypass-check, persistent-setup]
     if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 3
@@ -394,7 +393,7 @@ jobs:
   # Testing with self-contained environments and 6-way parallel execution
   persistent-tests:
     name: 🚀 Tests (${{ matrix.test-group }})
-    runs-on: [self-hosted, ice-t, test]
+    runs-on: [self-hosted, ice-t, linux, test, smoke]
     needs: [bypass-check, persistent-setup]
     if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 6

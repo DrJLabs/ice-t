@@ -1,0 +1,90 @@
+---
+description:
+globs: src/ice_t/**/*.py
+alwaysApply: false
+---
+---
+description: "Core development standards for architecture, code quality, project structure, naming, error handling, and documentation within the ice-t project"
+globs: "src/ice_t/**/*.py, tests/**/*.py, scripts/**/*.py, agents/**/*.py"
+alwaysApply: false
+---
+
+# Ice-T Core Development Standards
+
+## Architecture Principles
+
+- **Agent-Based Architecture**: Organize around intelligent agents in `agents/` with charter, conventions, and playbooks
+- **Feature-Based Structure**: Features in `src/ice_t/features/[feature_name]/` with clear separation of concerns
+- **Script-Based Operations**: Comprehensive scripts in `scripts/` for deployment, testing, diagnostics, and maintenance
+- **Type Safety**: Use comprehensive type hints for all functions and methods
+- **Test-Driven**: Maintain 94%+ test coverage with pytest markers (unit, integration, smoke)
+
+## Code Quality Standards
+
+- **Formatting**: Use `ruff format` for consistent code formatting
+- **Linting**: Pass all `ruff check` validations with ice-t specific configurations
+- **Type Checking**: Pass all `mypy` validations
+- **Security**: Pass all `bandit` security checks
+- **Pre-commit Hooks**: All 10 pre-commit hooks must pass (trailing whitespace, files, YAML, JSON, conflicts, Ruff linter/formatter, MyPy, AST, security, smoke tests)
+
+## Project Structure
+
+```
+src/ice_t/
+├── core/                    # Core utilities and base classes
+├── features/               # Feature modules
+├── integrations/           # External service integrations
+└── utilities/              # Common utility functions
+
+agents/
+├── charter/                # Agent charter definitions
+├── conventions/            # Development conventions
+└── playbooks/             # Operational playbooks
+
+scripts/
+├── deployment/             # Deployment automation
+├── testing/               # Test runners and utilities
+├── diagnostics/           # System diagnostics
+├── maintenance/           # Maintenance operations
+└── utilities/             # General utilities
+
+tests/
+├── api/                   # API tests
+├── ci/                    # CI/CD tests
+├── core/                  # Core functionality tests
+├── features/              # Feature tests
+├── integration/           # Integration tests
+└── smoke/                 # Smoke tests
+```
+
+## Naming Conventions
+
+- **Files**: Use snake_case for Python files
+- **Classes**: Use PascalCase
+- **Functions/Variables**: Use snake_case
+- **Constants**: Use UPPER_SNAKE_CASE
+- **Test Files**: Prefix with `test_`
+- **Script Files**: Descriptive names with .py or .sh extensions
+
+## Error Handling
+
+- Use specific exception types
+- Include comprehensive error messages with context
+- Log errors with appropriate levels using structured logging
+- Implement graceful degradation for non-critical failures
+- Use try-except blocks judiciously with proper cleanup
+
+## Documentation
+
+- Include docstrings for all public functions (Google style)
+- Maintain README.md files for major components
+- Document script usage and parameters
+- Keep inline comments concise and meaningful
+- Update documentation when changing functionality
+
+## Agent Integration
+
+- Follow agent charter specifications
+- Implement playbook-driven operations
+- Use convention-based naming and structure
+- Support both automated and manual execution modes

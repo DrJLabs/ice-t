@@ -1,0 +1,114 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: "Branch naming conventions and git workflow standards for the ice-t project"
+globs: ""
+alwaysApply: true
+---
+
+# Branch Naming Conventions for Ice-T
+
+## Standard Branch Prefixes
+
+Use these prefixes for all branches in the ice-t project:
+
+### AI Agent Branches
+- **`cursor/`** - For Cursor AI automated development
+- **`codex/`** - For Codex AI automated development
+- **`ai/`** - For other AI agent work
+
+### Feature Development
+- **`feature/`** - For new feature development
+- **`feat/`** - Short form for features
+- **`agent/`** - For agent-specific feature work
+- **`script/`** - For script development and improvements
+
+### Bug Fixes and Maintenance
+- **`fix/`** - For bug fixes
+- **`hotfix/`** - For urgent production fixes
+- **`patch/`** - For small patches and corrections
+
+### Infrastructure and Tooling
+- **`ci/`** - For CI/CD pipeline changes
+- **`workflow/`** - For GitHub Actions workflow updates
+- **`infra/`** - For infrastructure changes
+- **`config/`** - For configuration updates
+
+### Documentation and Testing
+- **`docs/`** - For documentation updates
+- **`test/`** - For test improvements and additions
+- **`perf/`** - For performance improvements
+
+## Branch Naming Format
+
+**Format**: `[prefix]/[descriptive-name]`
+
+### Examples:
+```
+cursor/agent-playbook-implementation
+feature/diagnostic-runner-enhancement
+fix/test-runner-timeout-issue
+ci/pre-commit-hook-updates
+docs/api-documentation-update
+script/deployment-automation
+agent/charter-compliance-checker
+test/integration-test-coverage
+```
+
+## Descriptive Naming Guidelines
+
+- Use lowercase letters and hyphens (kebab-case)
+- Be descriptive but concise (max 50 characters)
+- Include the component being worked on when relevant
+- Use action words when appropriate
+
+### Good Examples:
+- `cursor/add-performance-benchmarks`
+- `fix/runner-memory-leak`
+- `feature/agent-decision-logging`
+- `ci/bypass-mechanism-implementation`
+
+### Bad Examples:
+- `cursor/stuff` (not descriptive)
+- `feature/NewFeature` (wrong case)
+- `fix/bug_fix` (underscores, not descriptive)
+- `cursor/implement-new-functionality-for-enhanced-agent-capabilities` (too long)
+
+## Temporary and Experimental Branches
+
+- **`experiment/`** - For experimental features
+- **`spike/`** - For research and investigation
+- **`temp/`** - For temporary work (should be cleaned up)
+- **`wip/`** - For work-in-progress (use sparingly)
+
+## Branch Lifecycle
+
+1. **Create**: Always create from latest main/develop
+2. **Develop**: Make focused commits with clear messages
+3. **Test**: Ensure all tests pass before merging
+4. **Review**: Create pull requests for code review
+5. **Merge**: Use squash merge for feature branches
+6. **Cleanup**: Delete merged branches promptly
+
+## Special Branch Rules
+
+### Protected Branches
+- `main` - Production-ready code only
+- `develop` - Integration branch for features
+- `release/*` - Release preparation branches
+
+### Long-running Branches
+- Keep main branches clean and stable
+- Merge frequently to avoid conflicts
+- Rebase feature branches before merging
+
+## Automation Integration
+
+Branches with certain prefixes trigger specific automation:
+- `cursor/*` and `codex/*` - AI development workflows
+- `ci/*` - CI bypass mechanism eligibility
+- `workflow/*` - Workflow update procedures
+- `test/*` - Enhanced testing procedures
