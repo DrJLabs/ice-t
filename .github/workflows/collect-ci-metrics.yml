@@ -61,9 +61,20 @@ jobs:
             git add -f "$METRICS_FILE"
             if ! git diff --staged --quiet; then
               echo "Committing metrics..."
-              git commit --no-verify -m "ci(metrics): append for run ${RUN_ID}"
+              git commit --no-verify -m "ci(metrics): append for run ${RUN_ID} [skip ci]"
               echo "Pushing metrics commit..."
-              git push
+              push_attempts=3
+              for attempt in $(seq 1 $push_attempts); do
+                if git push; then
+                  break
+                elif [ "$attempt" -lt "$push_attempts" ]; then
+                  echo "Push failed, retrying ($attempt/$push_attempts)..."
+                  sleep 5
+                else
+                  echo "Push failed after $push_attempts attempts"
+                  exit 1
+                fi
+              done
             else
               echo "No new metrics to commit."
             fi
