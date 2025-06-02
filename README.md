@@ -126,3 +126,15 @@ The CI pipelines rely on a pool of self-hosted runners labeled `ice-t` with addi
 The long-term roadmap for this repository lives in `CODEX_T_MODERNIZATION_PLAN.md`.
 Review that document regularly to understand current priorities and progress.
 
+## Agents Guides
+
+Consult [AGENTS.md](AGENTS.md) for the repository's guidance hierarchy:
+
+- **AI Charter** – mission rules and CI failure analysis resources
+- **Conventions** – coding conventions and usage of `scripts/adaptive_test_runner.py`
+- **Playbooks** – step-by-step instructions for implementing features
+
+The agents guides document the adaptive test runner and explain how CI failure
+logs are captured. All contributors should review these guides before changing
+code or documentation.
+
