@@ -215,4 +215,3 @@ jobs:
               repo: context.repo.repo,
               body: `❌ Auto-merge skipped: ${{ needs.evaluate-auto-merge.outputs.reason }}`
             });
-
