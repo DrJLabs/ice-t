@@ -177,6 +177,16 @@
 
 **Rationale:** A fast and reliable CI is the backbone of autonomous development, enabling rapid iteration and confident merging of AI contributions.
 
+### ✅ **CI Failure Analysis Infrastructure - COMPLETED**
+
+**Automated Logging System:** Comprehensive CI failure analysis infrastructure has been implemented to enable AI-driven debugging and repair:
+
+- **Failure Log Capture**: `save-failed-log.yml` workflow automatically captures detailed CI failure logs
+- **Performance Metrics**: `collect-ci-metrics.yml` workflow tracks CI performance data in JSONL format
+- **AI Integration**: Comprehensive documentation in rules and charter for AI agents to access and analyze logs
+- **Automated Commits**: Logs are committed directly to repository bypassing all checks for immediate availability
+- **Status**: ✅ **Complete** - Infrastructure deployed and ready for AI-driven failure analysis
+
 **Key Metrics & Targets (from original plan):**
 *   Active self-hosted runners: 12 (+ optional cloud burst).
 *   Parallel test groups: Target 6.

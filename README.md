@@ -84,6 +84,34 @@ python scripts/generate_dependency_graphs.py
 ```
 
 
+## CI Failure Analysis & Automated Logging
+
+The project includes automated CI failure analysis infrastructure to enable rapid debugging and repair:
+
+### 🔍 **Automated Log Collection**
+- **Failure Logs**: Detailed CI failure logs are automatically captured in `.codex/logs/ci_[run_id].log`
+- **Performance Metrics**: CI performance data is collected in `.codex/metrics/ci-metrics.jsonl`
+- **Automated Commits**: Logs are committed directly to the repository, bypassing all checks for immediate availability
+
+### 🤖 **AI Agent Integration**
+The logging system is designed for AI-driven analysis and repair:
+
+```bash
+# View latest failure log
+cat $(ls -t .codex/logs/ci_*.log | head -1)
+
+# Search for errors across logs
+grep -r "ERROR\|FAILED\|error:" .codex/logs/
+
+# View recent performance metrics
+tail -5 .codex/metrics/ci-metrics.jsonl | jq .
+```
+
+### 📊 **Workflow Integration**
+- `save-failed-log.yml`: Captures complete CI logs when workflows fail
+- `collect-ci-metrics.yml`: Tracks performance metrics for all CI runs
+- Both workflows trigger automatically on CI completion and commit data immediately
+
 ## Self-hosted Runners
 
 The CI pipelines rely on a pool of self-hosted runners labeled `ice-t` with additional role labels such as `build`, `test`, and `quality`. Ensure at least one runner for each role is online so workflows can execute.
