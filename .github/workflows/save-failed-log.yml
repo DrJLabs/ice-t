@@ -28,7 +28,7 @@ jobs:
           echo "Fetching log for run ID: $RUN_ID"
           gh run view "$RUN_ID" --log > /tmp/full.log
           echo "Extracting error summary..."
-          awk '/##\[error\]/{c=20} c-->0' /tmp/full.log > ".codex/errors/ci_${RUN_ID}.log"
+          awk '/error/{c=20} c-->0' /tmp/full.log > ".codex/errors/ci_${RUN_ID}.log"
           echo "Error summary extracted to .codex/errors/ci_${RUN_ID}.log"
 
       # ────── Extract error slice (previous step) ──────
