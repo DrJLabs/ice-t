@@ -13,6 +13,8 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    ```bash
    pip install -r dev-requirements.txt
    ```
+   These files are generated via `pip-compile` and should be updated before
+   running the setup scripts in `scripts/setup/`.
 4. Copy the sample environment file and edit as needed:
    ```bash
    cp .env.example .env

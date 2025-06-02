@@ -7,12 +7,12 @@
 # ✅ Non-interactive shell compatible (no aliases, proper line continuations)
 # ✅ Network isolation ready (all dependencies installed before cutoff)
 # ✅ Error handling with line numbers (set -euo pipefail + trap)
-# ✅ Exact version pins for reproducibility
+# ✅ Reproducible builds via lock files
 # ✅ Functions instead of aliases (work in any shell)
 # ✅ All prose wrapped in heredoc (no "command not found" errors)
 #
 # Last updated: 2025-01-27
-# Dependencies: 15+ packages with exact versions for reproducibility
+# Dependencies installed from requirements.txt and dev-requirements.txt
 ###############################################################################
 
 set -euo pipefail
@@ -33,6 +33,10 @@ trap 'echo -e "\033[0;31m❌ Error on line ${LINENO}\033[0m" >&2' ERR
 # - SPARC methodology tools and templates
 # - Enhanced context management and AI agent integration
 # - Quality automation and security scanning
+#
+# This script assumes `requirements.txt` and `dev-requirements.txt` have been
+# generated beforehand (e.g. via `pip-compile`). These lock files guarantee
+# reproducible offline installation.
 #
 # Sandboxed Environment Compatibility:
 # - All network operations complete before isolation
@@ -90,53 +94,13 @@ fi
 
 $PYTHON_CMD -m pip install --quiet --upgrade pip
 
-# --- 3. Install exact dependency versions (for reproducibility) --------------
-echo "📦 Installing exact dependency versions..."
-
-# Critical dependencies first (must succeed)
-echo "  Installing critical dependencies..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-  pytest>=8.3.0 \
-  pytest-cov>=6.0.0 \
-  rich>=13.7.1 \
-  click>=8.1.6 \
-  pydantic>=2.7.4 \
-  || {
-    echo "❌ Critical dependencies failed - trying system packages"
-    # Fallback to system packages if pip fails
-    apt-get update -qq 2>/dev/null || true
-    apt-get install -y python3-pytest python3-rich 2>/dev/null || true
-  }
-
-# Additional testing dependencies
-echo "  Installing testing dependencies..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-  pytest-xdist==3.6.0 \
-  pytest-mock==3.14.0 \
-  hypothesis==6.131.27 \
-  coverage==7.8.0 \
-  pytest-forked==1.6.0 \
-  execnet==2.0.2 \
-  || echo "⚠️ Some testing dependencies failed (will use fallbacks)"
-
-# Code quality tools
-echo "  Installing code quality tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-  ruff>=0.11.11 \
-  mypy>=1.15.0 \
-  bandit>=1.7.5 \
-  safety>=3.2.0 \
-  yamllint>=1.35.1 \
-  PyYAML>=6.0 \
-  || echo "⚠️ Some quality tools failed (will use fallbacks)"
-
-# Build and utility tools
-echo "  Installing utility tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-  typing-extensions==4.12.2 \
-  build==1.0.3 \
-  pre-commit==4.0.0 \
-  || echo "⚠️ Some utility tools failed (will use fallbacks)"
+# --- 3. Install dependencies from lock files ---------------------------------
+echo "📦 Installing dependencies from lock files..."
+if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt -r dev-requirements.txt; then
+  echo "❌ Failed to install dependencies from lock files - using minimal fallback"
+  apt-get update -qq 2>/dev/null || true
+  apt-get install -y python3-pytest python3-rich 2>/dev/null || true
+fi
 
 # Note about pre-commit in sandboxed environments
 echo "💡 Note: pre-commit hooks are disabled in sandboxed environments"
