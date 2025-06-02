@@ -13,6 +13,13 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    ```bash
    pip install -r dev-requirements.txt
    ```
+   These files are generated via `pip-compile` and should be updated before
+   running the setup scripts in `scripts/setup/`.
+   To regenerate them run:
+   ```bash
+   pip-compile pyproject.toml --output-file=requirements.txt
+   pip-compile pyproject.toml --extra dev --output-file=dev-requirements.txt
+   ```
 4. Copy the sample environment file and edit as needed:
    ```bash
    cp .env.example .env
