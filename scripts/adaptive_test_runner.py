@@ -114,7 +114,7 @@ class AdaptiveTestRunner:
         print("🔧 Running test healing...")  # noqa: T201
 
         # Create missing test directories
-        test_dirs = ["smoke", "integration", "core", "features", "utils"]
+        test_dirs = ["smoke", "integration", "core", "features", "utils", "api"]
         for test_dir in test_dirs:
             (self.tests_dir / test_dir).mkdir(exist_ok=True)
             init_file = self.tests_dir / test_dir / "__init__.py"
