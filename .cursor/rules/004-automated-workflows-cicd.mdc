@@ -72,7 +72,26 @@ This document outlines the mandatory automated workflow and quality assurance pr
 *   **Integration Testing:** Test interactions between scripts, agents, and core functionality.
 *   **Performance Benchmarks:** Include performance tests for critical operations and long-running processes.
 
-## 6. Adherence to Bleeding-Edge Best Practices
+## 6. CI Failure Logs and Metrics Access (Critical for AI Debugging)
+
+*   **Automated Log Collection:** The ice-t project has automated workflows that capture CI failure logs and performance metrics:
+    *   **Failure Logs:** Located in `.codex/logs/ci_[run_id].log` - These contain detailed logs from failed CI runs
+    *   **Performance Metrics:** Located in `.codex/metrics/ci-metrics.jsonl` - JSONL format with run performance data
+*   **Log Retrieval Commands for AI Agents:**
+    *   **List recent failure logs:** `ls -la .codex/logs/ci_*.log | tail -5`
+    *   **View latest failure log:** `cat $(ls -t .codex/logs/ci_*.log | head -1)`
+    *   **Search logs for specific errors:** `grep -r "ERROR\|FAILED\|error:" .codex/logs/`
+    *   **View metrics for analysis:** `tail -5 .codex/metrics/ci-metrics.jsonl | jq .`
+*   **Workflow Commit Bypass:** The automated workflows (save-failed-log.yml, collect-ci-metrics.yml) commit directly to the repository and bypass all PR checks and pre-commit hooks using git configuration and commit flags.
+*   **Log Analysis Protocol:** When CI fails, AI agents MUST:
+    1.  Immediately check for new failure logs in `.codex/logs/`
+    2.  Analyze the most recent log file for the failing run ID
+    3.  Extract specific error messages, stack traces, and failure points
+    4.  Use this analysis to formulate precise repair strategies
+    5.  Reference metrics data to understand performance implications
+*   **Repository Visibility:** All logs and metrics are committed to the repository and visible to any AI agent with repository access, enabling comprehensive failure analysis and repair automation.
+
+## 7. Adherence to Bleeding-Edge Best Practices
 
 *   All AI agents (Codex and Cursor) are mandated to employ current, industry-leading best practices in software development, Python programming, testing methodologies, automation techniques, and CI/CD processes.
 *   Prioritize solutions that are robust, maintainable, secure, scalable, and performant.

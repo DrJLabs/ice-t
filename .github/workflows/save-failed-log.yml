@@ -2,7 +2,7 @@
 name: save-failed-log
 "on":
   workflow_run:
-    workflows: ["CI"]          # ‼Replace<CI> with your real workflow name
+    workflows: ["🚀 Turbo CI - ice-t Persistent Runners"]
     types: [completed]
 
 jobs:
@@ -29,6 +29,6 @@ jobs:
           git config user.name  "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
           git add .codex/logs
-          git commit -m \
+          git commit --no-verify -m \
             "ci(log): add failed run ${{ github.event.workflow_run.id }}"
           git push

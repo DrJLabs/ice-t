@@ -17,4 +17,17 @@ The Codex agent acts as a **Senior Python Full-Stack Developer** assisting with 
 - Follow the playbooks in `agents/playbooks/` for common tasks.
 - Consult `CODEX_T_MODERNIZATION_PLAN.md` regularly to track progress and keep the big-picture goals in focus.
 
+## CI Failure Analysis Resources
+
+When CI workflows fail, comprehensive debugging information is automatically captured:
+
+- **Failure Logs:** Check `.codex/logs/ci_*.log` for detailed failure information
+- **Performance Metrics:** Review `.codex/metrics/ci-metrics.jsonl` for timing and performance data
+- **Quick Commands:**
+  - `cat $(ls -t .codex/logs/ci_*.log | head -1)` - View latest failure log
+  - `grep -r "ERROR\|FAILED" .codex/logs/` - Search for errors across logs
+  - `tail -5 .codex/metrics/ci-metrics.jsonl | jq .` - View recent metrics
+
+These logs are automatically committed to the repository and bypass all checks, ensuring immediate availability for analysis and repair.
+
 Rapid feedback loops through the test runner are encouraged. The preferred mode of operation is the fast development cycle documented in this repository.
