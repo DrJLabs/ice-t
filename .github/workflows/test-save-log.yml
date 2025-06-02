@@ -1,0 +1,37 @@
+---
+name: Test Save Failed Log
+"on":
+  workflow_run:
+    workflows: ["Test Simple CI for Logging"]
+    types: [completed]
+
+jobs:
+  persist:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch failing log
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p .codex/logs
+          gh run view ${{ github.event.workflow_run.id }} --log \
+            > .codex/logs/test_ci_${{ github.event.workflow_run.id }}.log
+
+      - name: Commit log for testing
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "ice-t-bot"
+          git config user.email "ice-t-bot@users.noreply.github.com"
+          git add -f .codex/logs
+          git commit --no-verify -m \
+            "ci(test-log): add failed test run ${{ github.event.workflow_run.id }}"
+          git push 
