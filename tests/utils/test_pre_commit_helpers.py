@@ -59,7 +59,7 @@ def test_check_merge_conflict(tmp_path: Path) -> None:
 
 
 def test_check_json(tmp_path: Path) -> None:
-    good = write(tmp_path / "good.json", "{\n  \"a\": 1\n}\n")
+    good = write(tmp_path / "good.json", '{\n  "a": 1\n}\n')
     bad = write(tmp_path / "bad.json", "{ invalid json }")
 
     assert helpers.check_json([str(good)]) is True

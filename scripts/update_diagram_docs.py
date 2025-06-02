@@ -11,8 +11,8 @@ from pathlib import Path
 
 def update_readme_with_diagrams():
     """Update README.md with diagram links and project stats."""
-    readme_path = Path('README.md')
-    docs_dir = Path('docs/diagrams')
+    readme_path = Path("README.md")
+    docs_dir = Path("docs/diagrams")
 
     if not readme_path.exists():
         print("⚠️  README.md not found, creating basic one...")
@@ -28,49 +28,56 @@ def update_readme_with_diagrams():
     stats_section = generate_stats_section()
 
     # Look for existing sections to replace
-    if '## 📊 Project Architecture' in content:
+    if "## 📊 Project Architecture" in content:
         # Replace existing section
-        lines = content.split('\n')
+        lines = content.split("\n")
         start_idx = None
         end_idx = None
 
         for i, line in enumerate(lines):
-            if line.startswith('## 📊 Project Architecture'):
+            if line.startswith("## 📊 Project Architecture"):
                 start_idx = i
-            elif start_idx is not None and line.startswith('## ') and not line.startswith('## 📊'):
+            elif (
+                start_idx is not None
+                and line.startswith("## ")
+                and not line.startswith("## 📊")
+            ):
                 end_idx = i
                 break
 
         if start_idx is not None:
             if end_idx is not None:
-                lines = lines[:start_idx] + diagrams_section.split('\n') + lines[end_idx:]
+                lines = (
+                    lines[:start_idx] + diagrams_section.split("\n") + lines[end_idx:]
+                )
             else:
-                lines = lines[:start_idx] + diagrams_section.split('\n')
+                lines = lines[:start_idx] + diagrams_section.split("\n")
 
-            content = '\n'.join(lines)
+            content = "\n".join(lines)
     else:
         # Add new section before any existing "##" sections or at the end
-        lines = content.split('\n')
+        lines = content.split("\n")
         insert_idx = len(lines)
 
         for i, line in enumerate(lines):
-            if line.startswith('## ') and i > 0:  # Skip the first title
+            if line.startswith("## ") and i > 0:  # Skip the first title
                 insert_idx = i
                 break
 
         lines.insert(insert_idx, diagrams_section)
-        content = '\n'.join(lines)
+        content = "\n".join(lines)
 
     # Add stats badge if not present
-    if '![Project Stats]' not in content and docs_dir.exists():
+    if "![Project Stats]" not in content and docs_dir.exists():
         stats_badge = f"\n{stats_section}\n"
-        content = content.replace('# ice-t', f'# ice-t\n{stats_badge}')
+        content = content.replace("# ice-t", f"# ice-t\n{stats_badge}")
 
     # Write updated README
-    with open(readme_path, 'w') as f:
+    with open(readme_path, "w") as f:
         f.write(content)
 
     print("✅ README.md updated with diagrams and stats")
+
 
 def create_basic_readme():
     """Create a basic README if none exists."""
@@ -136,14 +143,15 @@ The project uses 7 self-hosted runners for 6-way parallel testing:
 Statistics are auto-generated from the codebase and updated automatically.
 """
 
-    with open('README.md', 'w') as f:
+    with open("README.md", "w") as f:
         f.write(readme_content)
 
     print("✅ Created basic README.md")
 
+
 def generate_diagrams_section() -> str:
     """Generate the diagrams section for README."""
-    docs_dir = Path('docs/diagrams')
+    docs_dir = Path("docs/diagrams")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M UTC")
 
     section = f"""## 📊 Project Architecture
@@ -180,18 +188,18 @@ graph TB
 
     if docs_dir.exists():
         diagram_files = {
-            'architecture_overview.mmd': '🏗️ System Architecture Overview',
-            'ci_pipeline_flow.mmd': '🔄 CI/CD Pipeline Flow',
-            'runner_mapping.mmd': '🏃 Runner Assignment Map',
-            'dependency_overview.mmd': '📦 Dependency Graph',
-            'detailed_architecture.png': '🎯 Detailed Architecture',
-            'component_diagram.png': '🧩 Component Diagram'
+            "architecture_overview.mmd": "🏗️ System Architecture Overview",
+            "ci_pipeline_flow.mmd": "🔄 CI/CD Pipeline Flow",
+            "runner_mapping.mmd": "🏃 Runner Assignment Map",
+            "dependency_overview.mmd": "📦 Dependency Graph",
+            "detailed_architecture.png": "🎯 Detailed Architecture",
+            "component_diagram.png": "🧩 Component Diagram",
         }
 
         for filename, description in diagram_files.items():
             filepath = docs_dir / filename
             if filepath.exists():
-                if filename.endswith('.mmd'):
+                if filename.endswith(".mmd"):
                     section += f"- **{description}**: [View Mermaid Source](docs/diagrams/{filename})\n"
                 else:
                     section += f"- **{description}**: ![{description}](docs/diagrams/{filename})\n"
@@ -205,12 +213,13 @@ graph TB
 
     return section
 
+
 def generate_stats_section() -> str:
     """Generate project statistics section."""
     stats_files = [
-        'docs/diagrams/project_stats.json',
-        'docs/diagrams/workflow_metadata.json',
-        'docs/diagrams/dependency_analysis.json'
+        "docs/diagrams/project_stats.json",
+        "docs/diagrams/workflow_metadata.json",
+        "docs/diagrams/dependency_analysis.json",
     ]
 
     stats = {}
@@ -221,33 +230,44 @@ def generate_stats_section() -> str:
                 stats.update(file_stats)
 
     if not stats:
-        return "![Project Status](https://img.shields.io/badge/status-active-brightgreen)"
+        return (
+            "![Project Status](https://img.shields.io/badge/status-active-brightgreen)"
+        )
 
     badges = []
 
     # Add module count badge
-    if 'total_modules' in stats:
-        badges.append(f"![Modules](https://img.shields.io/badge/modules-{stats['total_modules']}-blue)")
+    if "total_modules" in stats:
+        badges.append(
+            f"![Modules](https://img.shields.io/badge/modules-{stats['total_modules']}-blue)"
+        )
 
     # Add package count badge
-    if 'total_external_packages' in stats:
-        badges.append(f"![Dependencies](https://img.shields.io/badge/dependencies-{stats['total_external_packages']}-orange)")
+    if "total_external_packages" in stats:
+        badges.append(
+            f"![Dependencies](https://img.shields.io/badge/dependencies-{stats['total_external_packages']}-orange)"
+        )
 
     # Add workflow count badge
-    if 'total_workflows' in stats:
-        badges.append(f"![Workflows](https://img.shields.io/badge/workflows-{stats['total_workflows']}-purple)")
+    if "total_workflows" in stats:
+        badges.append(
+            f"![Workflows](https://img.shields.io/badge/workflows-{stats['total_workflows']}-purple)"
+        )
 
     # Add runner count badge
     badges.append("![Runners](https://img.shields.io/badge/runners-7-green)")
 
     # Add coverage badge (assuming ≥94% target)
-    badges.append("![Coverage](https://img.shields.io/badge/coverage-%E2%89%A594%25-brightgreen)")
+    badges.append(
+        "![Coverage](https://img.shields.io/badge/coverage-%E2%89%A594%25-brightgreen)"
+    )
 
-    return ' '.join(badges)
+    return " ".join(badges)
+
 
 def create_docs_index():
     """Create or update docs/index.md with diagram links."""
-    docs_dir = Path('docs')
+    docs_dir = Path("docs")
     docs_dir.mkdir(exist_ok=True)
 
     index_content = f"""# ice-t Documentation
@@ -276,17 +296,17 @@ Auto-generated on {datetime.now().strftime("%Y-%m-%d %H:%M UTC")}
 """
 
     # Add statistics if available
-    stats_file = Path('docs/diagrams/project_stats.json')
+    stats_file = Path("docs/diagrams/project_stats.json")
     if stats_file.exists():
         with open(stats_file) as f:
             stats = json.load(f)
 
         index_content += f"""
-- **Total Modules**: {stats.get('total_modules', 'Unknown')}
-- **Core Modules**: {stats.get('core_modules', 'Unknown')}
-- **Feature Modules**: {stats.get('feature_modules', 'Unknown')}
-- **Test Files**: {stats.get('test_files', 'Unknown')}
-- **Scripts**: {stats.get('scripts', 'Unknown')}
+- **Total Modules**: {stats.get("total_modules", "Unknown")}
+- **Core Modules**: {stats.get("core_modules", "Unknown")}
+- **Feature Modules**: {stats.get("feature_modules", "Unknown")}
+- **Test Files**: {stats.get("test_files", "Unknown")}
+- **Scripts**: {stats.get("scripts", "Unknown")}
 """
 
     index_content += """
@@ -305,10 +325,11 @@ The generation process analyzes:
 - Script relationships
 """
 
-    with open(docs_dir / 'index.md', 'w') as f:
+    with open(docs_dir / "index.md", "w") as f:
         f.write(index_content)
 
     print("✅ Created/updated docs/index.md")
+
 
 def main():
     """Main function to update all documentation."""
@@ -322,5 +343,6 @@ def main():
 
     print("✅ Documentation updated successfully!")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

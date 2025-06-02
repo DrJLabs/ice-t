@@ -113,7 +113,10 @@ def security_check(files: list[str]) -> bool:
         text = Path(file).read_text(errors="ignore")
         for pat in patterns:
             if pat.search(text):
-                print(f"Potential insecure code in {file}: pattern '{pat.pattern}'", file=sys.stderr)
+                print(
+                    f"Potential insecure code in {file}: pattern '{pat.pattern}'",
+                    file=sys.stderr,
+                )
                 ok = False
     return ok
 
@@ -136,13 +139,12 @@ def main(argv: list[str] | None = None) -> int:
 
     func = COMMANDS[args.command]
     result = func(args.files)
-    
+
     # For autofix functions (trailing-whitespace, end-of-file), return 1 if changes were made
     # For check functions, return 1 if checks failed
     if args.command in ["trailing-whitespace", "end-of-file"]:
         return 1 if result else 0  # result=True means changes made, so return 1
-    else:
-        return 0 if result else 1  # result=True means checks passed, so return 0
+    return 0 if result else 1  # result=True means checks passed, so return 0
 
 
 if __name__ == "__main__":
