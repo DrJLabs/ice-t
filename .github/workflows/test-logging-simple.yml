@@ -4,7 +4,7 @@ name: Test Simple CI for Logging
   push:
     paths:
       - "test-trigger-*"
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   test-job:
