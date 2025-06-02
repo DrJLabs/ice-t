@@ -19,7 +19,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_FIELDS: >-
-            conclusion,duration_ms,run_started_at,actor,headSha,createdAt,updatedAt
+            conclusion,actor,headSha,createdAt,startedAt,updatedAt
         run: |
           set -euo pipefail
           mkdir -p .codex/metrics
@@ -28,11 +28,18 @@ jobs:
             --jq '{
               run_id:     '"${{ github.event.workflow_run.id }}"',
               conclusion: .conclusion,
-              duration_ms: .duration_ms,
-              queued_ms: ((.run_started_at|fromdateiso8601) - \
-                         (.createdAt|fromdateiso8601))*1000,
+              run_duration_ms: (
+                ((.updatedAt|fromdateiso8601) - (.startedAt|fromdateiso8601))
+                * 1000
+              ),
+              queued_ms: (
+                ((.startedAt|fromdateiso8601) - (.createdAt|fromdateiso8601))
+                * 1000
+              ),
               actor: .actor.login,
               head_sha: .headSha,
+              created_at: .createdAt,
+              started_at: .startedAt,
               finished_at: .updatedAt
             }' >> .codex/metrics/ci-metrics.jsonl
 
@@ -42,7 +49,7 @@ jobs:
           set -euo pipefail
           git config user.name  "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
-          git add .codex/metrics/ci-metrics.jsonl
+          git add -f .codex/metrics/ci-metrics.jsonl
           git commit --no-verify -m \
             "ci(metrics): append run ${{ github.event.workflow_run.id }}"
           git push

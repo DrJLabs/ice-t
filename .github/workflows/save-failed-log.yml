@@ -31,7 +31,7 @@ jobs:
           set -euo pipefail
           git config user.name  "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
-          git add .codex/logs
+          git add -f .codex/logs
           git commit --no-verify -m \
             "ci(log): add failed run ${{ github.event.workflow_run.id }}"
           git push
