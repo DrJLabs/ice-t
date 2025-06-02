@@ -25,13 +25,39 @@ jobs:
           gh run view ${{ github.event.workflow_run.id }} --log \
             > .codex/logs/ci_${{ github.event.workflow_run.id }}.log
 
-      - name: 📝 Commit log for Codex
-        shell: bash
+      - name: Commit and Push logs
+        env:
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          ICE_T_BOT_PAT: ${{ secrets.ICE_T_BOT_PAT }} # Use the PAT stored as a secret
         run: |
           set -euo pipefail
-          git config user.name  "ice-t-bot"
+          
+          # Configure commit author (this does not affect push authentication)
+          git config user.name "ice-t-bot"
           git config user.email "ice-t-bot@users.noreply.github.com"
-          git add -f .codex/logs
-          git commit --no-verify -m \
-            "ci(log): add failed run ${{ github.event.workflow_run.id }}"
-          git push
+          
+          # Add all changes in .codex/errors (new logs and deletions)
+          git add -A .codex/errors
+          
+          # Check if there are any changes to commit
+          if git diff --staged --quiet; then
+            echo "No log changes to commit."
+          else
+            echo "Committing changes..."
+            git commit --no-verify -m "ci(errors): save error log for run ${RUN_ID}"
+            echo "Changes committed."
+
+            echo "Configuring remote for push with PAT..."
+            # Configure the remote URL with the PAT for authentication
+            # This ensures the push operation is performed as the ice-t-bot user
+            git remote set-url origin "https://x-access-token:${ICE_T_BOT_PAT}@github.com/${{ github.repository }}.git"
+            
+            # Optional: If dealing with potential race conditions on the same branch from concurrent workflow runs,
+            # you might consider adding 'git pull --rebase' here before pushing.
+            # Example: git pull --rebase origin ${{ github.event.workflow_run.head_branch }}
+
+            echo "Pushing changes..."
+            git push origin HEAD:${{ github.event.workflow_run.head_branch }} # Explicitly push to the correct head branch
+            echo "Changes pushed successfully."
+          fi
+
