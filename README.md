@@ -4,17 +4,23 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
 
 ## Development Setup
 
-1. Run the setup script to create the virtual environment and
-   install all dependencies. The script uses `pip-sync` with lock
-   files when available and falls back to `pip install` otherwise.
+1. Run the setup script to create the virtual environment and install all
+   dependencies:
    ```bash
-   bash scripts/setup_dependencies.sh
+   scripts/setup_dependencies.sh
    ```
-2. Copy the sample environment file and edit as needed:
+   The script uses Python **3.12** as specified in `.python-version` and installs
+   both runtime and development requirements.
+2. Activate the environment:
+   ```bash
+   source .venv/bin/activate
+   ```
+3. Copy the sample environment file and edit as needed:
    ```bash
    cp .env.example .env
    ```
-3. Install pre-commit hooks:
+4. Install pre-commit hooks:
+
    ```bash
    pre-commit install
    ```
@@ -27,7 +33,8 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
 
        pre-commit run ice-t-unit-tests
        pre-commit run ice-t-integration-tests
-4. Run tests to verify the environment:
+
+5. Run tests to verify the environment:
    ```bash
     pytest
     ```
