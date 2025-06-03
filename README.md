@@ -16,7 +16,17 @@ The script uses Python **3.12** from `.python-version` when available and
     ```bash
     source .venv/bin/activate
     ```
-    > **Note on Requirement Files:** The requirement files (e.g., `requirements.txt`, `dev-requirements.txt`) installed by the setup script are generated via `pip-compile`. If you need to update dependencies, you should modify the input files (e.g., `requirements.in`) and then re-compile them using `pip-compile` *before* running or re-running the setup scripts located in `scripts/setup/`.
+    > **Note on Managing Requirement Files:**
+    > The runtime (`requirements.txt`) and development (`dev-requirements.txt`) requirement files, which are installed by the main setup script, are generated from `pyproject.toml` using `pip-compile`.
+    >
+    > If you need to update dependencies (for example, after modifying `pyproject.toml` or its referenced dependency groups):
+    > 1. Ensure `pip-tools` is installed in your environment (e.g., `pip install pip-tools`).
+    > 2. To regenerate the lock files, run the following commands from the repository root:
+    >    ```bash
+    >    pip-compile pyproject.toml --output-file=requirements.txt
+    >    pip-compile pyproject.toml --extra dev --output-file=dev-requirements.txt
+    >    ```
+    > 3. After regenerating these files, you may need to re-run the relevant setup script (from `scripts/setup/`) or manually update your environment (e.g., by running `pip install -r requirements.txt -r dev-requirements.txt` or using `pip-sync` if applicable).
 
 3. Copy the sample environment file and edit as needed:
     ```bash
@@ -34,7 +44,7 @@ The script uses Python **3.12** from `.python-version` when available and
     New hooks mirror the CI job matrix. Trigger them manually when needed:
 
         pre-commit run ice-t-unit-tests
-        pre-commit run ice-t-integration-tests
+        pre-commit run ice-t-integration-teststs.txt`.
 
 5. Run tests to verify the environment:
    ```bash

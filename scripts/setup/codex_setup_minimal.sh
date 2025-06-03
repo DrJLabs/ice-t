@@ -33,6 +33,7 @@ $PYTHON_CMD -m pip install --quiet --upgrade pip
 echo "📦 Installing dependencies from lock files..."
 if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt -r dev-requirements.txt; then
     echo "❌ Failed to install dependencies - falling back to minimal set"
+
     # Ensure pytest and rich are listed in dev-requirements.txt if they are part of the desired minimal set.
     # The fallback can be adjusted based on what a truly minimal viable environment requires.
     $PYTHON_CMD -m pip install --quiet pytest rich || true

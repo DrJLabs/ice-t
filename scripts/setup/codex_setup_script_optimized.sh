@@ -428,6 +428,25 @@ fi
 
 # --- 2. Install categorized development and operational dependencies (from codex-exp logic) ---
 
+# Install dependencies
+echo "  📦 Initializing dependency installation process..."
+
+# --- 1. Install base application dependencies from requirements.txt (if it exists) ---
+# This handles core application dependencies that are not part of the explicit tool setup below.
+if [ -f requirements.txt ]; then
+  echo "  📦 Installing base application dependencies from requirements.txt..."
+  if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt; then
+    echo "  ⚠️ Failed to install dependencies from requirements.txt. This may affect core application functionality."
+    # Depending on the project's policy, this could be a critical failure.
+  else
+    echo "  ✅ Base application dependencies from requirements.txt installed."
+  fi
+else
+  echo "  ℹ️ No requirements.txt found, skipping installation of base application dependencies."
+fi
+
+# --- 2. Install categorized development and operational dependencies ---
+
 # Core development dependencies (MUST succeed - with retries and system fallback)
 echo "  📦 Installing CORE development dependencies (Python 3.12 compatible versions)..."
 CORE_DEPS_INSTALLED=false
@@ -567,24 +586,19 @@ else
   echo "  ℹ️ Skipping pandas installation because numpy is not available."
 fi
 
-# Note: The original `codex/update-dependency-management-scripts` also installed from `dev-requirements.txt`.
-# If `dev-requirements.txt` exists and is intended to supply *other* development dependencies
-# not covered by the explicit lists above, it could be installed here. However, ensure it doesn't
-# conflict with the versions specified above. For this resolution, we assume the explicit lists
-# are now the primary source for these categorized tools.
-# Example for consideration:
-# if [ -f dev-requirements.txt ]; then
-#   echo "  📦 Installing any remaining dependencies from dev-requirements.txt..."
-#   if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r dev-requirements.txt; then
-#     echo "  ⚠️ Failed to install some dependencies from dev-requirements.txt."
-#   else
-#     echo "  ✅ Dependencies from dev-requirements.txt installed."
-#   fi
-# fi
-
-echo "🎉 Dependency installation process finished."
+# Consider dev-requirements.txt for any other development dependencies
+# not covered by the explicit lists above.
+# Ensure it doesn't conflict with the versions specified.
+if [ -f dev-requirements.txt ]; then
+  echo "  📦 Installing any remaining dependencies from dev-requirements.txt..."
+  if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r dev-requirements.txt; then
+    echo "  ⚠️ Failed to install some dependencies from dev-requirements.txt."
+  else
+    echo "  ✅ Dependencies from dev-requirements.txt installed."
+  fi
 fi
 
+echo "🎉 Dependency installation process finished."
 # Node.js and JavaScript dependencies (CRITICAL if Node.js development needed)
 echo "  📦 Installing NODE.JS dependencies (if Node.js available)..."
 if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
