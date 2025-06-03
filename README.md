@@ -9,34 +9,34 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    ```bash
    scripts/setup_dependencies.sh
    ```
-   The script uses Python **3.12** as specified in `.python-version` and installs
-   both runtime and development requirements.
+The script uses Python **3.12** from `.python-version` when available and
+    falls back to `python3` otherwise. It installs both runtime and development
+    requirements.
 2. Activate the environment:
-   ```bash
-   source .venv/bin/activate
-   ```
-   These files are generated via `pip-compile` and should be updated before
-   running the setup scripts in `scripts/setup/`.
-5. Copy the sample environment file and edit as needed:
-   ```bash
-   cp .env.example .env
-   ```
-6. Install pre-commit hooks:
+    ```bash
+    source .venv/bin/activate
+    ```
+    > **Note on Requirement Files:** The requirement files (e.g., `requirements.txt`, `dev-requirements.txt`) installed by the setup script are generated via `pip-compile`. If you need to update dependencies, you should modify the input files (e.g., `requirements.in`) and then re-compile them using `pip-compile` *before* running or re-running the setup scripts located in `scripts/setup/`.
 
-   ```bash
-   pre-commit install
-   ```
-   The project expects **pre-commit 4.0.1 or newer**. Verify with `pre-commit --version`.
-   The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
-   Some security hooks (bandit and safety) may require packages from
-   `dev-requirements.txt`.
+3. Copy the sample environment file and edit as needed:
+    ```bash
+    cp .env.example .env
+    ```
+4. Install pre-commit hooks:
+    ```bash
+    pre-commit install
+    ```
+    The project expects **pre-commit 4.0.1 or newer**. Verify with `pre-commit --version`.
+    The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
+    Some security hooks (bandit and safety) may require packages from
+    `dev-requirements.txt`.
 
-   New hooks mirror the CI job matrix. Trigger them manually when needed:
+    New hooks mirror the CI job matrix. Trigger them manually when needed:
 
-       pre-commit run ice-t-unit-tests
-       pre-commit run ice-t-integration-tests
+        pre-commit run ice-t-unit-tests
+        pre-commit run ice-t-integration-tests
 
-7. Run tests to verify the environment:
+5. Run tests to verify the environment:
    ```bash
     pytest
     ```
