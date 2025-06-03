@@ -44,7 +44,10 @@ The script uses Python **3.12** from `.python-version` when available and
     New hooks mirror the CI job matrix. Trigger them manually when needed:
 
         pre-commit run ice-t-unit-tests
-        pre-commit run ice-t-integration-teststs.txt`.
+        pre-commit run ice-t-integration-tests
+
+    When implementing new features, add **integration tests** under
+    `tests/integration/` to validate end-to-end behavior.
 
 5. Run tests to verify the environment:
    ```bash
