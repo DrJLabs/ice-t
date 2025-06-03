@@ -26,6 +26,11 @@ name: 🚀 Turbo CI - ice-t Persistent Runners
         required: false
         default: false
         type: boolean
+      coverage-threshold:
+        description: 'Coverage percent required to pass'
+        required: false
+        default: '94'
+        type: number
 
 env:
   PYTHONDONTWRITEBYTECODE: 1
@@ -484,7 +489,7 @@ jobs:
                 COVERAGE_FILE="coverage-${{ matrix.test-group }}.xml"
                 PYTEST_CMD="$PYTEST_CMD --cov=ice_t"
                 PYTEST_CMD="$PYTEST_CMD --cov-report=xml:$COVERAGE_FILE"
-                PYTEST_CMD="$PYTEST_CMD --cov-fail-under=94"
+                PYTEST_CMD="$PYTEST_CMD --cov-fail-under=${{ inputs.coverage-threshold }}"
               fi
 
               # Use local pytest cache (.pytest_cache) automatically
@@ -622,7 +627,7 @@ jobs:
           python -m coverage combine coverage/**/.coverage*
           python -m coverage xml -o coverage.xml
           python -m coverage report \
-            --fail-under=94 \
+            --fail-under=${{ inputs.coverage-threshold }} \
             >> "$GITHUB_STEP_SUMMARY"
 
       - name: "📤 Upload combined coverage"

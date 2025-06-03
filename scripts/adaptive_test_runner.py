@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Adaptive Test Runner for ice-t
-Self-healing test runner with ≥94% coverage baseline.
+Self-healing test runner. Coverage requirements are
+configured in ``pyproject.toml``.
 Supports running a sequence of test groups via ``--sequence``.
 """
 
@@ -10,6 +11,7 @@ from pathlib import Path
 import subprocess
 import sys
 from typing import Optional
+import tomllib
 
 
 class AdaptiveTestRunner:
@@ -26,6 +28,19 @@ class AdaptiveTestRunner:
         self.src_dir = self.project_root / "src"
         self.tests_dir = self.project_root / "tests"
         self.coverage_threshold = 94.0
+
+        pyproject = self.project_root / "pyproject.toml"
+        if pyproject.is_file():
+            with pyproject.open("rb") as f:
+                try:
+                    data = tomllib.load(f)
+                    self.coverage_threshold = (
+                        data.get("tool", {})
+                        .get("adaptive_test_runner", {})
+                        .get("coverage_threshold", self.coverage_threshold)
+                    )
+                except Exception:
+                    pass
 
     def run_fast_tests(self) -> int:
         """Run fast smoke tests."""
