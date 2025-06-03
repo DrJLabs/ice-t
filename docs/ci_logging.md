@@ -1,0 +1,2 @@
+The `save-failed-log.yml` workflow runs whenever the main CI workflow finishes with a failure. It retrieves the full log, extracts the error section and commits a trimmed file under `.codex/logs/ci_<run_id>.log`, keeping only the five most recent logs. In parallel, the `collect-ci-metrics.yml` workflow executes on every CI completion. It appends run details like branch, status, duration and queue time to `.codex/metrics/ci-metrics.jsonl`. Together these workflows store diagnostic logs and metrics in the repository for quick analysis by developers and AI agents.
+

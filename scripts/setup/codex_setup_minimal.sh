@@ -1,6 +1,7 @@
 #!/bin/bash
 # Codex Startup Script - Minimal Robust Version
 # Python 3.12 Compatible - Network Dependencies Loaded During Startup
+# Requires `requirements.txt` and `dev-requirements.txt` generated in advance
 
 set -e  # Exit on error, but keep it simple
 
@@ -28,39 +29,22 @@ fi
 echo "📈 Upgrading pip..."
 $PYTHON_CMD -m pip install --quiet --upgrade pip
 
-# Install core dependencies (Python 3.12 compatible versions)
-echo "📦 Installing core dependencies..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    pytest==8.3.4 \
-    pytest-cov==6.0.0 \
-    pytest-xdist==3.7.0 \
-    rich==13.9.4 \
-    click==8.1.7 \
-    pydantic==2.7.4 || echo "⚠️ Some core deps failed"
+# Install all dependencies from lock files
+echo "📦 Installing dependencies from lock files..."
+if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt -r dev-requirements.txt; then
+    echo "❌ Failed to install dependencies - falling back to minimal set"
 
-echo "🔧 Installing quality tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    ruff==0.8.4 \
-    mypy==1.13.0 \
-    black==24.10.0 \
-    bandit==1.8.0 || echo "⚠️ Some quality tools failed"
+    # Ensure pytest and rich are listed in dev-requirements.txt if they are part of the desired minimal set.
+    # The fallback can be adjusted based on what a truly minimal viable environment requires.
+    $PYTHON_CMD -m pip install --quiet pytest rich || true
+fi
 
-echo "📊 Installing performance tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    psutil==6.1.0 \
-    pyinstrument==4.7.3 || echo "⚠️ Some performance tools failed"
-
-echo "🧪 Installing testing tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    hypothesis==6.131.27 \
-    coverage==7.8.0 \
-    pytest-mock==3.14.0 || echo "⚠️ Some testing tools failed"
-
-echo "🌐 Installing web dependencies..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    fastapi==0.115.6 \
-    requests==2.32.3 \
-    httpx==0.28.1 || echo "⚠️ Some web deps failed"
+# Optional: If you want separate logged stages for different dependency groups,
+# you could have multiple requirement files (e.g., requirements-core.txt, requirements-test.txt)
+# and install them sequentially. However, for most projects, a single requirements.txt
+# and a dev-requirements.txt is sufficient and simpler to manage.
+# The echo statements from the codex-exp branch for different groups (core, testing, web)
+# can be added here if desired for verbosity, but the installation itself should rely on the requirement files.
 
 # Create basic project structure
 echo "📁 Creating project structure..."
