@@ -233,17 +233,17 @@ install_with_retries() {
 }
 
 # Install requirements with optimized approach
-if [ -f "$PROJECT_DIR/requirements.txt" ]; then
+if [ -f "$PROJECT_DIR/requirements.txt" ] && [ -f "$PROJECT_DIR/dev-requirements.txt" ]; then
     install_with_retries "$PROJECT_DIR/requirements.txt"
-fi
-
-if [ -f "$PROJECT_DIR/dev-requirements.txt" ]; then
     install_with_retries "$PROJECT_DIR/dev-requirements.txt"
+else
+    echo "⚠️ Lock files missing - installing editable package with dev extras"
+    pip install -e .[dev] --quiet --no-warn-script-location
 fi
 
 # Install security tools with conflict resolution
 echo "🔐 Installing security tools with conflict resolution..."
-pip install bandit safety --quiet --no-warn-script-location || echo "Some security tools may not be available"
+pip install bandit safety pre-commit==4.0.1 --quiet --no-warn-script-location || echo "Some security tools may not be available"
 
 # Install semgrep separately to handle rich version conflicts
 if ! command -v semgrep >/dev/null 2>&1; then
@@ -300,6 +300,10 @@ fi
 # Also export for current shell
 export VIRTUAL_ENV="$VENV_DIR"
 export PATH="$VENV_DIR/bin:$PATH"
+
+# Ensure repository dependencies are installed for local usage
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/scripts/setup_dependencies.sh"
 
 # Final verification
 if command -v python >/dev/null 2>&1 && [ -n "$VIRTUAL_ENV" ]; then
