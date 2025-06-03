@@ -126,6 +126,7 @@ The project includes automated CI failure analysis infrastructure to enable rapi
 - **Failure Logs**: Detailed CI failure logs are automatically captured in `.codex/logs/ci_[run_id].log`
 - **Performance Metrics**: CI performance data is collected in `.codex/metrics/ci-metrics.jsonl`
 - **Automated Commits**: Logs are committed directly to the repository, bypassing all checks for immediate availability
+- **Retention**: Old logs are pruned automatically so only the last five are kept
 
 ### 🤖 **AI Agent Integration**
 The logging system is designed for AI-driven analysis and repair:
@@ -145,6 +146,17 @@ tail -5 .codex/metrics/ci-metrics.jsonl | jq .
 - `save-failed-log.yml`: Captures complete CI logs when workflows fail
 - `collect-ci-metrics.yml`: Tracks performance metrics for all CI runs
 - Both workflows trigger automatically on CI completion and commit data immediately
+
+## CI Logging System
+
+See [CI_LOGGING_SYSTEM.md](docs/CI_LOGGING_SYSTEM.md) for full documentation of
+the logging and metrics infrastructure. A few quick commands for analysis are:
+
+```bash
+ls -la .codex/logs/ci_*.log | tail -5
+grep -r "ERROR" .codex/logs/
+tail -5 .codex/metrics/ci-metrics.jsonl | jq .
+```
 
 ## Self-hosted Runners
 
