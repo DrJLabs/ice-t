@@ -56,6 +56,10 @@ The script uses Python **3.12** from `.python-version` when available and
 Use `scripts/adaptive_test_runner.py` to execute tests. It supports running a
 single group or a sequence of groups similar to the CI matrix.
 
+The coverage percentage required to pass is read from
+`pyproject.toml` under `[tool.adaptive_test_runner]` as
+`coverage_threshold`.
+
 Run smoke tests:
 
 ```bash

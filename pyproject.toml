@@ -135,8 +135,11 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
-    "@pytest.mark.skip",
+"@pytest.mark.skip",
 ]
+
+[tool.adaptive_test_runner]
+coverage_threshold = 94.0
 
 [tool.bandit]
 skips = ["B101", "B601"]  # Skip assert and shell usage (development tools)
