@@ -320,6 +320,7 @@ config/local.yaml
 *.log
 logs/
 log/
+!/.codex/logs/
 
 # Temporary directories
 tmp/
