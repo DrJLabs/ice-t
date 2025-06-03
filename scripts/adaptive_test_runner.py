@@ -9,6 +9,7 @@ import argparse
 from pathlib import Path
 import subprocess
 import sys
+import json
 from typing import Optional
 
 
@@ -99,17 +100,40 @@ class AdaptiveTestRunner:
         """
         mapping = {
             "fast": lambda: self.run_fast_tests(),
-            "smoke": lambda: self.run_smoke_tests(),
             "full": lambda: self.run_full_tests(),
-            "integration": lambda: self.run_integration_tests(),
-            "unit-core": lambda: self.run_group_tests("core"),
-            "core": lambda: self.run_group_tests("core"),
-            "unit-features": lambda: self.run_group_tests("features"),
-            "features": lambda: self.run_group_tests("features"),
-            "unit-utils": lambda: self.run_group_tests("utils"),
-            "utils": lambda: self.run_group_tests("utils"),
-            "api": lambda: self.run_group_tests("api"),
         }
+
+        groups_file = self.tests_dir / "groups.json"
+        if groups_file.exists():
+            with groups_file.open() as f:
+                group_defs = json.load(f)
+            for g in group_defs:
+                name = g["name"]
+                path = Path(g["path"]).name
+                cov = bool(g.get("coverage", True))
+
+                if name == "smoke":
+                    mapping[name] = lambda: self.run_smoke_tests()
+                elif name == "integration":
+                    mapping[name] = lambda: self.run_integration_tests()
+                else:
+                    mapping[name] = lambda p=path, c=cov: self.run_group_tests(p, coverage=c)
+
+                # allow referencing by directory name
+                if name != path:
+                    mapping[path] = mapping[name]
+        else:
+            mapping.update({
+                "smoke": lambda: self.run_smoke_tests(),
+                "integration": lambda: self.run_integration_tests(),
+                "unit-core": lambda: self.run_group_tests("core"),
+                "core": lambda: self.run_group_tests("core"),
+                "unit-features": lambda: self.run_group_tests("features"),
+                "features": lambda: self.run_group_tests("features"),
+                "unit-utils": lambda: self.run_group_tests("utils"),
+                "utils": lambda: self.run_group_tests("utils"),
+                "api": lambda: self.run_group_tests("api"),
+            })
 
         for group in groups:
             action = mapping.get(group)
