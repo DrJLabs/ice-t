@@ -145,3 +145,13 @@ The CI pipelines rely on a pool of self-hosted runners labeled `ice-t` with addi
 The long-term roadmap for this repository lives in `CODEX_T_MODERNIZATION_PLAN.md`.
 Review that document regularly to understand current priorities and progress.
 
+## Agents Guides
+
+This repository includes a hierarchy of guides for both human and AI contributors.
+The entry point is [AGENTS.md](AGENTS.md), which links to the AI charter,
+coding conventions and detailed playbooks. These guides explain how to run the
+adaptive test runner and how CI failure logs are captured.
+
+All contributors should consult the agents documentation before changing code or
+documentation to ensure consistency with project rules.
+
