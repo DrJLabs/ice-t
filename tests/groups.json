@@ -1,0 +1,8 @@
+[
+  {"name": "smoke", "path": "tests/smoke", "coverage": false},
+  {"name": "unit-core", "path": "tests/core", "coverage": true},
+  {"name": "unit-features", "path": "tests/features", "coverage": true},
+  {"name": "unit-utils", "path": "tests/utils", "coverage": true},
+  {"name": "integration", "path": "tests/integration", "coverage": true},
+  {"name": "api", "path": "tests/api", "coverage": true}
+]

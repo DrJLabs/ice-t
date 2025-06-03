@@ -422,41 +422,31 @@ jobs:
           path: debug.log
           retention-days: 7
 
+  group-matrix:
+    name: "🗂️ Prepare Test Matrix"
+    runs-on: [self-hosted, linux]
+    needs: bypass-check
+    if: needs.bypass-check.outputs.bypass != 'true'
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - name: ⚡ Checkout
+        uses: actions/checkout@v4
+      - id: set
+        run: |
+          MATRIX=$(jq -c '{include: [.[] | {"test-group": .name, path: .path, coverage: .coverage}]}' tests/groups.json)
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
   persistent-tests:
     name: 🚀 Tests (${{ matrix.test-group }})
     runs-on: [self-hosted, ice-t, linux, test, smoke]
-    needs: [bypass-check, persistent-setup]
+    needs: [bypass-check, persistent-setup, group-matrix]
     if: needs.bypass-check.outputs.bypass != 'true'
     timeout-minutes: 6
     strategy:
       fail-fast: false
       max-parallel: 6
-      matrix:
-        include:
-          - test-group: "smoke"
-            path: "tests/smoke"
-            markers: "smoke"
-            coverage: false
-          - test-group: "unit-core"
-            path: "tests/core"
-            markers: "unit"
-            coverage: true
-          - test-group: "unit-features"
-            path: "tests/features"
-            markers: "unit"
-            coverage: true
-          - test-group: "unit-utils"
-            path: "tests/utils"
-            markers: "unit"
-            coverage: true
-          - test-group: "integration"
-            path: "tests/integration"
-            markers: "integration"
-            coverage: true
-          - test-group: "api"
-            path: "tests/api"
-            markers: "api"
-            coverage: true
+      matrix: ${{ fromJson(needs.group-matrix.outputs.matrix) }}
 
     steps:
       - name: ⚡ Checkout

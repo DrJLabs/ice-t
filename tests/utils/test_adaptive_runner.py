@@ -141,3 +141,31 @@ def test_main_heal_command(monkeypatch, tmp_path):
 
     assert main() == 0
     assert called["root"] == tmp_path
+
+
+def test_run_sequence_loads_groups_json(monkeypatch, tmp_path):
+    """`run_sequence` should load group info from groups.json."""
+    tests_root = tmp_path / "tests"
+    core_dir = tests_root / "core"
+    core_dir.mkdir(parents=True)
+    groups_file = tests_root / "groups.json"
+    groups_file.write_text(
+        '[{"name": "unit-core", "path": "tests/core", "coverage": true}]'
+    )
+
+    runner = AdaptiveTestRunner(project_root=tmp_path)
+
+    called = {}
+
+    def fake_run_group_tests(self, group, coverage=True):
+        called["group"] = group
+        called["coverage"] = coverage
+        return 0
+
+    monkeypatch.setattr(AdaptiveTestRunner, "run_group_tests", fake_run_group_tests)
+
+    result = runner.run_sequence(["unit-core"])
+
+    assert result == 0
+    assert called["group"] == "core"
+    assert called["coverage"] is True
