@@ -50,6 +50,8 @@ The script uses Python **3.12** from `.python-version` when available and
    ```bash
     pytest
     ```
+   Running `pytest` directly uses the default options defined in
+   `pyproject.toml`, including the test paths and registered markers.
 
 ## Adaptive Test Runner
 
