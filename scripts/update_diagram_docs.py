@@ -88,7 +88,7 @@ Autonomous high-performance template for web-app projects driven by Cursor & Cod
 
 ```bash
 # Setup development environment
-./scripts/setup_dependencies.sh
+./scripts/setup/setup_env.sh
 
 # Run tests
 source .venv/bin/activate

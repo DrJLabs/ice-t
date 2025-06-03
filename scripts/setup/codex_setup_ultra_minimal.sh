@@ -1,6 +1,7 @@
 #!/bin/bash
 # Ultra-Minimal Codex Startup Script
-# Guaranteed to work - only essential packages
+# Guaranteed to work - installs from lock files when available
+# Requires `requirements.txt` and `dev-requirements.txt` generated beforehand
 
 echo "🚀 Ultra-Minimal Codex Setup - Python 3.12"
 
@@ -14,18 +15,12 @@ PYTHON_CMD="python3"
 echo "📈 Upgrading pip..."
 $PYTHON_CMD -m pip install --quiet --upgrade pip --break-system-packages 2>/dev/null || echo "pip upgrade skipped"
 
-# Core essentials only
-echo "📦 Installing essential packages..."
-$PYTHON_CMD -m pip install --quiet --break-system-packages \
-    pytest \
-    rich \
-    click \
-    requests || echo "⚠️ Some packages failed"
-
-echo "🔧 Installing basic quality tools..."
-$PYTHON_CMD -m pip install --quiet --break-system-packages \
-    ruff \
-    mypy || echo "⚠️ Quality tools failed"
+# Install dependencies from lock files
+echo "📦 Installing dependencies from lock files..."
+if ! $PYTHON_CMD -m pip install --quiet --break-system-packages -r requirements.txt -r dev-requirements.txt; then
+    echo "❌ Failed to install dependencies - using minimal fallback"
+    $PYTHON_CMD -m pip install --quiet --break-system-packages pytest rich || true
+fi
 
 # Create basic structure
 echo "📁 Creating structure..."

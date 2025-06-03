@@ -6,7 +6,8 @@
 # Focuses on essential tools for coding tasks
 #
 # Last updated: December 25, 2024
-# Dependencies: Essential tools only (pytest, ruff, mypy, rich, pydantic, click)
+# Dependencies installed from lock files generated via `pip-compile`
+# Ensure `requirements.txt` and `dev-requirements.txt` exist before running
 ###############################################################################
 
 set -euo pipefail
@@ -38,31 +39,12 @@ fi
 echo "📈 Upgrading pip..."
 $PYTHON_CMD -m pip install --quiet --upgrade pip
 
-# --- 2. Install Essential Dependencies ---------------------------------------
-echo "📦 Installing essential dependencies..."
-
-# Tier 1: Core tools (must work for basic coding)
-echo "  Installing core tools..."
-$PYTHON_CMD -m pip install --quiet \
-    "pytest>=8.3.0" \
-    "rich>=13.7.1" \
-    "click>=8.1.6" \
-    || { echo "❌ Core tools failed"; exit 1; }
-
-# Tier 2: Quality tools (needed for code quality)
-echo "  Installing quality tools..."
-$PYTHON_CMD -m pip install --quiet \
-    "ruff>=0.11.11" \
-    "mypy>=1.15.0" \
-    || echo "⚠️ Quality tools failed (will use fallbacks)"
-
-# Tier 3: Codebase-specific (used in current code)
-echo "  Installing codebase-specific tools..."
-$PYTHON_CMD -m pip install --quiet \
-    "pydantic>=2.7.4" \
-    "coverage>=7.8.0" \
-    "pytest-cov>=6.0.0" \
-    || echo "⚠️ Some codebase tools failed"
+# --- 2. Install Dependencies --------------------------------------------------
+echo "📦 Installing dependencies from lock files..."
+if ! $PYTHON_CMD -m pip install --quiet -r requirements.txt -r dev-requirements.txt; then
+    echo "❌ Failed to install dependencies - using basic fallback"
+    $PYTHON_CMD -m pip install --quiet pytest rich || true
+fi
 
 # --- 3. Create Basic Project Structure ---------------------------------------
 echo "📁 Creating basic project structure..."

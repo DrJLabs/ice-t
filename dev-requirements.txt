@@ -4,6 +4,8 @@ types-jsonschema
 # Development tools
 pre-commit>=4.0.1
 tox>=4.15.0
+ruff>=0.11.11
+mypy>=1.15.0
 
 # Additional CI/CD requirements
 pytest-cov>=6.0.0
@@ -16,3 +18,4 @@ pydantic[mypy]>=2.7.4 # For Mypy plugin and type stubs for Pydantic
 rich>=13.7.1 # For CLI output and Mypy pre-commit hook
 pytest-asyncio>=0.23.0 # For running asyncio tests with pytest
 yamllint>=1.35.1
+pip-tools==7.4.1
