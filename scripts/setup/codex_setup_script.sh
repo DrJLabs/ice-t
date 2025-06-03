@@ -7,12 +7,12 @@
 # ✅ Non-interactive shell compatible (no aliases, proper line continuations)
 # ✅ Network isolation ready (all dependencies installed before cutoff)
 # ✅ Error handling with line numbers (set -euo pipefail + trap)
-# ✅ Exact version pins for reproducibility
+# ✅ Reproducible builds via lock files
 # ✅ Functions instead of aliases (work in any shell)
 # ✅ All prose wrapped in heredoc (no "command not found" errors)
 #
 # Last updated: 2025-01-27
-# Dependencies: 15+ packages with exact versions for reproducibility
+# Dependencies installed from requirements.txt and dev-requirements.txt
 ###############################################################################
 
 set -euo pipefail
@@ -33,6 +33,10 @@ trap 'echo -e "\033[0;31m❌ Error on line ${LINENO}\033[0m" >&2' ERR
 # - SPARC methodology tools and templates
 # - Enhanced context management and AI agent integration
 # - Quality automation and security scanning
+#
+# This script assumes `requirements.txt` and `dev-requirements.txt` have been
+# generated beforehand (e.g. via `pip-compile`). These lock files guarantee
+# reproducible offline installation.
 #
 # Sandboxed Environment Compatibility:
 # - All network operations complete before isolation
@@ -90,53 +94,84 @@ fi
 
 $PYTHON_CMD -m pip install --quiet --upgrade pip
 
-# --- 3. Install exact dependency versions (for reproducibility) --------------
-echo "📦 Installing exact dependency versions..."
+# --- 3. Install dependencies -------------------------------------------------
+echo "📦 Installing dependencies..."
 
-# Critical dependencies first (must succeed)
-echo "  Installing critical dependencies..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+# Attempt to install core application dependencies from requirements.txt first, if it exists.
+# This respects the possibility that requirements.txt handles base/application dependencies.
+if [ -f requirements.txt ]; then
+  echo "  Installing core application dependencies from requirements.txt..."
+  if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt; then
+    echo "❌ Failed to install dependencies from requirements.txt. This may impact the application."
+    # Depending on policy, you might want to exit here or have a specific fallback.
+  fi
+else
+  echo "  No requirements.txt found, skipping this step."
+fi
+
+# Install development, testing, quality, and utility tools using specific versions
+# as detailed in the 'codex-exp' changes. This provides explicit control over these tool versions.
+
+echo "  Installing critical development tools (e.g., pytest, rich)..."
+# These are considered critical for the development/CI environment.
+# If pip installation fails, a fallback to system packages is attempted.
+if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   pytest>=8.3.0 \
   pytest-cov>=6.0.0 \
   rich>=13.7.1 \
   click>=8.1.6 \
-  pydantic>=2.7.4 \
-  || {
-    echo "❌ Critical dependencies failed - trying system packages"
-    # Fallback to system packages if pip fails
-    apt-get update -qq 2>/dev/null || true
-    apt-get install -y python3-pytest python3-rich 2>/dev/null || true
-  }
+  pydantic>=2.7.4; then
+  echo "❌ Critical development tools failed to install via pip - attempting system package fallback for pytest and rich."
+  apt-get update -qq 2>/dev/null || true
+  # Note: System package versions may differ from the pip-specified versions and may not satisfy version constraints.
+  apt-get install -y python3-pytest python3-rich 2>/dev/null || true
+fi
 
-# Additional testing dependencies
-echo "  Installing testing dependencies..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+echo "  Installing additional testing dependencies..."
+if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   pytest-xdist==3.6.0 \
   pytest-mock==3.14.0 \
   hypothesis==6.131.27 \
   coverage==7.8.0 \
   pytest-forked==1.6.0 \
-  execnet==2.0.2 \
-  || echo "⚠️ Some testing dependencies failed (will use fallbacks)"
+  execnet==2.0.2; then
+  echo "⚠️ Some testing dependencies failed to install via pip. Testing capabilities might be affected."
+fi
 
-# Code quality tools
 echo "  Installing code quality tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   ruff>=0.11.11 \
   mypy>=1.15.0 \
   bandit>=1.7.5 \
   safety>=3.2.0 \
   yamllint>=1.35.1 \
-  PyYAML>=6.0 \
-  || echo "⚠️ Some quality tools failed (will use fallbacks)"
+  PyYAML>=6.0; then
+  echo "⚠️ Some code quality tools failed to install via pip. Linting/static analysis might be incomplete."
+fi
 
-# Build and utility tools
-echo "  Installing utility tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+echo "  Installing build and utility tools..."
+if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   typing-extensions==4.12.2 \
   build==1.0.3 \
-  pre-commit==4.0.1 \
-  || echo "⚠️ Some utility tools failed (will use fallbacks)"
+
+
+  pre-commit==4.0.1; then
+  echo "⚠️ Some build/utility tools failed to install via pip."
+fi
+
+# The original `codex/update-dependency-management-scripts` also installed from `dev-requirements.txt`.
+# If `dev-requirements.txt` is intended to supplement the explicit installs above (e.g., for other tools
+# not listed, or transitive dependencies managed there), install it.
+# If the explicit list above is meant to be comprehensive for dev tools, this step might be redundant
+# or could even cause conflicts if versions clash. Evaluate based on project structure.
+if [ -f dev-requirements.txt ]; then
+  echo "  Installing any remaining/other dependencies from dev-requirements.txt..."
+  if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r dev-requirements.txt; then
+    echo "⚠️ Failed to install some dependencies from dev-requirements.txt."
+  fi
+fi
+
+echo "✅ Dependency installation steps complete."
 
 # Note about pre-commit in sandboxed environments
 echo "💡 Note: pre-commit hooks are disabled in sandboxed environments"

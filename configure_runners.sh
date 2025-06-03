@@ -82,3 +82,7 @@ echo "   sudo systemctl status actions.runner.*"
 echo ""
 echo "View logs with:"
 echo "   sudo journalctl -u actions.runner.* -f"
+
+# Initialize repository dependencies for consistency
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/scripts/setup_dependencies.sh"
