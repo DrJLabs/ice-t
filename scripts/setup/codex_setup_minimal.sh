@@ -28,27 +28,9 @@ fi
 echo "📈 Upgrading pip..."
 $PYTHON_CMD -m pip install --quiet --upgrade pip
 
-# Install core dependencies (Python 3.12 compatible versions)
+# Install dependencies from lock files
 echo "📦 Installing core dependencies..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    pytest==8.3.4 \
-    pytest-cov==6.0.0 \
-    pytest-xdist==3.7.0 \
-    rich==13.9.4 \
-    click==8.1.7 \
-    pydantic==2.7.4 || echo "⚠️ Some core deps failed"
-
-echo "🔧 Installing quality tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    ruff==0.8.4 \
-    mypy==1.13.0 \
-    black==24.10.0 \
-    bandit==1.8.0 || echo "⚠️ Some quality tools failed"
-
-echo "📊 Installing performance tools..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-    psutil==6.1.0 \
-    pyinstrument==4.7.3 || echo "⚠️ Some performance tools failed"
+$PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt -r dev-requirements.txt || echo "⚠️ Some dependencies failed"
 
 echo "🧪 Installing testing tools..."
 $PYTHON_CMD -m pip install --quiet --no-cache-dir \
