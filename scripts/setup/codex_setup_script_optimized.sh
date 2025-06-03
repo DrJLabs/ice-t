@@ -13,6 +13,7 @@
 # ✅ Fast Feedback Loops: Comprehensive linters, formatters, commit hooks
 # ✅ One-Shot WHAM Coding: Autonomous task completion optimization
 # ✅ Network Dependencies: All installed during setup phase (Codex requirement)
+# ✅ Reproducible builds via lock files (requirements.txt + dev-requirements.txt)
 #
 # Last updated: 2025-01-27
 # Source: ChatGPT Codex team recommendations + production testing + community feedback
@@ -23,6 +24,8 @@
 # After the startup script completes, the container has NO internet connection.
 # ALL network-dependent dependencies MUST be installed in this script.
 # Source: https://community.openai.com/t/bootstrapping-codex-container-with-my-repo-dependencies-keeps-failing-with-network-errors/1263821
+# This script assumes lock files were generated in advance using `pip-compile`.
+# They must be present as `requirements.txt` and `dev-requirements.txt`.
 ###############################################################################
 
 # Strict mode for robust execution
@@ -406,9 +409,28 @@ echo "   📦 Installing comprehensive dependency set for offline operation..."
 # Upgrade pip first (critical for dependency resolution)
 echo "  📈 Upgrading pip for better dependency resolution..."
 $PYTHON_CMD -m pip install --quiet --upgrade pip wheel setuptools
+# Install dependencies
+echo "  📦 Initializing dependency installation process..."
 
-# Core dependencies (MUST succeed for abundance mindset - with retries)
-echo "  📦 Installing CORE dependencies (Python 3.12 compatible versions)..."
+# --- 1. Install base application dependencies from requirements.txt (if it exists) ---
+# This handles core application dependencies that are not part of the explicit tool setup below.
+if [ -f requirements.txt ]; then
+  echo "  📦 Installing base application dependencies from requirements.txt..."
+  if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt; then
+    echo "  ⚠️ Failed to install dependencies from requirements.txt. This may affect core application functionality."
+    # Depending on the project's policy, this could be a critical failure.
+  else
+    echo "  ✅ Base application dependencies from requirements.txt installed."
+  fi
+else
+  echo "  ℹ️ No requirements.txt found, skipping installation of base application dependencies."
+fi
+
+# --- 2. Install categorized development and operational dependencies (from codex-exp logic) ---
+
+# Core development dependencies (MUST succeed - with retries and system fallback)
+echo "  📦 Installing CORE development dependencies (Python 3.12 compatible versions)..."
+CORE_DEPS_INSTALLED=false
 for attempt in 1 2 3; do
   if $PYTHON_CMD -m pip install --quiet --no-cache-dir \
     pytest>=8.3.0 \
@@ -419,22 +441,27 @@ for attempt in 1 2 3; do
     click==8.1.7 \
     pydantic==2.10.3 \
     typing-extensions==4.12.2; then
-    echo "  ✅ Core dependencies installed successfully"
+    echo "  ✅ Core development dependencies installed successfully on attempt $attempt."
+    CORE_DEPS_INSTALLED=true
     break
   else
-    echo "  ⚠️  Core dependencies attempt $attempt failed, retrying..."
+    echo "  ⚠️  Core development dependencies attempt $attempt failed, retrying..."
     if [[ $attempt -eq 3 ]]; then
-      echo "  ❌ Core dependencies failed after 3 attempts - using system fallbacks"
+      echo "  ❌ Core development dependencies failed after 3 attempts - attempting system fallbacks for essential tools."
       apt-get update -qq 2>/dev/null || true
-      apt-get install -y python3-pytest python3-rich python3-click 2>/dev/null || true
+      apt-get install -y python3-pytest python3-rich python3-click 2>/dev/null || \
+        echo "  ❌ System fallback installation also failed."
     fi
     sleep 2
   fi
 done
+if ! $CORE_DEPS_INSTALLED && [[ $attempt -eq 3 ]]; then
+    echo "  ❌ Critical: Core development dependencies could not be installed even with fallbacks."
+fi
 
 # Quality tools (CRITICAL for Codex - linters/formatters essential)
 echo "  🔧 Installing QUALITY TOOLS (Python 3.12 compatible versions)..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+if $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   ruff>=0.11.11 \
   mypy==1.13.0 \
   black==24.10.0 \
@@ -442,31 +469,39 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   safety==3.2.11 \
   pre-commit==4.0.1 \
   pylint==3.3.1 \
-  flake8==7.1.1 \
-  && echo "  ✅ Quality tools installed successfully" \
-  || echo "  ⚠️ Some quality tools failed (will impact development experience)"
+  flake8==7.1.1; then
+  echo "  ✅ Quality tools installed successfully."
+else
+  echo "  ⚠️ Some quality tools failed to install. This will impact code quality checks and development experience."
+fi
 
 # Performance and monitoring (CRITICAL for abundance mindset)
-echo "  📊 Installing PERFORMANCE MONITORING (Python 3.12 compatible)..."
-# Install performance tools with fallbacks for compilation issues
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+echo "  📊 Installing PERFORMANCE MONITORING tools (Python 3.12 compatible)..."
+# Install core performance tools
+if $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   psutil==6.1.0 \
   memory-profiler==0.61.0 \
-  pyinstrument==4.7.3 \
-  && echo "  ✅ Core performance monitoring installed successfully" || echo "  ⚠️ Core performance tools failed"
+  pyinstrument==4.7.3; then
+  echo "  ✅ Core performance monitoring tools installed successfully."
+else
+  echo "  ⚠️ Core performance tools failed to install."
+fi
 
 # Try py-spy with fallback (may not work on all systems)
-echo "    📊 Installing additional performance tools (optional)..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir py-spy==0.3.14 2>/dev/null \
-  && echo "    ✅ py-spy installed" || echo "    ⚠️ py-spy skipped (requires compilation)"
+echo "  📊 Installing additional performance tool: py-spy (optional)..."
+if $PYTHON_CMD -m pip install --quiet --no-cache-dir py-spy==0.3.14 2>/dev/null; then
+  echo "  ✅ py-spy installed successfully."
+else
+  echo "  ⚠️ py-spy installation skipped or failed (often requires compilation, may not be available on all systems)."
+fi
 
-# Skip line-profiler for Python 3.12 compatibility (compilation issues)
-echo "    ⚠️ Skipping line-profiler (Python 3.12 compatibility issues)"
-echo "  ✅ Performance monitoring configured (with fallbacks)"
+# Note on line-profiler
+echo "  ℹ️ Skipping line-profiler installation due to reported Python 3.12 compatibility issues."
+echo "  ✅ Performance monitoring tools setup complete (some tools are optional or have fallbacks)."
 
 # Advanced testing (CRITICAL for 94%+ coverage requirement)
 echo "  🧪 Installing ADVANCED TESTING dependencies (Python 3.12 compatible)..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+if $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   hypothesis==6.131.27 \
   faker==33.1.0 \
   factory-boy==3.3.1 \
@@ -474,69 +509,81 @@ $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   pytest-benchmark==4.0.0 \
   coverage==7.8.0 \
   pytest-html==4.1.1 \
-  pytest-sugar==1.0.0 \
-  && echo "  ✅ Advanced testing tools installed successfully" \
-  || echo "  ⚠️ Advanced testing tools failed (basic testing still available)"
+  pytest-sugar==1.0.0; then
+  echo "  ✅ Advanced testing tools installed successfully."
+else
+  echo "  ⚠️ Some advanced testing tools failed to install. Basic testing should still be available if core dependencies succeeded."
+fi
 
 # Enhanced Context Management Dependencies (CRITICAL for Codex)
-echo "  🧠 Installing ENHANCED CONTEXT MANAGEMENT dependencies (Python 3.12)..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+echo "  🧠 Installing ENHANCED CONTEXT MANAGEMENT dependencies (Python 3.12 compatible)..."
+if $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   redis==5.2.1 \
   sqlalchemy==2.0.36 \
   alembic==1.14.0 \
   asyncpg==0.30.0 \
-  aiofiles==24.1.0 \
-  && echo "  ✅ Context management dependencies installed successfully" \
-  || echo "  ⚠️ Context management failed (will use memory-only fallback)"
+  aiofiles==24.1.0; then
+  echo "  ✅ Context management dependencies installed successfully."
+else
+  echo "  ⚠️ Context management dependencies failed to install. Application may need to use memory-only or limited fallbacks."
+fi
 
 # Web Development Dependencies (for comprehensive development)
 echo "  🌐 Installing WEB DEVELOPMENT dependencies (Python 3.12 compatible)..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
+if $PYTHON_CMD -m pip install --quiet --no-cache-dir \
   fastapi==0.115.6 \
   uvicorn==0.32.1 \
   starlette==0.41.3 \
   httpx==0.28.1 \
   aiohttp==3.11.10 \
-  requests==2.32.3 \
-  && echo "  ✅ Web development dependencies installed successfully" \
-  || echo "  ⚠️ Web development tools failed (limited web capabilities)"
+  requests==2.32.3; then
+  echo "  ✅ Web development dependencies installed successfully."
+else
+  echo "  ⚠️ Some web development tools failed to install. Web-related capabilities may be limited."
+fi
 
-# Data Science and ML (for semantic understanding)
+# Data Science and ML (for semantic understanding - optional with checks)
 echo "  🤖 Installing DATA SCIENCE dependencies (Python 3.12 compatible, optional)..."
 
 # Install numpy first (foundation for other packages)
-echo "    📊 Installing numpy foundation..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir numpy==2.1.3 2>/dev/null \
-  && echo "    ✅ numpy installed" || echo "    ⚠️ numpy failed"
-
-# Install pandas if numpy succeeded
-if $PYTHON_CMD -c "import numpy" 2>/dev/null; then
-  echo "    📊 Installing pandas..."
-  $PYTHON_CMD -m pip install --quiet --no-cache-dir pandas==2.2.3 2>/dev/null \
-    && echo "    ✅ pandas installed" || echo "    ⚠️ pandas failed"
+echo "  numpy: Attempting installation..."
+NUMPY_INSTALLED=false
+if $PYTHON_CMD -m pip install --quiet --no-cache-dir numpy==2.1.3; then
+  echo "  ✅ numpy installed successfully."
+  NUMPY_INSTALLED=true
+else
+  echo "  ⚠️ numpy failed to install. Dependent data science packages will be skipped."
 fi
 
-# Install scikit-learn with fallback
-echo "    🧠 Installing scikit-learn..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir scikit-learn==1.5.2 2>/dev/null \
-  && echo "    ✅ scikit-learn installed" || echo "    ⚠️ scikit-learn failed"
+# Install pandas if numpy succeeded
+if $NUMPY_INSTALLED; then
+  echo "  pandas: Attempting installation (requires numpy)..."
+  if $PYTHON_CMD -m pip install --quiet --no-cache-dir pandas==2.2.3; then
+    echo "  ✅ pandas installed successfully."
+  else
+    echo "  ⚠️ pandas failed to install."
+  fi
+else
+  echo "  ℹ️ Skipping pandas installation because numpy is not available."
+fi
 
-# Skip complex ML packages that often fail to compile
-echo "    ⚠️ Skipping sentence-transformers and faiss-cpu (compilation complexity)"
-echo "    💡 These can be installed later if needed for semantic features"
+# Note: The original `codex/update-dependency-management-scripts` also installed from `dev-requirements.txt`.
+# If `dev-requirements.txt` exists and is intended to supply *other* development dependencies
+# not covered by the explicit lists above, it could be installed here. However, ensure it doesn't
+# conflict with the versions specified above. For this resolution, we assume the explicit lists
+# are now the primary source for these categorized tools.
+# Example for consideration:
+# if [ -f dev-requirements.txt ]; then
+#   echo "  📦 Installing any remaining dependencies from dev-requirements.txt..."
+#   if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r dev-requirements.txt; then
+#     echo "  ⚠️ Failed to install some dependencies from dev-requirements.txt."
+#   else
+#     echo "  ✅ Dependencies from dev-requirements.txt installed."
+#   fi
+# fi
 
-echo "  ✅ Data science dependencies configured (with safe fallbacks)"
-
-# Development utilities (FINAL BATCH)
-echo "  🛠️ Installing DEVELOPMENT UTILITIES (Python 3.12 compatible)..."
-$PYTHON_CMD -m pip install --quiet --no-cache-dir \
-  build==1.2.2 \
-  twine==6.0.1 \
-  wheel==0.45.1 \
-  setuptools==75.6.0 \
-  pip-tools==7.4.1 \
-  && echo "  ✅ Development utilities installed successfully" \
-  || echo "  ⚠️ Development utilities failed (basic tools still available)"
+echo "🎉 Dependency installation process finished."
+fi
 
 # Node.js and JavaScript dependencies (CRITICAL if Node.js development needed)
 echo "  📦 Installing NODE.JS dependencies (if Node.js available)..."

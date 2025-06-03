@@ -15,11 +15,13 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    ```bash
    source .venv/bin/activate
    ```
-3. Copy the sample environment file and edit as needed:
+   These files are generated via `pip-compile` and should be updated before
+   running the setup scripts in `scripts/setup/`.
+5. Copy the sample environment file and edit as needed:
    ```bash
    cp .env.example .env
    ```
-4. Install pre-commit hooks:
+6. Install pre-commit hooks:
 
    ```bash
    pre-commit install
@@ -34,7 +36,7 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
        pre-commit run ice-t-unit-tests
        pre-commit run ice-t-integration-tests
 
-5. Run tests to verify the environment:
+7. Run tests to verify the environment:
    ```bash
     pytest
     ```
