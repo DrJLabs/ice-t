@@ -4,30 +4,49 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
 
 ## Development Setup
 
-1. Run the setup script to create the virtual environment and
-   install all dependencies. The script uses `pip-sync` with lock
-   files when available and falls back to `pip install` otherwise.
+1. Run the setup script to create the virtual environment and install all
+   dependencies:
    ```bash
-   bash scripts/setup_dependencies.sh
+   scripts/setup_dependencies.sh
    ```
-2. Copy the sample environment file and edit as needed:
-   ```bash
-   cp .env.example .env
-   ```
-3. Install pre-commit hooks:
-   ```bash
-   pre-commit install
-   ```
-   The project expects **pre-commit 4.0 or newer**. Verify with `pre-commit --version`.
-   The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
-   Some security hooks (bandit and safety) may require packages from
-   `dev-requirements.txt`.
+The script uses Python **3.12** from `.python-version` when available and
+    falls back to `python3` otherwise. It installs both runtime and development
+    requirements.
+2. Activate the environment:
+    ```bash
+    source .venv/bin/activate
+    ```
+    > **Note on Managing Requirement Files:**
+    > The runtime (`requirements.txt`) and development (`dev-requirements.txt`) requirement files, which are installed by the main setup script, are generated from `pyproject.toml` using `pip-compile`.
+    >
+    > If you need to update dependencies (for example, after modifying `pyproject.toml` or its referenced dependency groups):
+    > 1. Ensure `pip-tools` is installed in your environment (e.g., `pip install pip-tools`).
+    > 2. To regenerate the lock files, run the following commands from the repository root:
+    >    ```bash
+    >    pip-compile pyproject.toml --output-file=requirements.txt
+    >    pip-compile pyproject.toml --extra dev --output-file=dev-requirements.txt
+    >    ```
+    > 3. After regenerating these files, you may need to re-run the relevant setup script (from `scripts/setup/`) or manually update your environment (e.g., by running `pip install -r requirements.txt -r dev-requirements.txt` or using `pip-sync` if applicable).
 
-   New hooks mirror the CI job matrix. Trigger them manually when needed:
+3. Copy the sample environment file and edit as needed:
+    ```bash
+    cp .env.example .env
+    ```
+4. Install pre-commit hooks:
+    ```bash
+    pre-commit install
+    ```
+    The project expects **pre-commit 4.0.1 or newer**. Verify with `pre-commit --version`.
+    The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
+    Some security hooks (bandit and safety) may require packages from
+    `dev-requirements.txt`.
 
-       pre-commit run ice-t-unit-tests
-       pre-commit run ice-t-integration-tests
-4. Run tests to verify the environment:
+    New hooks mirror the CI job matrix. Trigger them manually when needed:
+
+        pre-commit run ice-t-unit-tests
+        pre-commit run ice-t-integration-teststs.txt`.
+
+5. Run tests to verify the environment:
    ```bash
     pytest
     ```
@@ -135,4 +154,14 @@ The CI pipelines rely on a pool of self-hosted runners labeled `ice-t` with addi
 
 The long-term roadmap for this repository lives in `CODEX_T_MODERNIZATION_PLAN.md`.
 Review that document regularly to understand current priorities and progress.
+
+## Agents Guides
+
+This repository includes a hierarchy of guides for both human and AI contributors.
+The entry point is [AGENTS.md](AGENTS.md), which links to the AI charter,
+coding conventions and detailed playbooks. These guides explain how to run the
+adaptive test runner and how CI failure logs are captured.
+
+All contributors should consult the agents documentation before changing code or
+documentation to ensure consistency with project rules.
 
