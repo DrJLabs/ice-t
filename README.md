@@ -138,6 +138,9 @@ cat $(ls -t .codex/logs/ci_*.log | head -1)
 # Search for errors across logs
 grep -r "ERROR\|FAILED\|error:" .codex/logs/
 
+# Summarize errors from latest logs
+python tools/ci_log_summary.py --limit 1
+
 # View recent performance metrics
 tail -5 .codex/metrics/ci-metrics.jsonl | jq .
 ```

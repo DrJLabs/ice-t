@@ -54,6 +54,9 @@ cat $(ls -t .codex/logs/ci_*.log | head -1)
 # Search for specific errors across all logs
 grep -r "ERROR\|FAILED\|error:" .codex/logs/
 
+# Summarize errors from the latest logs
+python tools/ci_log_summary.py --limit 1
+
 # View recent performance metrics
 tail -5 .codex/metrics/ci-metrics.jsonl | jq .
 
@@ -140,8 +143,8 @@ git log --oneline --author="ice-t-bot" -10
 
 ## Future Enhancements
 
-- **Log Analysis Tools**: Automated parsing and analysis scripts
-- **Alerting**: Integration with notification systems for critical failures
+- **Log Analysis Tools**: `tools/ci_log_summary.py` parses recent logs and extracts error lines for quick review.
+- **Alerting**: The `alert-failure-log.yml` workflow triggers on new log commits and can send Slack or email notifications using `scripts/monitoring/send_failure_alert.py`.
 - **Visualization**: Dashboards for CI performance trends
 - **Machine Learning**: Pattern recognition for common failure types
 - **Integration**: Hooks into AI repair systems for automated fixes
