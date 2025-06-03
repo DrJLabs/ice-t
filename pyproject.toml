@@ -145,6 +145,16 @@ coverage_threshold = 94.0
 skips = ["B101", "B601"]  # Skip assert and shell usage (development tools)
 exclude_dirs = ["tests", ".venv", "venv"]
 
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+markers = [
+    "smoke: smoke tests",
+    "unit: unit tests",
+    "integration: integration tests",
+    "api: API contract tests",
+]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
