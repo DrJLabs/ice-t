@@ -1,0 +1,25 @@
+name: alert-failure-log
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '.codex/logs/ci_*.log'
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Send failure alert
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: |
+          latest_log=$(ls -t .codex/logs/ci_*.log | head -1)
+          python scripts/monitoring/send_failure_alert.py "$latest_log"
