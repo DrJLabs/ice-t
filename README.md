@@ -157,6 +157,16 @@ Review that document regularly to understand current priorities and progress.
 
 ## Agents Guides
 
+Consult [AGENTS.md](AGENTS.md) for the repository's guidance hierarchy:
+
+- **AI Charter** – mission rules and CI failure analysis resources
+- **Conventions** – coding conventions and usage of `scripts/adaptive_test_runner.py`
+- **Playbooks** – step-by-step instructions for implementing features
+
+The agents guides document the adaptive test runner and explain how CI failure
+logs are captured. All contributors should review these guides before changing
+code or documentation.
+
 This repository includes a hierarchy of guides for both human and AI contributors.
 The entry point is [AGENTS.md](AGENTS.md), which links to the AI charter,
 coding conventions and detailed playbooks. These guides explain how to run the
@@ -164,4 +174,3 @@ adaptive test runner and how CI failure logs are captured.
 
 All contributors should consult the agents documentation before changing code or
 documentation to ensure consistency with project rules.
-
