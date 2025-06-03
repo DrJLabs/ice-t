@@ -22,13 +22,35 @@ class AdaptiveTestRunner:
     """
 
     def __init__(self, project_root: Optional[Path] = None):
+        """Initialize the runner.
+
+        Parameters
+        ----------
+        project_root:
+            Base directory of the project. Defaults to the current working
+            directory.
+
+        Returns
+        -------
+        None
+        """
         self.project_root = project_root or Path.cwd()
         self.src_dir = self.project_root / "src"
         self.tests_dir = self.project_root / "tests"
         self.coverage_threshold = 94.0
 
     def run_fast_tests(self) -> int:
-        """Run fast smoke tests."""
+        """Execute a minimal set of tests for quick feedback.
+
+        The fast test level runs the project's smoke tests with a
+        maximum of three failures allowed. It is intended for rapid
+        local iteration before invoking more expensive test suites.
+
+        Returns
+        -------
+        int
+            Exit code from ``pytest``.
+        """
         cmd = [
             sys.executable,
             "-m",
@@ -41,7 +63,18 @@ class AdaptiveTestRunner:
         return subprocess.call(cmd)
 
     def run_smoke_tests(self) -> int:
-        """Run smoke tests for pre-commit."""
+        """Run the smoke test suite used by pre-commit hooks.
+
+        This command executes the same tests as :meth:`run_fast_tests` but
+        fails immediately on the first error. It is primarily invoked by
+        the repository's pre-commit configuration to quickly catch
+        regressions.
+
+        Returns
+        -------
+        int
+            Exit code from ``pytest``.
+        """
         cmd = [
             sys.executable,
             "-m",
@@ -53,7 +86,17 @@ class AdaptiveTestRunner:
         return subprocess.call(cmd)
 
     def run_full_tests(self) -> int:
-        """Run full test suite with coverage."""
+        """Execute the entire test suite with coverage enforcement.
+
+        Coverage is checked against :attr:`coverage_threshold` to ensure
+        the project maintains its required baseline. Failing to meet the
+        threshold causes the command to exit with a non-zero status.
+
+        Returns
+        -------
+        int
+            Exit code from ``pytest``.
+        """
         cmd = [
             sys.executable,
             "-m",
@@ -67,7 +110,16 @@ class AdaptiveTestRunner:
         return subprocess.call(cmd)
 
     def run_integration_tests(self) -> int:
-        """Run integration tests."""
+        """Run the slower integration suite.
+
+        Integration tests validate behaviour across the application's
+        boundaries and may take longer than unit or smoke tests.
+
+        Returns
+        -------
+        int
+            Exit code from ``pytest``.
+        """
         cmd = [
             sys.executable,
             "-m",
@@ -79,7 +131,20 @@ class AdaptiveTestRunner:
         return subprocess.call(cmd)
 
     def run_group_tests(self, group: str, coverage: bool = True) -> int:
-        """Run tests for a specific group directory."""
+        """Run tests located in ``tests/<group>``.
+
+        Parameters
+        ----------
+        group:
+            Name of the directory under ``tests`` to execute.
+        coverage:
+            When ``True`` (default), enforce the coverage threshold.
+
+        Returns
+        -------
+        int
+            Exit code from ``pytest``.
+        """
         cmd = [sys.executable, "-m", "pytest", str(self.tests_dir / group), "-v"]
         if coverage:
             cmd += [
@@ -96,6 +161,11 @@ class AdaptiveTestRunner:
         ----------
         groups:
             Names of test groups (e.g. ``smoke`` or ``unit-core``).
+
+        Returns
+        -------
+        int
+            Exit code from the first failing group or ``0`` if all pass.
         """
         mapping = {
             "fast": lambda: self.run_fast_tests(),
@@ -122,7 +192,18 @@ class AdaptiveTestRunner:
         return 0
 
     def heal_tests(self) -> int:
-        """Self-healing mode: fix common test issues."""
+        """Create missing test scaffolding to keep the suite runnable.
+
+        Self-healing ensures a fresh checkout of the repository always
+        contains a minimal smoke test suite. This prevents CI from
+        breaking due to accidentally removed tests and provides a
+        baseline for coverage tracking.
+
+        Returns
+        -------
+        int
+            ``0`` when the test structure is healthy.
+        """
         print("🔧 Running test healing...")  # noqa: T201
 
         # Create missing test directories
@@ -156,7 +237,13 @@ def test_project_structure():
 
 
 def main():  # noqa: PLR0911
-    """Main entry point for adaptive test runner."""
+    """Main entry point for adaptive test runner.
+
+    Returns
+    -------
+    int
+        Exit code from the selected command.
+    """
     parser = argparse.ArgumentParser(description="Adaptive Test Runner for ice-t")
     parser.add_argument("command", choices=["run", "heal"], help="Command to execute")
     parser.add_argument(
