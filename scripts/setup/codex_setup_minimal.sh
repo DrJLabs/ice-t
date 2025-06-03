@@ -33,8 +33,17 @@ $PYTHON_CMD -m pip install --quiet --upgrade pip
 echo "📦 Installing dependencies from lock files..."
 if ! $PYTHON_CMD -m pip install --quiet --no-cache-dir -r requirements.txt -r dev-requirements.txt; then
     echo "❌ Failed to install dependencies - falling back to minimal set"
+    # Ensure pytest and rich are listed in dev-requirements.txt if they are part of the desired minimal set.
+    # The fallback can be adjusted based on what a truly minimal viable environment requires.
     $PYTHON_CMD -m pip install --quiet pytest rich || true
 fi
+
+# Optional: If you want separate logged stages for different dependency groups,
+# you could have multiple requirement files (e.g., requirements-core.txt, requirements-test.txt)
+# and install them sequentially. However, for most projects, a single requirements.txt
+# and a dev-requirements.txt is sufficient and simpler to manage.
+# The echo statements from the codex-exp branch for different groups (core, testing, web)
+# can be added here if desired for verbosity, but the installation itself should rely on the requirement files.
 
 # Create basic project structure
 echo "📁 Creating project structure..."

@@ -45,7 +45,7 @@ if command -v pre-commit >/dev/null 2>&1; then
 else
     print_status "Installing pre-commit..."
     if command -v pip >/dev/null 2>&1; then
-        pip install pre-commit
+        pip install pre-commit==4.0.1
         print_success "pre-commit installed successfully"
     else
         print_warning "pip not found. Installing pre-commit via system package manager..."
