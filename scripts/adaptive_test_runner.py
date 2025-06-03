@@ -11,6 +11,8 @@ import subprocess
 import sys
 from typing import Optional
 
+PYTEST_NO_TESTS_EXIT_CODE = 5
+
 
 class AdaptiveTestRunner:
     """Self-healing test runner with coverage tracking.
@@ -76,7 +78,11 @@ class AdaptiveTestRunner:
             "-v",
             "--tb=short",
         ]
-        return subprocess.call(cmd)
+        result = subprocess.call(cmd)
+        if result == PYTEST_NO_TESTS_EXIT_CODE:
+            print("\u26a0\ufe0f No integration tests were collected")  # noqa: T201
+            return 0
+        return result
 
     def run_group_tests(self, group: str, coverage: bool = True) -> int:
         """Run tests for a specific group directory."""
