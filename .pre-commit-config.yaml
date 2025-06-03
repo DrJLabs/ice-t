@@ -50,6 +50,13 @@ repos:
         types: [text]
         stages: [pre-commit, manual]
 
+      - id: validate-lockfiles
+        name: Validate Lockfiles
+        entry: bash scripts/validate_lockfiles.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, manual]
+
       # Type checking
       - id: mypy
         name: MyPy Type Checking
