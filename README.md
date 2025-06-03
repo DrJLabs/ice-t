@@ -9,30 +9,33 @@ Autonomous high-performance template for web‑app projects driven by Cursor & C
    ```bash
    scripts/setup_dependencies.sh
    ```
-   The script uses Python **3.12** from `.python-version` when available and
-   falls back to `python3` otherwise. It installs both runtime and development
-   requirements.
+The script uses Python **3.12** from `.python-version` when available and
+    falls back to `python3` otherwise. It installs both runtime and development
+    requirements.
 2. Activate the environment:
-   ```bash
-   source .venv/bin/activate
-   ```
+    ```bash
+    source .venv/bin/activate
+    ```
+    > **Note on Requirement Files:** The requirement files (e.g., `requirements.txt`, `dev-requirements.txt`) installed by the setup script are generated via `pip-compile`. If you need to update dependencies, you should modify the input files (e.g., `requirements.in`) and then re-compile them using `pip-compile` *before* running or re-running the setup scripts located in `scripts/setup/`.
+
 3. Copy the sample environment file and edit as needed:
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 4. Install pre-commit hooks:
-   ```bash
-   pre-commit install
-   ```
-   The project expects **pre-commit 4.0 or newer**. Verify with `pre-commit --version`.
-   The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
-   Some security hooks (bandit and safety) may require packages from
-   `dev-requirements.txt`.
+    ```bash
+    pre-commit install
+    ```
+    The project expects **pre-commit 4.0.1 or newer**. Verify with `pre-commit --version`.
+    The hooks rely on **Ruff** for linting and formatting, matching the version pinned in `pyproject.toml`.
+    Some security hooks (bandit and safety) may require packages from
+    `dev-requirements.txt`.
 
-   New hooks mirror the CI job matrix. Trigger them manually when needed:
+    New hooks mirror the CI job matrix. Trigger them manually when needed:
 
-       pre-commit run ice-t-unit-tests
-       pre-commit run ice-t-integration-tests
+        pre-commit run ice-t-unit-tests
+        pre-commit run ice-t-integration-tests
+
 5. Run tests to verify the environment:
    ```bash
     pytest
@@ -71,6 +74,19 @@ Run a specific environment, for example code quality checks:
 ```bash
 tox -e lint
 ```
+
+## Dependency Lock Files
+
+The project uses **pip-tools** to pin dependencies. After editing
+`requirements.in` or `dev-requirements.in`, regenerate the lock files:
+
+```bash
+pip-compile requirements.in
+pip-compile dev-requirements.in
+```
+
+Commit the resulting `requirements.txt` and `dev-requirements.txt`. The CI
+workflows also run these commands to ensure lock files remain current.
 
 ## Diagram Generation
 
@@ -128,4 +144,14 @@ The CI pipelines rely on a pool of self-hosted runners labeled `ice-t` with addi
 
 The long-term roadmap for this repository lives in `CODEX_T_MODERNIZATION_PLAN.md`.
 Review that document regularly to understand current priorities and progress.
+
+## Agents Guides
+
+This repository includes a hierarchy of guides for both human and AI contributors.
+The entry point is [AGENTS.md](AGENTS.md), which links to the AI charter,
+coding conventions and detailed playbooks. These guides explain how to run the
+adaptive test runner and how CI failure logs are captured.
+
+All contributors should consult the agents documentation before changing code or
+documentation to ensure consistency with project rules.
 

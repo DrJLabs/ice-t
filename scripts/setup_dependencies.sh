@@ -22,12 +22,30 @@ source .venv/bin/activate
 
 # Upgrade pip and install dependencies
 echo "⬆️ Upgrading pip and installing dependencies..."
-python -m pip install --upgrade pip setuptools wheel --no-input --no-compile
-python -m pip install --no-input --no-compile -r requirements.txt -r dev-requirements.txt
+python3 -m pip install --upgrade pip setuptools wheel --no-input --no-compile
 
-# Install ice-t in development mode
-echo "🔧 Installing ice-t in development mode..."
-python -m pip install -e .
+# Install dependencies
+if command -v pip-sync >/dev/null 2>&1 && \
+   [ -f requirements.lock ] && [ -f dev-requirements.lock ]; then
+    echo "🔄 Installing dependencies from lock files with pip-sync..."
+    pip-sync requirements.lock dev-requirements.lock
+elif [ -f "requirements.txt" ] && [ -f "dev-requirements.txt" ]; then
+    echo "📦 Installing dependencies from requirements.txt and dev-requirements.txt..."
+    python3 -m pip install --no-input --no-compile -r requirements.txt -r dev-requirements.txt
+else
+    # Fallback if no lock files or requirements.txt files are found.
+    # This assumes project dependencies (including dev) are defined in setup.py or pyproject.toml
+    # and can be installed via extras.
+    echo "📦 No standard lock or requirements files found. Installing dependencies from project definition with 'dev' extras..."
+    python3 -m pip install --no-input --no-compile -e .[dev]
+fi
+
+# Ensure ice-t itself is installed in development mode with its dev dependencies.
+# This step is crucial if the above dependency installation methods
+# (e.g., pip-sync or installing from requirements.txt) do not inherently install
+# the local package in editable mode with its '[dev]' extras.
+echo "🔧 Installing ice-t in development mode with 'dev' extras..."
+python3 -m pip install --no-input --no-compile -e .[dev]
 
 echo "✅ ice-t development environment ready!"
 echo "💡 To activate: source .venv/bin/activate"

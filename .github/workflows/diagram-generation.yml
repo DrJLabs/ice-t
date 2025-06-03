@@ -54,17 +54,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: "🐍 Setup Python Environment"
-        shell: bash
-        run: |
-          set -euo pipefail
-          source .venv/bin/activate || {
-            echo "Virtual environment not found, creating one..."
-            python3 -m venv .venv
-            source .venv/bin/activate
-            pip install --upgrade pip setuptools wheel --no-input --no-compile
-          }
-          pip install --no-input --no-compile -e .
+      - name: "🛠 Setup Dependencies"
+        run: bash scripts/setup_dependencies.sh
 
       - name: "📦 Install Diagram Dependencies"
         shell: bash
