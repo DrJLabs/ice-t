@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "codacy": {
+      "command": "npx",
+      "args": ["-y", "@codacy/codacy-mcp"],
+      "env": {
+        "CODACY_ACCOUNT_TOKEN": "YOUR_TOKEN_HERE",
+        "CODACY_CLI_VERSION": "latest"
+      }
+    }
+  }
+}

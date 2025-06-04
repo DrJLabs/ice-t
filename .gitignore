@@ -358,3 +358,7 @@ deployment-cache/
 *.pstats
 benchmark_results/
 performance_data/
+
+
+#Ignore cursor AI rules
+.cursor/rules/codacy.mdc
